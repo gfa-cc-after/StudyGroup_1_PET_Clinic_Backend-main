@@ -1,1 +1,1 @@
-Project phase - Study Group 1 - Pet Clinic Project
+Project phase - Study Group 1 - Git Pro Workshop
