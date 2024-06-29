@@ -12,15 +12,24 @@ jobs:
       run:
         working-directory: ./
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 21
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+
+      - name: Grant execute permission to gradlew
+        run: chmod +x ./gradlew
+        working-directory: ./
+
+#      - name: Setup Gradle
+#        uses: gradle/actions/setup-gradle@v3
+
       - name: Run Gradle build
         run: ./gradlew build -x test
+        
       - name: Run tests
         run: ./gradlew test
