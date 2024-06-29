@@ -9,7 +9,7 @@ services:
     ports:
       - "3308:3306"
     networks:
-      - springboot-mysql-network
+      - pet_clinic_drama_network
 
   springboot:
     build:
@@ -25,8 +25,8 @@ services:
     depends_on:
       - mysql
     networks:
-      - springboot-mysql-network
+      - pet_clinic_drama_network
 
 networks:
-  springboot-mysql-network:
-    driver: bridge
+  pet_clinic_drama_network:
+    external: true
