@@ -12,8 +12,14 @@ class PetClinicBackendApplicationTests {
     }
 
     @Test
-    void dummyTest(){
+    void goodDummyTest(){
         int x = 1;
+        Assertions.assertEquals(1,x);
+    }
+
+    @Test
+    void failingDummyTest(){
+        int x = 2;
         Assertions.assertEquals(1,x);
     }
 

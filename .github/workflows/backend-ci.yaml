@@ -23,13 +23,9 @@ jobs:
 
       - name: Grant execute permission to gradlew
         run: chmod +x ./gradlew
-        working-directory: ./
-
-#      - name: Setup Gradle
-#        uses: gradle/actions/setup-gradle@v3
 
       - name: Run Gradle build
         run: ./gradlew build -x test
-        
+
       - name: Run tests
         run: ./gradlew test
