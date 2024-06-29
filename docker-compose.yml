@@ -11,11 +11,11 @@ services:
     networks:
       - pet_clinic_drama_network
 
-  springboot:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: springboot-container
+    container_name: backend-container
     ports:
       - "8081:8080"
     environment:
