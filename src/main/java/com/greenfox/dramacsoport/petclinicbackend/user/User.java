@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.entities;
+package com.greenfox.dramacsoport.petclinicbackend.user;
 
 import jakarta.persistence.*;
 import lombok.*;
