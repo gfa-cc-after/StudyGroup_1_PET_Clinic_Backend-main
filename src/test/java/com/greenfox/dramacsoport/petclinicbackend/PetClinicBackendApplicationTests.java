@@ -17,10 +17,10 @@ class PetClinicBackendApplicationTests {
         Assertions.assertEquals(1,x);
     }
 
-    @Test
-    void failingDummyTest(){
-        int x = 2;
-        Assertions.assertEquals(1,x);
-    }
+//    @Test
+//    void failingDummyTest(){
+//        int x = 2;
+//        Assertions.assertEquals(1,x);
+//    }
 
 }
