@@ -9,9 +9,4 @@ public class MainController {
     public String index() {
         return "index";
     }
-
-    @GetMapping("/reg")
-    public String register() {
-        return "registration";
-    }
 }
