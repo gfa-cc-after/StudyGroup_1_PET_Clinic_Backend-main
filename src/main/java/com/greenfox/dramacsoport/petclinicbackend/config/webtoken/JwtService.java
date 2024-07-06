@@ -1,17 +1,12 @@
-package com.greenfox.dramacsoport.petclinicbackend.services;
+package com.greenfox.dramacsoport.petclinicbackend.config.webtoken;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.security.Key;
-import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private static final String SECRET_KEY = "KRUu+r69vxBPbCynsqu1PXbzBgxgx1ccbfagALG34i0=";
+    @Value("${SECRET_KEY}")
+    private static String SECRET_KEY;
 
 //    public String extractUsername(String token) {
 //        return null;
