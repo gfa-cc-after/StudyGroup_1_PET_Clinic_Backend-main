@@ -1,33 +1,65 @@
 package com.greenfox.dramacsoport.petclinicbackend.config.webtoken;
 
+import com.greenfox.dramacsoport.petclinicbackend.services.MyUserDetailService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-@Service
-public class JwtService {
-    @Value("${SECRET_KEY}")
-    private static String SECRET_KEY;
+import javax.crypto.SecretKey;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
-//    public String extractUsername(String token) {
-//        return null;
-//    }
-//
-//    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-//        final Claims claims = extractAllClaims(token);
-//        return claimsResolver.apply(claims);
-//    }
-//
-//    private Claims extractAllClaims(String token) {
-//        return Jwts
-//                .parserBuilder()
-//                .setSigningKey(getSignInKey())
-//                .build()
-//                .parseClaimsJws(token)
-//                .getBody();
-//    }
-//
-//    private Key getSignInKey() {
-//        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-//        return Keys.hmacShaKeyFor(keyBytes);
-//    }
+@Service
+@Configuration
+public class JwtService {
+    @Autowired
+    private MyUserDetailService myUserDetailService;
+    @Value("${jwt.secret}")
+    private String SECRET_KEY;
+    private static final long VALIDITY = TimeUnit.MINUTES.toMillis(30);
+
+    public String generateToken(UserDetails userDetails) {
+        Map<String, String> claims = new HashMap<>();
+        GrantedAuthority firstAuthority = userDetails.getAuthorities().iterator().next();
+        String firstAuthorityName = firstAuthority.getAuthority();
+        claims.put("role", firstAuthorityName);
+        return Jwts.builder()
+                .claims(claims)
+                .subject(userDetails.getUsername())
+                .issuedAt(Date.from(Instant.now()))
+                .expiration(Date.from(Instant.now().plusMillis(VALIDITY)))
+                .signWith(generateKey())
+                .compact();
+    }
+
+    private SecretKey generateKey() {
+        System.out.println(SECRET_KEY);
+        byte[] decodedKey = Base64.getDecoder().decode(SECRET_KEY);
+        return Keys.hmacShaKeyFor(decodedKey);
+    }
+
+    public String extractUsername(String jwt) {
+        Claims claims = getClaims(jwt);
+        return claims.getSubject();
+    }
+
+    private Claims getClaims(String jwt) {
+        return Jwts.parser()
+                .verifyWith(generateKey())
+                .build()
+                .parseSignedClaims(jwt)
+                .getPayload();
+    }
+
+    public boolean isTokenValid(String jwt) {
+        Claims claims = getClaims(jwt);
+        return claims.getExpiration().after(Date.from(Instant.now()));
+    }
 }

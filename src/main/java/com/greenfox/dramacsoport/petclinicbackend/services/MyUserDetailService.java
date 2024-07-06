@@ -15,9 +15,14 @@ public class MyUserDetailService implements UserDetailsService {
     @Autowired
     private MyUserRepository repository;
 
+    /**
+     * This User is a build in DTO from UserDetails (NOT our MyUser)
+     * @param email
+     * @return UserDetails Object with email as username
+     */
     @Override
     public UserDetails loadUserByUsername(String email) {
-        MyUser user = repository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        MyUser user = repository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Bad credentials"));
 
         return User.builder()
                 .username(user.getEmail())
