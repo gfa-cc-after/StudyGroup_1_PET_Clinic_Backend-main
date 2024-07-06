@@ -1,5 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
+
+import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtAuthenticationFilter;
 import com.greenfox.dramacsoport.petclinicbackend.services.MyUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -9,17 +11,17 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfiguration {
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Autowired
     private MyUserDetailService userDetailService;
@@ -34,12 +36,12 @@ public class SecurityConfiguration {
                     registry.requestMatchers("/user/**").hasAnyRole("USER", "ADMIN");
                     registry.anyRequest().authenticated();
                 })
-                .formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
+//                .formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
 //                .formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer
 //                        .loginPage("/login")
 //                        .successHandler(new AuthenticationSuccessHandler())
 //                        .permitAll())
-                //.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

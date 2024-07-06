@@ -24,10 +24,10 @@ public class AuthenticationController {
     @PostMapping("/authenticate")
     public String authenticateAndGetToken(@RequestBody LoginForm loginForm) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginForm.username(), loginForm.password()
+                loginForm.email(), loginForm.password()
         ));
         if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(myUserDetailService.loadUserByUsername(loginForm.username()));
+            return jwtService.generateToken(myUserDetailService.loadUserByUsername(loginForm.email()));
         } else {
             throw new UsernameNotFoundException("Invalid credentials");
         }
