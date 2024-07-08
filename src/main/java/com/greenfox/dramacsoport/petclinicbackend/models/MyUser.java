@@ -8,13 +8,15 @@ import lombok.*;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Setter
+@Getter
 public class MyUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false, unique = true)
     private String email;
-    //private String username;
+    private String username;
     @Column(nullable = false)
     private String password;
     @Enumerated(EnumType.STRING)
