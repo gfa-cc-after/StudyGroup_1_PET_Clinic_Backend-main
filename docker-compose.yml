@@ -29,4 +29,5 @@ services:
 
 networks:
   pet_clinic_drama_network:
-    external: true
+    name: pet_clinic_drama_network
+    # external: true

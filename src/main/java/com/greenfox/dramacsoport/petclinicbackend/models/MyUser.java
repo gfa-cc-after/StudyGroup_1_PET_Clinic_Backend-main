@@ -1,7 +1,10 @@
 package com.greenfox.dramacsoport.petclinicbackend.models;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
@@ -18,5 +21,5 @@ public class MyUser {
     @Column(nullable = false)
     private String password;
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Role role = Role.USER;
 }
