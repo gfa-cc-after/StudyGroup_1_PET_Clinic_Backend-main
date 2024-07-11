@@ -22,11 +22,12 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-container:3306/pc_db
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
+      JWT.SECRET: ${SECRET_KEY}
     depends_on:
       - mysql
     networks:
       - pet_clinic_drama_network
 
-#networks:
-#  pet_clinic_drama_network:
+networks:
+  pet_clinic_drama_network:
 #    external: true
