@@ -8,8 +8,6 @@ import lombok.*;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@Getter
 public class MyUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,5 +18,5 @@ public class MyUser {
     @Column(nullable = false)
     private String password;
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Role role = Role.USER;
 }
