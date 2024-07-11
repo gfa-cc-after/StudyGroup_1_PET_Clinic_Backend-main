@@ -1,18 +1,13 @@
 package com.greenfox.dramacsoport.petclinicbackend.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Builder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@Getter
 public class MyUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

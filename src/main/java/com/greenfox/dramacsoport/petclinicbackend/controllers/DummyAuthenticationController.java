@@ -1,10 +1,10 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
-import com.greenfox.dramacsoport.petclinicbackend.models.MyUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.MyUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -31,11 +31,4 @@ public class DummyAuthenticationController {
     public String handleUserHome() {
         return "home_user";
     }
-
-//    @PostMapping("/register")
-//    @ResponseBody
-//    public MyUser createUser(@RequestBody MyUser user) {
-//        user.setPassword(passwordEncoder.encode(user.getPassword()));
-//        return myUserRepository.save(user);
-//    }
 }
