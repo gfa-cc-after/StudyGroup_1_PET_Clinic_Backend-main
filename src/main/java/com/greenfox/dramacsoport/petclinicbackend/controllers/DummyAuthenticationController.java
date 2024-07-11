@@ -34,10 +34,10 @@ public class DummyAuthenticationController {
         return "home_user";
     }
 
-    @PostMapping("/register")
-    @ResponseBody
-    public MyUser createUser(@RequestBody MyUser user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return myUserRepository.save(user);
-    }
+//    @PostMapping("/register")
+//    @ResponseBody
+//    public MyUser createUser(@RequestBody MyUser user) {
+//        user.setPassword(passwordEncoder.encode(user.getPassword()));
+//        return myUserRepository.save(user);
+//    }
 }
