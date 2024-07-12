@@ -2,25 +2,22 @@ package com.greenfox.dramacsoport.petclinicbackend.services;
 
 import com.greenfox.dramacsoport.petclinicbackend.models.MyUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.MyUserRepository;
-import org.hibernate.cfg.Environment;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.mail.SimpleMailMessage;
 
+@RequiredArgsConstructor
 @Service
 public class MyUserService {
-    @Autowired
-    private MyUserRepository myUserRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final MyUserRepository myUserRepository;
 
-    @Autowired
-    private JavaMailSender javaMailSender;
+    private final PasswordEncoder passwordEncoder;
+
+    private final JavaMailSender javaMailSender;
 
     @Value("${spring.mail.username}")
     private String petClinicEmail;
@@ -54,7 +51,6 @@ public class MyUserService {
                 "Thank you for registering to our Pet Clinic application!\n\n" +
                 "Best regards,\n" +
                 "Pet Clinic Team");
-
         javaMailSender.send(message);
     }
 
