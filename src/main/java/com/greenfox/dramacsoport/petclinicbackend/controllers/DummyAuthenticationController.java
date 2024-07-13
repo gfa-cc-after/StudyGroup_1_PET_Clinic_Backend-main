@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@CrossOrigin("http://localhost:8082")
 public class DummyAuthenticationController {
     // TODO - after proper test cases this Controller can be deleted
 

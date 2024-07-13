@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin("https://drama-frontend.up.railway.app/")
 @RestController
 public class RegisterController {
 
@@ -31,7 +30,7 @@ public class RegisterController {
             return ResponseEntity.badRequest().body("All fields are required.");
         }
 //        If no user is stored with that data store it in the database.
-        myUserService.saveUser(user);  //DTO
+        myUserService.saveUser(user);                                                   //TODO We should create a DTO
         return ResponseEntity.ok().body("User registered");
     }
 }
