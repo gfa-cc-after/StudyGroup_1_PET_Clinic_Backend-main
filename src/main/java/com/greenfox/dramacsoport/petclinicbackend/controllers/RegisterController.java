@@ -26,7 +26,7 @@ public class RegisterController {
         }
 
 //        If even one field is not filled then show an error message.
-        if (myUserService.isMissingCredential(user)){
+        if (myUserService.isMissingRegisterCredential(user)){
             return ResponseEntity.badRequest().body("All fields are required.");
         }
 //        If no user is stored with that data store it in the database.

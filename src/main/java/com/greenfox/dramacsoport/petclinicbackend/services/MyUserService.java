@@ -26,8 +26,16 @@ public class MyUserService {
         return myUserRepository.findByEmail(email).isPresent();
     }
 
+    public MyUser returnUser (String email){
+        return myUserRepository.findByEmail(email).get();
+    }
+
     public boolean isPasswordLongerThanThreeChar(String password){
         return password.length() > 3;
+    }
+
+    public boolean isPasswordNotMatching(String email, String password) {
+        return !passwordEncoder.matches(password, myUserRepository.findByEmail(email).get().getPassword());
     }
 
     public MyUser saveUser(MyUser user){
@@ -36,9 +44,15 @@ public class MyUserService {
         return myUserRepository.save(user);
     }
 
-    public boolean isMissingCredential(MyUser user){
+    public boolean isMissingRegisterCredential(MyUser user){
         return     user.getEmail() == null || user.getEmail().isEmpty()
                 || user.getUsername() == null || user.getUsername().isEmpty()
+                || user.getPassword() == null || user.getPassword().isEmpty();
+    }
+
+
+    public boolean isMissingLoginCredential(MyUser user){
+        return     user.getEmail() == null || user.getEmail().isEmpty()
                 || user.getPassword() == null || user.getPassword().isEmpty();
     }
 
