@@ -4,8 +4,11 @@ import com.greenfox.dramacsoport.petclinicbackend.models.MyUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.services.MyUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @CrossOrigin("http://localhost:8082")
 @RestController
@@ -35,9 +38,13 @@ public class LoginController {
 
                 // Check user role and redirect accordingly
                 if (registeredUser.getRole().equals(Role.ADMIN)) {
-                    return ResponseEntity.ok().body("Redirect to: /admin/home");
+                    return ResponseEntity.status(HttpStatus.FOUND)
+                            .location(URI.create("/admin/home"))
+                            .build();
                 } else if (registeredUser.getRole().equals(Role.USER)) {
-                    return ResponseEntity.ok().body("Redirect to: /user/home");
+                    return ResponseEntity.status(HttpStatus.FOUND)
+                            .location(URI.create("/user/home"))
+                            .build();
                 } else {
                     return ResponseEntity.badRequest().body("User role is not recognized.");
                 }
