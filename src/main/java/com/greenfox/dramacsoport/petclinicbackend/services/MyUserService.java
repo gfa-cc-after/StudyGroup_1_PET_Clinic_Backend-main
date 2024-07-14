@@ -27,6 +27,10 @@ public class MyUserService {
         return password.length() > 3;
     }
 
+    public boolean isPasswordNotMatching(String email, String password) {
+        return !passwordEncoder.matches(password, myUserRepository.findByEmail(email).get().getPassword());
+    }
+
     public MyUser saveUser(MyUser user){
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return myUserRepository.save(user);

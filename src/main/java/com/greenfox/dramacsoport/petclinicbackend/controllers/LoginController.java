@@ -26,9 +26,9 @@ public class LoginController {
                 return ResponseEntity.badRequest().body("All fields are required.");
             }
 
-//        If the password is only 3 characters long show an error message.
-            if (!myUserService.isPasswordLongerThanThreeChar(user.getPassword())){
-                return ResponseEntity.badRequest().body("Password must be longer than 3 characters.");
+//        If the password is incorrect.
+            if (myUserService.isPasswordNotMatching(user.getEmail(), user.getPassword())) {
+                return ResponseEntity.badRequest().body("Password is incorrect.");
             }
 
 //        If the user is registered, it redirects to home page.
