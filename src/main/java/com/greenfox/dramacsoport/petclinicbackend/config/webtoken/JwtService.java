@@ -5,7 +5,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import java.security.SecureRandom;
+import java.util.Base64;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,8 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class JwtService {
     @Autowired
     private MyUserDetailService myUserDetailService;
-    @Value("${jwt.secret}")
-    private String SECRET_KEY;
+    private final String secretKey = secretKeyGenerator();
     private static final long VALIDITY = TimeUnit.MINUTES.toMillis(30);
 
     public String generateToken(UserDetails userDetails) {
@@ -40,7 +40,7 @@ public class JwtService {
     }
 
     private SecretKey generateKey() {
-        byte[] decodedKey = Base64.getDecoder().decode(SECRET_KEY);
+        byte[] decodedKey = Base64.getDecoder().decode(secretKey);
         return Keys.hmacShaKeyFor(decodedKey);
     }
 
@@ -60,5 +60,12 @@ public class JwtService {
     public boolean isTokenValid(String jwt) {
         Claims claims = getClaims(jwt);
         return claims.getExpiration().after(Date.from(Instant.now()));
+    }
+
+    private String secretKeyGenerator() {
+        SecureRandom random = new SecureRandom();
+        byte[] key = new byte[32]; // 256 bits
+        random.nextBytes(key);
+        return Base64.getEncoder().encodeToString(key);
     }
 }
