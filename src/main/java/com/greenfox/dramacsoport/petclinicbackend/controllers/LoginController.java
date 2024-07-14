@@ -21,18 +21,17 @@ public class LoginController {
         @ResponseBody
         public ResponseEntity<?> loginUser(@RequestBody MyUser user) {
 
-//        If the user is already created redirect to home page.
+//        If even one field is not filled then show an error message.
+            if (myUserService.isMissingLoginCredential(user)){
+                return ResponseEntity.badRequest().body("All fields are required.");
+            }
 
 //        If the password is only 3 characters long show an error message.
             if (!myUserService.isPasswordLongerThanThreeChar(user.getPassword())){
                 return ResponseEntity.badRequest().body("Password must be longer than 3 characters.");
             }
 
-//        If even one field is not filled then show an error message.
-            if (myUserService.isMissingLoginCredential(user)){
-                return ResponseEntity.badRequest().body("All fields are required.");
-            }
-// If the user is registered, it redirects to home page.
+//        If the user is registered, it redirects to home page.
             if (myUserService.isUserRegistered(user.getEmail())) {
                 MyUser registeredUser = myUserService.returnUser(user.getEmail());
 
