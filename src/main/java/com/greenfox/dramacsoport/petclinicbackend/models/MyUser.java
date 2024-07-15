@@ -20,7 +20,8 @@ public class MyUser {
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
 
-    public MyUser(String email, String password) {
+    public MyUser(String username,String email, String password) {
+        this.username = username;
         this.email = email;
         this.password = password;
     }

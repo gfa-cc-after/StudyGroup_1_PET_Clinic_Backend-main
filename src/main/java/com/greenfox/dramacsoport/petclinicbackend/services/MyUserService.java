@@ -5,6 +5,7 @@ import com.greenfox.dramacsoport.petclinicbackend.models.MyUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.MyUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,7 +28,9 @@ public class MyUserService {
     private String petClinicEmail;
 
     public MyUser convertToMyUser(RegisterDTO registerDTO) {
-        return modelMapper.map(registerDTO, MyUser.class);
+        //MyUser myUser = modelMapper.map(registerDTO, new MyUser().getClass());
+        MyUser myUser = new MyUser(registerDTO.username(), registerDTO.email(), registerDTO.password());
+        return myUser;
     }
 
     public RegisterDTO convertToRegisterDTO(MyUser myUser) {
@@ -47,7 +50,8 @@ public class MyUserService {
     }
 
     public MyUser registerUser(RegisterDTO regUser) {
-        return saveUser(convertToMyUser(regUser));
+        MyUser myUser = convertToMyUser(regUser);
+        return saveUser(myUser);
     }
 
     public MyUser saveUser(MyUser user) {
