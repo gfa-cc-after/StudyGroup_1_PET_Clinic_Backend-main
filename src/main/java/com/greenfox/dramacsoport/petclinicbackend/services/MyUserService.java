@@ -3,7 +3,6 @@ package com.greenfox.dramacsoport.petclinicbackend.services;
 import com.greenfox.dramacsoport.petclinicbackend.models.MyUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.MyUserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,13 +30,17 @@ public class MyUserService {
         return password.length() > 3;
     }
 
+    public boolean isPasswordMatching(String email, String password) {
+        return passwordEncoder.matches(password, myUserRepository.findByEmail(email).get().getPassword());
+    }
+
     public MyUser saveUser(MyUser user){
         sendEmailAfterRegistration(user);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return myUserRepository.save(user);
     }
 
-    public boolean isMissingCredential(MyUser user){
+    public boolean isMissingRegisterCredential(MyUser user){
         return     user.getEmail() == null || user.getEmail().isEmpty()
                 || user.getUsername() == null || user.getUsername().isEmpty()
                 || user.getPassword() == null || user.getPassword().isEmpty();
@@ -54,5 +57,4 @@ public class MyUserService {
                 "Pet Clinic Team");
         javaMailSender.send(message);
     }
-
 }
