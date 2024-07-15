@@ -26,16 +26,12 @@ public class MyUserService {
         return myUserRepository.findByEmail(email).isPresent();
     }
 
-    public MyUser returnUser (String email){
-        return myUserRepository.findByEmail(email).get();
-    }
-
     public boolean isPasswordLongerThanThreeChar(String password){
         return password.length() > 3;
     }
 
-    public boolean isPasswordNotMatching(String email, String password) {
-        return !passwordEncoder.matches(password, myUserRepository.findByEmail(email).get().getPassword());
+    public boolean isPasswordMatching(String email, String password) {
+        return passwordEncoder.matches(password, myUserRepository.findByEmail(email).get().getPassword());
     }
 
     public MyUser saveUser(MyUser user){
@@ -50,12 +46,6 @@ public class MyUserService {
                 || user.getPassword() == null || user.getPassword().isEmpty();
     }
 
-
-    public boolean isMissingLoginCredential(MyUser user){
-        return     user.getEmail() == null || user.getEmail().isEmpty()
-                || user.getPassword() == null || user.getPassword().isEmpty();
-    }
-
     private void sendEmailAfterRegistration(MyUser user){
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(petClinicEmail);
@@ -67,5 +57,4 @@ public class MyUserService {
                 "Pet Clinic Team");
         javaMailSender.send(message);
     }
-
 }
