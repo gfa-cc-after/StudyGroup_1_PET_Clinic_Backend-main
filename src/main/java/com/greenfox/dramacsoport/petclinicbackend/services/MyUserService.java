@@ -34,11 +34,11 @@ public class MyUserService {
         return modelMapper.map(myUser, RegisterDTO.class);
     }
 
-    public boolean isUserRegistered (String email){
+    public boolean isUserRegistered(String email) {
         return myUserRepository.findByEmail(email).isPresent();
     }
 
-    public boolean isPasswordLongerThanThreeChar(String password){
+    public boolean isPasswordLongerThanThreeChar(String password) {
         return password.length() > 3;
     }
 
@@ -46,24 +46,28 @@ public class MyUserService {
         return passwordEncoder.matches(password, myUserRepository.findByEmail(email).get().getPassword());
     }
 
-    public MyUser saveUser(MyUser user){
+    public MyUser registerUser(RegisterDTO regUser) {
+        return saveUser(convertToMyUser(regUser));
+    }
+
+    public MyUser saveUser(MyUser user) {
         sendEmailAfterRegistration(user);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return myUserRepository.save(user);
     }
 
-    public boolean isMissingRegisterCredential(MyUser user){
-        return     user.getEmail() == null || user.getEmail().isEmpty()
-                || user.getUsername() == null || user.getUsername().isEmpty()
-                || user.getPassword() == null || user.getPassword().isEmpty();
+    public boolean isMissingRegisterCredential(RegisterDTO user) {
+        return user.email() == null || user.email().isEmpty()
+                || user.username() == null || user.username().isEmpty()
+                || user.password() == null || user.password().isEmpty();
     }
 
-    private void sendEmailAfterRegistration(MyUser user){
+    private void sendEmailAfterRegistration(MyUser user) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(petClinicEmail);
         message.setTo(user.getEmail());
         message.setSubject("Registration successful - Pet Clinic");
-        message.setText("Dear " + user.getUsername()+ ",\n\n" +
+        message.setText("Dear " + user.getUsername() + ",\n\n" +
                 "Thank you for registering to our Pet Clinic application!\n\n" +
                 "Best regards,\n" +
                 "Pet Clinic Team");

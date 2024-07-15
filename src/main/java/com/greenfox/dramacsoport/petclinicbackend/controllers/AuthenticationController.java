@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
 import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
-import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.LoginForm;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginForm;
 import com.greenfox.dramacsoport.petclinicbackend.services.MyUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
