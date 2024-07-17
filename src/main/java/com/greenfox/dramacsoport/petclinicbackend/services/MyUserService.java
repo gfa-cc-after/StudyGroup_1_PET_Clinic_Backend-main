@@ -62,10 +62,8 @@ public class MyUserService {
     }
 
     public boolean isPasswordMatching(String email, String password) {
-        return passwordEncoder.matches(password, myUserRepository.findByEmail(email).get().getPassword());
+        return passwordEncoder.matches(password, myUserRepository.findByEmail(email).orElseThrow().getPassword());
     }
-
-
 
     public boolean isMissingRegisterCredential(RegisterRequestDTO userDTO){
         return     userDTO.getEmail() == null || userDTO.getEmail().isEmpty()
