@@ -49,7 +49,7 @@ public class MyUserService {
         return myUserRepository.findByEmail(email).isPresent();
     }
 
-    public boolean isPasswordLongerThanThreeChar(String password){
+    public boolean isPasswordLongerThanThreeChar(String password) {
         return password.length() > 3;
     }
 
