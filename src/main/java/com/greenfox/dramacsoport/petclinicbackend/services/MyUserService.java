@@ -4,6 +4,7 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.models.MyUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.MyUserRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,12 +17,23 @@ public class MyUserService {
 
     private final MyUserRepository myUserRepository;
 
+    private final ModelMapper modelMapper = new ModelMapper();
+
     private final PasswordEncoder passwordEncoder;
 
     private final JavaMailSender javaMailSender;
 
     @Value("${spring.mail.username}")
     private String petClinicEmail;
+
+    /**
+     * Convert any user related DTO to the Entity object used by this Service
+     * @param sourceDTO the DTO, you want to convert
+     * @return MyUser entity
+     */
+    private <T> MyUser convertToEntity(T sourceDTO){
+        return modelMapper.map(sourceDTO, MyUser.class);
+    }
 
     public MyUser saveUser(MyUser user){
         return myUserRepository.save(user);
@@ -35,12 +47,8 @@ public class MyUserService {
      * @param userRequest the user object created from the registration form
      */
     public MyUser registerUser(RegisterRequestDTO userRequest){
-        MyUser newUser = MyUser.builder()
-                .username(userRequest.getUsername())
-                .email(userRequest.getEmail())
-                .password(passwordEncoder.encode(userRequest.getPassword()))
-                .role(userRequest.getRole())
-                .build();
+        MyUser newUser = convertToEntity(userRequest);
+        newUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         sendEmailAfterRegistration(newUser);
         return saveUser(newUser);
     }
