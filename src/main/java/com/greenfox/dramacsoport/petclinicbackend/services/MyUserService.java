@@ -1,5 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.services;
 
+import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.models.MyUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.MyUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,27 @@ public class MyUserService {
     @Value("${spring.mail.username}")
     private String petClinicEmail;
 
+    public MyUser saveUser(MyUser user){
+        return myUserRepository.save(user);
+    }
+
+    /** This method registers a new user.
+     * Saves the input fields and encodes the password for storage.
+     * After the entity has been created, the application sends a greeting email
+     * to the e-mail address of the new user.
+     *
+     * @param userRequest the user object created from the registration form
+     */
+    public MyUser registerUser(RegisterRequestDTO userRequest){
+        MyUser newUser = MyUser.builder()
+                .username(userRequest.username())
+                .email(userRequest.email())
+                .password(passwordEncoder.encode(userRequest.password()))
+                .build();
+        sendEmailAfterRegistration(newUser);
+        return saveUser(newUser);
+    }
+
     public boolean isUserRegistered (String email){
         return myUserRepository.findByEmail(email).isPresent();
     }
@@ -34,11 +56,7 @@ public class MyUserService {
         return passwordEncoder.matches(password, myUserRepository.findByEmail(email).get().getPassword());
     }
 
-    public MyUser saveUser(MyUser user){
-        sendEmailAfterRegistration(user);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return myUserRepository.save(user);
-    }
+
 
     public boolean isMissingRegisterCredential(MyUser user){
         return     user.getEmail() == null || user.getEmail().isEmpty()
