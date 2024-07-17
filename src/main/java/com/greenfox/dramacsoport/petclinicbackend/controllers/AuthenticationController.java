@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
 import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
-import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.LoginForm;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.services.MyUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,12 +22,12 @@ public class AuthenticationController {
     private MyUserDetailService myUserDetailService;
 
     @PostMapping("/authenticate")
-    public String authenticateAndGetToken(@RequestBody LoginForm loginForm) {
+    public String authenticateAndGetToken(@RequestBody LoginRequestDTO loginRequestDTO) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginForm.email(), loginForm.password()
+                loginRequestDTO.email(), loginRequestDTO.password()
         ));
         if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(myUserDetailService.loadUserByUsername(loginForm.email()));
+            return jwtService.generateToken(myUserDetailService.loadUserByUsername(loginRequestDTO.email()));
         } else {
             throw new UsernameNotFoundException("Invalid credentials");
         }
