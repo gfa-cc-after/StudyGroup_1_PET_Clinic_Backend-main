@@ -36,9 +36,10 @@ public class MyUserService {
      */
     public MyUser registerUser(RegisterRequestDTO userRequest){
         MyUser newUser = MyUser.builder()
-                .username(userRequest.username())
-                .email(userRequest.email())
-                .password(passwordEncoder.encode(userRequest.password()))
+                .username(userRequest.getUsername())
+                .email(userRequest.getEmail())
+                .password(passwordEncoder.encode(userRequest.getPassword()))
+                .role(userRequest.getRole())
                 .build();
         sendEmailAfterRegistration(newUser);
         return saveUser(newUser);
@@ -58,10 +59,10 @@ public class MyUserService {
 
 
 
-    public boolean isMissingRegisterCredential(MyUser user){
-        return     user.getEmail() == null || user.getEmail().isEmpty()
-                || user.getUsername() == null || user.getUsername().isEmpty()
-                || user.getPassword() == null || user.getPassword().isEmpty();
+    public boolean isMissingRegisterCredential(RegisterRequestDTO userDTO){
+        return     userDTO.getEmail() == null || userDTO.getEmail().isEmpty()
+                || userDTO.getUsername() == null || userDTO.getUsername().isEmpty()
+                || userDTO.getPassword() == null || userDTO.getPassword().isEmpty();
     }
 
     private void sendEmailAfterRegistration(MyUser user){
