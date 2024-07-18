@@ -1,7 +1,5 @@
 package com.greenfox.dramacsoport.petclinicbackend.services;
 
-import ch.qos.logback.core.boolex.EvaluationException;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.models.MyUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.MyUserRepository;
