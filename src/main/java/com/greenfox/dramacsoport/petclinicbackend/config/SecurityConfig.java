@@ -28,7 +28,7 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SecurityConfiguration implements WebMvcConfigurer {
+public class SecurityConfig implements WebMvcConfigurer {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
