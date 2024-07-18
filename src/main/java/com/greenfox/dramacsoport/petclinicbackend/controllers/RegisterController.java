@@ -30,7 +30,7 @@ public class RegisterController {
             return ResponseEntity.badRequest().body("All fields are required.");
         }
 //        If no user is stored with that data store it in the database.
-        myUserService.registerUser(newUserDTO);                                                   //TODO We should create a DTO
+        myUserService.registerUser(newUserDTO);
         return ResponseEntity.ok().body("User registered");
     }
 }
