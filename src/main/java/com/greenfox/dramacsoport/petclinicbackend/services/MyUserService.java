@@ -56,6 +56,7 @@ public class MyUserService {
      * @param userRequest the user object created from the registration form
      */
     public MyUser registerUser(RegisterRequestDTO userRequest) throws RuntimeException {
+        //TODO make a validation class
         if (isMissingRegisterCredential(userRequest)) {
             throw new RuntimeException("All fields are required.", new NullPointerException());
         }

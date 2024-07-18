@@ -20,7 +20,7 @@ public class LoginController {
     private MyUserDetailService myUserDetailService;
 
     @PostMapping("/login")
-        public ResponseEntity<?> loginUser(@RequestBody LoginRequestDTO requestDTO) {
+        public ResponseEntity<?> loginUser(@RequestBody LoginRequestDTO requestDTO) { //TODO remove business logic from here
 //        If user is not in the database, throws error.
             if (!myUserService.isUserRegistered(requestDTO.email())) {
                 return ResponseEntity.badRequest().body("User is not registered");
