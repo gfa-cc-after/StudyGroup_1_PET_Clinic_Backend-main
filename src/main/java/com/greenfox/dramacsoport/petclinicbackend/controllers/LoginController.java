@@ -1,11 +1,11 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
-import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.services.AppUserDetailService;
 import com.greenfox.dramacsoport.petclinicbackend.services.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,26 +13,15 @@ public class LoginController {
 
     @Autowired
     private AppUserService appUserService;
-    @Autowired
-    private JwtService jwtService;
-    @Autowired
-    private AppUserDetailService appUserDetailService;
-
 
     @PostMapping("/login")
-        public ResponseEntity<?> loginUser(@RequestBody LoginRequestDTO requestDTO) { //TODO remove business logic from here
-//        If user is not in the database, throws error.
-            if (!myUserService.isUserRegistered(requestDTO.email())) {
-                return ResponseEntity.badRequest().body("User is not registered");
-            }
-
-            if (myUserService.isPasswordMatching(requestDTO.email(), requestDTO.password())) {
-                return ResponseEntity.ok().body(jwtService.generateToken(myUserDetailService.loadUserByUsername(requestDTO.email())));
-            } else {
-                //        If the password is incorrect.
-                return ResponseEntity.badRequest().body("Bad credentials!");
-            }
+    public ResponseEntity<String> loginUser(@RequestBody LoginRequestDTO requestDTO) {
+        ResponseEntity<String> response;
+        try {
+            response = ResponseEntity.ok(appUserService.login(requestDTO));
+        } catch (UsernameNotFoundException e) {
+            response = new ResponseEntity<>("Bad credentials!", HttpStatus.UNAUTHORIZED);
         }
+        return response;
+    }
 }
-
-

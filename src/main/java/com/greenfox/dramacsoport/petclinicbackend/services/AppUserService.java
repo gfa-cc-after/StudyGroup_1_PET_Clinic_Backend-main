@@ -1,5 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.services;
 
+import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
@@ -7,6 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.mail.SimpleMailMessage;
@@ -19,9 +26,15 @@ public class AppUserService {
 
     private final AppUserRepository appUserRepository;
 
+    private final AppUserDetailService appUserDetailService;
+
     private final ModelMapper modelMapper = new ModelMapper();
 
     private final PasswordEncoder passwordEncoder;
+
+    private final AuthenticationManager authenticationManager;
+
+    private final JwtService jwtService;
 
     private final JavaMailSender javaMailSender;
 
@@ -104,4 +117,16 @@ public class AppUserService {
                 "Pet Clinic Team");
         javaMailSender.send(message);
     }
+
+    public String login(LoginRequestDTO requestDTO) throws UsernameNotFoundException {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(requestDTO.email(), requestDTO.password())
+            );
+            return jwtService.generateToken(appUserDetailService.loadUserByUsername(requestDTO.email()));
+        } catch (AuthenticationException e) {
+            throw new UsernameNotFoundException("Authentication failed!");
+        }
+    }
+
 }
