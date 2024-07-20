@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.services;
 
-import com.greenfox.dramacsoport.petclinicbackend.models.MyUser;
-import com.greenfox.dramacsoport.petclinicbackend.repositories.MyUserRepository;
+import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
+import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,10 +10,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MyUserDetailService implements UserDetailsService {
+public class AppUserDetailService implements UserDetailsService {
 
     @Autowired
-    private MyUserRepository repository;
+    private AppUserRepository repository;
 
     /**
      * This User is a build in DTO from UserDetails (NOT our MyUser)
@@ -22,7 +22,7 @@ public class MyUserDetailService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String email) {
-        MyUser user = repository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Bad credentials"));
+        AppUser user = repository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Bad credentials"));
 
         return User.builder()
                 .username(user.getEmail())

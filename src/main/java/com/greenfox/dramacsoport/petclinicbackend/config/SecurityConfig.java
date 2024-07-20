@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
 import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtAuthenticationFilter;
-import com.greenfox.dramacsoport.petclinicbackend.services.MyUserDetailService;
+import com.greenfox.dramacsoport.petclinicbackend.services.AppUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +33,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     @Autowired
-    private MyUserDetailService userDetailService;
+    private AppUserDetailService userDetailService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {

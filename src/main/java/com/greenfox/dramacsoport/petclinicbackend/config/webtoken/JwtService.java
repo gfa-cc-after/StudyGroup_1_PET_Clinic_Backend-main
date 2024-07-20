@@ -1,6 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.config.webtoken;
 
-import com.greenfox.dramacsoport.petclinicbackend.services.MyUserDetailService;
+import com.greenfox.dramacsoport.petclinicbackend.services.AppUserDetailService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class JwtService {
     @Autowired
-    private MyUserDetailService myUserDetailService;
+    private AppUserDetailService appUserDetailService;
     private final String secretKey = secretKeyGenerator();
     private static final long VALIDITY = TimeUnit.MINUTES.toMillis(30);
 

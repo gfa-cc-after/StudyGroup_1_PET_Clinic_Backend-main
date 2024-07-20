@@ -1,8 +1,8 @@
 package com.greenfox.dramacsoport.petclinicbackend.services;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.models.MyUser;
-import com.greenfox.dramacsoport.petclinicbackend.repositories.MyUserRepository;
+import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
+import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,9 +15,9 @@ import javax.naming.NameAlreadyBoundException;
 
 @RequiredArgsConstructor
 @Service
-public class MyUserService {
+public class AppUserService {
 
-    private final MyUserRepository myUserRepository;
+    private final AppUserRepository appUserRepository;
 
     private final ModelMapper modelMapper = new ModelMapper();
 
@@ -34,12 +34,12 @@ public class MyUserService {
      * @param sourceDTO the DTO, you want to convert
      * @return MyUser entity
      */
-    private <T> MyUser convertToEntity(T sourceDTO) {
-        return modelMapper.map(sourceDTO, MyUser.class);
+    private <T> AppUser convertToEntity(T sourceDTO) {
+        return modelMapper.map(sourceDTO, AppUser.class);
     }
 
-    public MyUser saveUser(MyUser user) {
-        return myUserRepository.save(user);
+    public AppUser saveUser(AppUser user) {
+        return appUserRepository.save(user);
     }
 
     /**
@@ -55,7 +55,7 @@ public class MyUserService {
      *
      * @param userRequest the user object created from the registration form
      */
-    public MyUser registerUser(RegisterRequestDTO userRequest) throws RuntimeException {
+    public AppUser registerUser(RegisterRequestDTO userRequest) throws RuntimeException {
         //TODO make a validation class
         if (isMissingRegisterCredential(userRequest)) {
             throw new RuntimeException("All fields are required.", new NullPointerException());
@@ -67,7 +67,7 @@ public class MyUserService {
             throw new RuntimeException("User already exists.", new NameAlreadyBoundException());
         }
 
-        MyUser newUser = convertToEntity(userRequest);
+        AppUser newUser = convertToEntity(userRequest);
         newUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
         sendEmailAfterRegistration(newUser);
@@ -86,14 +86,14 @@ public class MyUserService {
     }
 
     public boolean isUserRegistered(String email) {
-        return myUserRepository.findByEmail(email).isPresent();
+        return appUserRepository.findByEmail(email).isPresent();
     }
 
     public boolean isPasswordMatching(String email, String password) {
-        return passwordEncoder.matches(password, myUserRepository.findByEmail(email).orElseThrow().getPassword());
+        return passwordEncoder.matches(password, appUserRepository.findByEmail(email).orElseThrow().getPassword());
     }
 
-    private void sendEmailAfterRegistration(MyUser user) {
+    private void sendEmailAfterRegistration(AppUser user) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(petClinicEmail);
         message.setTo(user.getEmail());

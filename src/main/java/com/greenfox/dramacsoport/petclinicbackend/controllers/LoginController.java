@@ -2,9 +2,8 @@ package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
 import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.models.MyUser;
-import com.greenfox.dramacsoport.petclinicbackend.services.MyUserDetailService;
-import com.greenfox.dramacsoport.petclinicbackend.services.MyUserService;
+import com.greenfox.dramacsoport.petclinicbackend.services.AppUserDetailService;
+import com.greenfox.dramacsoport.petclinicbackend.services.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,11 +12,12 @@ import org.springframework.web.bind.annotation.*;
 public class LoginController {
 
     @Autowired
-    private MyUserService myUserService;
+    private AppUserService appUserService;
     @Autowired
     private JwtService jwtService;
     @Autowired
-    private MyUserDetailService myUserDetailService;
+    private AppUserDetailService appUserDetailService;
+
 
     @PostMapping("/login")
         public ResponseEntity<?> loginUser(@RequestBody LoginRequestDTO requestDTO) { //TODO remove business logic from here
