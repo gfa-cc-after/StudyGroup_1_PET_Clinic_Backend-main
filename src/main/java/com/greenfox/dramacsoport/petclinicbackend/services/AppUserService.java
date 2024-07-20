@@ -8,6 +8,7 @@ import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,7 +17,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.mail.SimpleMailMessage;
 
 import javax.naming.NameAlreadyBoundException;
 
@@ -100,10 +100,6 @@ public class AppUserService {
 
     public boolean isUserRegistered(String email) {
         return appUserRepository.findByEmail(email).isPresent();
-    }
-
-    public boolean isPasswordMatching(String email, String password) {
-        return passwordEncoder.matches(password, appUserRepository.findByEmail(email).orElseThrow().getPassword());
     }
 
     private void sendEmailAfterRegistration(AppUser user) {

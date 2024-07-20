@@ -2,11 +2,15 @@ package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.services.AppUserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class LoginController {
@@ -15,13 +19,17 @@ public class LoginController {
     private AppUserService appUserService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequestDTO requestDTO) {
-        ResponseEntity<String> response;
-        try {
-            response = ResponseEntity.ok(appUserService.login(requestDTO));
-        } catch (UsernameNotFoundException e) {
-            response = new ResponseEntity<>("Bad credentials!", HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> loginUser(@Valid @RequestBody LoginRequestDTO requestDTO,
+                                            BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            return new ResponseEntity<>(bindingResult.getAllErrors().toString(), HttpStatus.BAD_REQUEST);
         }
-        return response;
+        try {
+            return new ResponseEntity<>(appUserService.login(requestDTO), HttpStatus.OK);
+        } catch (UsernameNotFoundException e) {
+            return new ResponseEntity<>("Bad credentials!", HttpStatus.FORBIDDEN);
+        }
     }
+
 }
