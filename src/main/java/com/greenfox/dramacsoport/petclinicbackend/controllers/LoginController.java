@@ -19,11 +19,11 @@ public class LoginController {
     private AppUserService appUserService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@Valid @RequestBody LoginRequestDTO requestDTO,
+    public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequestDTO requestDTO,
                                             BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
-            return new ResponseEntity<>(bindingResult.getAllErrors().toString(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
         }
         try {
             return new ResponseEntity<>(appUserService.login(requestDTO), HttpStatus.OK);

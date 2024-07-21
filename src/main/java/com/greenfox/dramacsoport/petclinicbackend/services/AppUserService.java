@@ -12,7 +12,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -69,10 +68,7 @@ public class AppUserService {
      * @param userRequest the user object created from the registration form
      */
     public AppUser registerUser(RegisterRequestDTO userRequest) throws RuntimeException {
-        //TODO make a validation class
-        if (isMissingRegisterCredential(userRequest)) {
-            throw new RuntimeException("All fields are required.", new NullPointerException());
-        }
+
         if (!isPasswordLongerThanThreeChar(userRequest.getPassword())) {
             throw new RuntimeException("Password must be longer than 3 characters.", new Exception());
         }
@@ -88,10 +84,15 @@ public class AppUserService {
         return saveUser(newUser);
     }
 
-    public boolean isMissingRegisterCredential(RegisterRequestDTO userDTO) {
-        return userDTO.getEmail() == null || userDTO.getEmail().isEmpty()
-                || userDTO.getUsername() == null || userDTO.getUsername().isEmpty()
-                || userDTO.getPassword() == null || userDTO.getPassword().isEmpty();
+    public String login(LoginRequestDTO requestDTO) throws UsernameNotFoundException {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(requestDTO.email(), requestDTO.password())
+            );
+            return jwtService.generateToken(appUserDetailService.loadUserByUsername(requestDTO.email()));
+        } catch (AuthenticationException e) {
+            throw new UsernameNotFoundException("Authentication failed!");
+        }
     }
 
     public boolean isPasswordLongerThanThreeChar(String password) {
@@ -112,17 +113,6 @@ public class AppUserService {
                 "Best regards,\n" +
                 "Pet Clinic Team");
         javaMailSender.send(message);
-    }
-
-    public String login(LoginRequestDTO requestDTO) throws UsernameNotFoundException {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(requestDTO.email(), requestDTO.password())
-            );
-            return jwtService.generateToken(appUserDetailService.loadUserByUsername(requestDTO.email()));
-        } catch (AuthenticationException e) {
-            throw new UsernameNotFoundException("Authentication failed!");
-        }
     }
 
 }

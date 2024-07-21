@@ -2,10 +2,15 @@ package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.services.AppUserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class RegisterController {
@@ -15,16 +20,17 @@ public class RegisterController {
 
     @PostMapping("/register")
     @ResponseBody
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequestDTO newUserDTO) {
-        ResponseEntity<String> response;
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequestDTO newUserDTO,
+                                          BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
+        }
         try {
             appUserService.registerUser(newUserDTO);
-            response = new ResponseEntity<>("User registered", HttpStatus.OK);
+            return new ResponseEntity<>("User registered", HttpStatus.CREATED);
         } catch (Exception e) {
-            response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-
-        return response;
     }
 }
 
