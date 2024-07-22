@@ -10,14 +10,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AppUserDetailService implements UserDetailsService {
+public class AppUserDetailsService implements UserDetailsService {
 
     @Autowired
     private AppUserRepository repository;
 
     /**
-     * This User is a build in DTO from UserDetails (NOT our MyUser)
-     * @param email
+     * This User is an implementation of the built-in interface UserDetails (NOT our AppUser)
+     * @param email the user's email, that will be used as username from now on.
      * @return UserDetails Object with email as username
      */
     @Override
