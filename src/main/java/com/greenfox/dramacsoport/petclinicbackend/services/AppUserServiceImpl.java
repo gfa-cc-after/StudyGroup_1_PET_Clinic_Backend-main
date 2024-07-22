@@ -7,12 +7,15 @@ import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -55,6 +58,29 @@ public class AppUserServiceImpl implements AppUserService {
         return appUserRepository.save(user);
     }
 
+    /**
+     * <h3>Looks for an entity in the storage and gives back a UserDetails object made from it.</h3>
+     *
+     * @param email the email, that is used as a username
+     * @return an implementation of the security core UserDetails interface, NOT the same as the AppUser Entity
+     * @throws UsernameNotFoundException when no entity found under this email.
+     */
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        AppUser appUser = appUserRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("user cannot be found with this email: " + email));
+        TypeMap<AppUser, UserDetails> typeMap = modelMapper.createTypeMap(AppUser.class, UserDetails.class);
+
+        typeMap.setProvider(
+                request -> User.withUsername(appUser.getEmail())
+                        .password(appUser.getPassword())
+                        .roles(appUser.getRole().name())
+                        .build()
+        );
+        return modelMapper.map(appUser, UserDetails.class);
+    }
+
 
     /**
      * <h3>This method registers a new user.</h3>
@@ -91,10 +117,11 @@ public class AppUserServiceImpl implements AppUserService {
     @Override
     public String login(LoginRequestDTO requestDTO) throws UsernameNotFoundException {
         try {
-            authenticationManager.authenticate(
+            authenticationManager.authenticate( //TODO: replace this method with traditional email and password check
+                    // via PasswordEncoder
                     new UsernamePasswordAuthenticationToken(requestDTO.email(), requestDTO.password())
             );
-            return jwtService.generateToken(userDetailsService.loadUserByUsername(requestDTO.email()));
+            return jwtService.generateToken(loadUserByUsername(requestDTO.email()));
         } catch (AuthenticationException e) {
             throw new UsernameNotFoundException("Authentication failed!");
         }
@@ -117,7 +144,9 @@ public class AppUserServiceImpl implements AppUserService {
                 "Thank you for registering to our Pet Clinic application!\n\n" +
                 "Best regards,\n" +
                 "Pet Clinic Team");
-        javaMailSender.send(message);
+        //Some issue happened with the password in the meantime - I commented out temporally:
+
+        //javaMailSender.send(message);
     }
 
 }

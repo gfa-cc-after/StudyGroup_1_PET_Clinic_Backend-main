@@ -3,7 +3,6 @@ package com.greenfox.dramacsoport.petclinicbackend.config.webtoken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Configuration
 public class JwtService {
-    @Autowired
     private final String secretKey = secretKeyGenerator();
     private static final long VALIDITY = TimeUnit.MINUTES.toMillis(30);
 
