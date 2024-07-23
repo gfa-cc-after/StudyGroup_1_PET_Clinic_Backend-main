@@ -11,9 +11,6 @@ import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,13 +25,9 @@ public class AppUserServiceImpl implements AppUserService {
 
     private final AppUserRepository appUserRepository;
 
-    private final AppUserDetailsService userDetailsService;
-
     private final ModelMapper modelMapper = new ModelMapper();
 
     private final PasswordEncoder passwordEncoder;
-
-    private final AuthenticationManager authenticationManager;
 
     private final JwtService jwtService;
 
@@ -70,7 +63,7 @@ public class AppUserServiceImpl implements AppUserService {
         AppUser appUser = appUserRepository
                 .findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("user cannot be found with this email: " + email));
-        TypeMap<AppUser, UserDetails> typeMap = modelMapper.createTypeMap(AppUser.class, UserDetails.class);
+        TypeMap<AppUser, UserDetails> typeMap = modelMapper.typeMap(AppUser.class, UserDetails.class);
 
         typeMap.setProvider(
                 request -> User.withUsername(appUser.getEmail())
@@ -116,15 +109,17 @@ public class AppUserServiceImpl implements AppUserService {
 
     @Override
     public String login(LoginRequestDTO requestDTO) throws UsernameNotFoundException {
-        try {
-            authenticationManager.authenticate( //TODO: replace this method with traditional email and password check
-                    // via PasswordEncoder
-                    new UsernamePasswordAuthenticationToken(requestDTO.email(), requestDTO.password())
-            );
+        if (authenticateUser(requestDTO)) {
             return jwtService.generateToken(loadUserByUsername(requestDTO.email()));
-        } catch (AuthenticationException e) {
-            throw new UsernameNotFoundException("Authentication failed!");
         }
+        throw new UsernameNotFoundException("Authentication failed!");
+    }
+
+    private boolean authenticateUser(LoginRequestDTO requestDTO) {
+        return passwordEncoder.matches(
+                requestDTO.password(),
+                loadUserByUsername(requestDTO.email()).getPassword()
+        );
     }
 
     public boolean isPasswordLongerThanThreeChar(String password) {
@@ -144,7 +139,8 @@ public class AppUserServiceImpl implements AppUserService {
                 "Thank you for registering to our Pet Clinic application!\n\n" +
                 "Best regards,\n" +
                 "Pet Clinic Team");
-        //Some issue happened with the password in the meantime - I commented out temporally:
+
+        //Some issue happened with the password in the meantime - I commented it out temporally:
 
         //javaMailSender.send(message);
     }
