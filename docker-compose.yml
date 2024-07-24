@@ -12,6 +12,8 @@ services:
       - pet_clinic_drama_network
 
   backend:
+    env_file:
+      - mailPassword.env
     build:
       context: .
       dockerfile: multistage.Dockerfile
@@ -22,7 +24,6 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-container:3306/dramaPetClinic
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
-      SPRING_MAIL_PASSWORD: cqah zwmb cjxr bmvc
     depends_on:
       - mysql
     networks:
