@@ -13,7 +13,7 @@ services:
 
   backend:
     env_file:
-      - mailPassword.env
+      - .env.sample
     build:
       context: .
       dockerfile: multistage.Dockerfile
