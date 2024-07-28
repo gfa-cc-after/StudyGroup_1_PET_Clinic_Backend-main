@@ -1,6 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.config.webtoken;
 
-import com.greenfox.dramacsoport.petclinicbackend.services.MyUserDetailService;
+import com.greenfox.dramacsoport.petclinicbackend.services.AppUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private JwtService jwtService;
     @Autowired
-    private MyUserDetailService myUserDetailService;
+    private AppUserDetailsService appUserDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = authHeader.substring(bearer.length());
         String username = jwtService.extractUsername(jwt);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = myUserDetailService.loadUserByUsername(username);
+            UserDetails userDetails = appUserDetailsService.loadUserByUsername(username);
             if (userDetails != null && jwtService.isTokenValid(jwt)) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         username,

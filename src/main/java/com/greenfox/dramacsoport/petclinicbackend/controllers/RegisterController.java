@@ -1,36 +1,36 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.services.MyUserService;
+import com.greenfox.dramacsoport.petclinicbackend.services.AppUserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class RegisterController {
 
     @Autowired
-    private MyUserService myUserService;
+    private AppUserService appUserService;
 
     @PostMapping("/register")
     @ResponseBody
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequestDTO newUserDTO) {
-
-//        If the user is already created show an error message.
-        if (myUserService.isUserRegistered(newUserDTO.getEmail())) {
-            return ResponseEntity.badRequest().body("User already exists.");
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequestDTO newUserDTO,
+                                          BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
         }
-//        If the password is only 3 characters long show an error message.
-        if (!myUserService.isPasswordLongerThanThreeChar(newUserDTO.getPassword())){
-            return ResponseEntity.badRequest().body("Password must be longer than 3 characters.");
+        try {
+            appUserService.registerUser(newUserDTO);
+            return new ResponseEntity<>("User registered", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-
-//        If even one field is not filled then show an error message.
-        if (myUserService.isMissingRegisterCredential(newUserDTO)){
-            return ResponseEntity.badRequest().body("All fields are required.");
-        }
-//        If no user is stored with that data store it in the database.
-        myUserService.registerUser(newUserDTO);
-        return ResponseEntity.ok().body("User registered");
     }
 }
+
