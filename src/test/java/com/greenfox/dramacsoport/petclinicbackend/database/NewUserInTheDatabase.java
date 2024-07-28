@@ -2,69 +2,73 @@ package com.greenfox.dramacsoport.petclinicbackend.database;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.models.MyUser;
-import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.MyUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.MyUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.modelmapper.ModelMapper;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-
+@ExtendWith(MockitoExtension.class)
 public class NewUserInTheDatabase {
 
-    //which service we want to test
+    @Mock
+    private MyUserRepository myUserRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JavaMailSender javaMailSender;
+
     @InjectMocks
     private MyUserService myUserService;
 
-
-    //declare dependencies
-    @Mock
-    MyUserRepository myUserRepository;
-
-    @Mock
-    ModelMapper modelMapper;
-
+    private RegisterRequestDTO registerRequestDTO;
+    private MyUser myUser;
+    private final String petClinicEmail = "petclinic@example.com";
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
+    public void setup() {
+        myUserService = new MyUserService(myUserRepository, passwordEncoder, javaMailSender);
+
+        // Initialize test data
+        registerRequestDTO = new RegisterRequestDTO("testuser", "test@example.com","password");
+
+        myUser = new MyUser();
+        myUser.setEmail("test@example.com");
+        myUser.setUsername("testuser");
+        myUser.setPassword("encodedPassword");
+
+        // Set up the email sender
+        System.setProperty("spring.mail.username", petClinicEmail);
     }
 
     @Test
-    public void should_successfully_save_a_user(){
-        //given
-        RegisterRequestDTO dto = new RegisterRequestDTO(
-                "My Name",
-                "something@gmail.com",
-                "password"
-        );
-        MyUser user = new MyUser(
-                1L,
-                "something@gmail.com",
-                "My Name",
-                "password",
-                Role.USER
-        );
+    public void testRegisterUser() {
+        // Mock the behavior of password encoder and user repository
+        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+        when(myUserRepository.save(any(MyUser.class))).thenReturn(myUser);
 
-        //Mock the calls
-        when(myUserService.convertToEntity(dto))
-                .thenReturn(user);
+        // Call the method to be tested
+        MyUser registeredUser = myUserService.registerUser(registerRequestDTO);
 
-        //when
-        MyUser myUser = myUserService.registerUser(dto);
+        // Verify interactions
+        verify(passwordEncoder, times(1)).encode(registerRequestDTO.getPassword());
+        verify(myUserRepository, times(1)).save(any(MyUser.class));
+        verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));
 
-        //Then
-        assertEquals(dto.getUsername(), user.getUsername());
-        assertEquals(dto.getEmail(), user.getEmail());
-        assertEquals(dto.getPassword(), user.getPassword());
-        assertEquals(dto.getRole(), user.getRole());
+        // Assert the results
+        assertEquals(registerRequestDTO.getEmail(), registeredUser.getEmail());
+        assertEquals("encodedPassword", registeredUser.getPassword());
     }
-
 }
