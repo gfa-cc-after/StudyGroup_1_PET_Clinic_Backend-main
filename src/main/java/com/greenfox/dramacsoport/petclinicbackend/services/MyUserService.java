@@ -31,7 +31,7 @@ public class MyUserService {
      * @param sourceDTO the DTO, you want to convert
      * @return MyUser entity
      */
-    public <T> MyUser convertToEntity(T sourceDTO){
+    private  <T> MyUser convertToEntity(T sourceDTO){
         return modelMapper.map(sourceDTO, MyUser.class);
     }
 
