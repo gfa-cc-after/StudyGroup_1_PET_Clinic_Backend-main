@@ -3,7 +3,6 @@ package com.greenfox.dramacsoport.petclinicbackend.config;
 import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtAuthenticationFilter;
 import com.greenfox.dramacsoport.petclinicbackend.services.AppUserDetailsService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,8 +31,7 @@ import java.util.List;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig implements WebMvcConfigurer {
-    @Autowired
-    private CorsConfig corsConfig;
+    private final CorsConfig corsConfig;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
