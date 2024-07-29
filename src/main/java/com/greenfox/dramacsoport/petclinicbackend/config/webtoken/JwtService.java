@@ -1,27 +1,25 @@
 package com.greenfox.dramacsoport.petclinicbackend.config.webtoken;
 
-import com.greenfox.dramacsoport.petclinicbackend.services.MyUserDetailService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Autowired;
-import java.security.SecureRandom;
-import java.util.Base64;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.*;
+import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @Configuration
 public class JwtService {
-    @Autowired
-    private MyUserDetailService myUserDetailService;
     private final String secretKey = secretKeyGenerator();
     private static final long VALIDITY = TimeUnit.MINUTES.toMillis(30);
 

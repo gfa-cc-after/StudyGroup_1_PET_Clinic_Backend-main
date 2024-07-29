@@ -1,10 +1,9 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
-import com.greenfox.dramacsoport.petclinicbackend.repositories.MyUserRepository;
+import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -12,7 +11,7 @@ public class DummyAuthenticationController {
     // TODO - after proper test cases this Controller can be deleted
 
     @Autowired
-    private MyUserRepository myUserRepository;
+    private AppUserRepository appUserRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
