@@ -142,7 +142,7 @@ public class AppUserServiceImpl implements AppUserService {
 
         //Some issue happened with the password in the meantime - I commented it out temporally:
 
-        //javaMailSender.send(message);
+        javaMailSender.send(message);
     }
 
 }

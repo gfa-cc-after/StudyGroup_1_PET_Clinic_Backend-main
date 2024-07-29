@@ -1,9 +1,14 @@
 package com.greenfox.dramacsoport.petclinicbackend.database;
 
+import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.models.MyUser;
-import com.greenfox.dramacsoport.petclinicbackend.repositories.MyUserRepository;
-import com.greenfox.dramacsoport.petclinicbackend.services.MyUserService;
+import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
+
+import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
+
+import com.greenfox.dramacsoport.petclinicbackend.services.AppUserService;
+
+import com.greenfox.dramacsoport.petclinicbackend.services.AppUserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +27,7 @@ import static org.mockito.Mockito.*;
 public class NewUserInTheDatabase {
 
     @Mock
-    private MyUserRepository myUserRepository;
+    private AppUserRepository appUserRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -30,24 +35,28 @@ public class NewUserInTheDatabase {
     @Mock
     private JavaMailSender javaMailSender;
 
+    @Mock
+    private JwtService jwtService;
+
     @InjectMocks
-    private MyUserService myUserService;
+    private AppUserServiceImpl appUserService;
 
     private RegisterRequestDTO registerRequestDTO;
-    private MyUser myUser;
+    private AppUser appUser;
     private final String petClinicEmail = "petclinic@example.com";
 
     @BeforeEach
     public void setup() {
-        myUserService = new MyUserService(myUserRepository, passwordEncoder, javaMailSender);
+        appUserService = new AppUserServiceImpl(appUserRepository, passwordEncoder, jwtService, javaMailSender);
 
         // Initialize test data
         registerRequestDTO = new RegisterRequestDTO("testuser", "test@example.com","password");
 
-        myUser = new MyUser();
-        myUser.setEmail("test@example.com");
-        myUser.setUsername("testuser");
-        myUser.setPassword("encodedPassword");
+        appUser = new AppUser();
+        appUser.setEmail("test@example.com");
+        appUser.setUsername("testuser");
+        appUser.setPassword("encodedPassword");
+
 
         // Set up the email sender
         System.setProperty("spring.mail.username", petClinicEmail);
@@ -57,14 +66,14 @@ public class NewUserInTheDatabase {
     public void testRegisterUser() {
         // Mock the behavior of password encoder and user repository
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-        when(myUserRepository.save(any(MyUser.class))).thenReturn(myUser);
+        when(appUserRepository.save(any(AppUser.class))).thenReturn(appUser);
 
         // Call the method to be tested
-        MyUser registeredUser = myUserService.registerUser(registerRequestDTO);
+        AppUser registeredUser = appUserService.registerUser(registerRequestDTO);
 
         // Verify interactions
         verify(passwordEncoder, times(1)).encode(registerRequestDTO.getPassword());
-        verify(myUserRepository, times(1)).save(any(MyUser.class));
+        verify(appUserRepository, times(1)).save(any(AppUser.class));
         verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));
 
         // Assert the results
