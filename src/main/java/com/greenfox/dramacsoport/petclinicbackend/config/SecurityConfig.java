@@ -1,8 +1,8 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
 import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtAuthenticationFilter;
-import com.greenfox.dramacsoport.petclinicbackend.services.MyUserDetailService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.greenfox.dramacsoport.petclinicbackend.services.AppUserDetailsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,16 +24,18 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig implements WebMvcConfigurer {
+    private final CorsConfig corsConfig;
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-    @Autowired
-    private MyUserDetailService userDetailService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    private final AppUserDetailsService userDetailService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -53,7 +55,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8082", "https://drama-frontend.up.railway.app"));
+        configuration.setAllowedOrigins(List.of(corsConfig.corsUrls.split(",")));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
