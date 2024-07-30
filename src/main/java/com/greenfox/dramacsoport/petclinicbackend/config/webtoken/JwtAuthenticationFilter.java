@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String bearer = "Bearer  "; // this is just a prefix, the actual token starts from the 7th character
+        String bearer = "Bearer "; // this is just a prefix, the actual token starts from the 7th character
         String jwt = authHeader.substring(bearer.length());
         String username = jwtService.extractUsername(jwt);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
