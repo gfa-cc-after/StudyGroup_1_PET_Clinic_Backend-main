@@ -3,11 +3,13 @@ package com.greenfox.dramacsoport.petclinicbackend.services;
 import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -32,6 +34,8 @@ public class AppUserServiceImpl implements AppUserService {
     private final JwtService jwtService;
 
     private final JavaMailSender javaMailSender;
+
+    private final AppServiceErrors error;
 
     @Value("${spring.mail.username}")
     private String petClinicEmail;
@@ -92,7 +96,7 @@ public class AppUserServiceImpl implements AppUserService {
     public AppUser registerUser(RegisterRequestDTO userRequest) throws RuntimeException {
 
         if (!isPasswordLongerThanThreeChar(userRequest.getPassword())) {
-            throw new RuntimeException("Password must be longer than 3 characters.", new Exception());
+            throw new RuntimeException(error.shortPasswordError(), new Exception());
         }
         if (isUserRegistered(userRequest.getEmail())) {
             throw new RuntimeException("User already exists.", new NameAlreadyBoundException());

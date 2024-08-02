@@ -2,6 +2,7 @@ package com.greenfox.dramacsoport.petclinicbackend.database;
 
 import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
@@ -20,11 +21,15 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class NewUserInTheDatabase {
+
+    @Mock
+    private AppServiceErrors error;
 
     @Mock
     private AppUserRepository appUserRepository;
@@ -47,8 +52,6 @@ public class NewUserInTheDatabase {
 
     @BeforeEach
     public void setup() {
-        appUserService = new AppUserServiceImpl(appUserRepository, passwordEncoder, jwtService, javaMailSender);
-
         // Initialize test data
         registerRequestDTO = new RegisterRequestDTO("testuser", "test@example.com","password");
 
@@ -57,10 +60,10 @@ public class NewUserInTheDatabase {
         appUser.setUsername("testuser");
         appUser.setPassword("encodedPassword");
 
-
         // Set up the email sender
         System.setProperty("spring.mail.username", petClinicEmail);
     }
+
 
     @Test
     public void testRegisterUser() {
@@ -80,4 +83,24 @@ public class NewUserInTheDatabase {
         assertEquals(registerRequestDTO.getEmail(), registeredUser.getEmail());
         assertEquals("encodedPassword", registeredUser.getPassword());
     }
+        //Unhappy cases
+
+    @Test
+    public void testPasswordLength() {
+
+        when(error.shortPasswordError()).thenReturn("Password must be longer than 3 characters.");
+
+
+        RegisterRequestDTO shortPasswordRequest = new RegisterRequestDTO("testuser",
+                "test@example.com",
+                "as"); // Shorter than 3 characters
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            appUserService.registerUser(shortPasswordRequest);
+        });
+
+        assertEquals("Password must be longer than 3 characters.", exception.getMessage());
+    }
+
+
 }
