@@ -12,6 +12,8 @@ services:
       - pet_clinic_drama_network
 
   backend:
+    env_file:
+      - .env
     build:
       context: .
       dockerfile: multistage.Dockerfile

@@ -143,9 +143,6 @@ public class AppUserServiceImpl implements AppUserService {
                 "Thank you for registering to our Pet Clinic application!\n\n" +
                 "Best regards,\n" +
                 "Pet Clinic Team");
-
-        //Some issue happened with the password in the meantime - I commented it out temporally:
-
         javaMailSender.send(message);
     }
 
