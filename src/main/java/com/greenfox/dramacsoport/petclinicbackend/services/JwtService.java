@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.config.webtoken;
+package com.greenfox.dramacsoport.petclinicbackend.services;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
