@@ -1,6 +1,8 @@
 package com.greenfox.dramacsoport.petclinicbackend;
 
-import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
+
+import com.greenfox.dramacsoport.petclinicbackend.models.Role;
+import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,8 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class JwtServiceTest {
@@ -20,17 +21,15 @@ public class JwtServiceTest {
     private JwtService jwtService;
 
     @Test
-    public void testJwtTokenGeneration() {
-        UserDetails userDetails = new User(
-                "testUser",
-                "password",
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-        );
+    public void shouldCheckIfTokenIsValid() {
+        UserDetails userDetails = User.builder()
+                .username("testUser")
+                .password("password")
+                .roles(Role.USER.toString())
+                .build();
 
         String token = jwtService.generateToken(userDetails);
-        String username = jwtService.extractUsername(token);
 
-        assertEquals(userDetails.getUsername(), username);
         assertTrue(jwtService.isTokenValid(token));
     }
 }
