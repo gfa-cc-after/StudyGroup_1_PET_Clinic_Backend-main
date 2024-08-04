@@ -1,6 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.service;
 
 import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
@@ -18,6 +19,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.naming.NameAlreadyBoundException;
@@ -48,6 +51,8 @@ public class AppUserServiceTest {
 
     private RegisterRequestDTO registerRequestDTO;
 
+    private LoginRequestDTO loginRequestDTO;
+
     private final String petClinicEmail = "petclinic@example.com";
 
     @BeforeEach
@@ -55,15 +60,10 @@ public class AppUserServiceTest {
         // Initialize test data
         registerRequestDTO = new RegisterRequestDTO("testuser", "test@example.com","password");
 
+        loginRequestDTO = new LoginRequestDTO("test@example.com","password");
+
         // Set up the email sender
         System.setProperty("spring.mail.username", petClinicEmail);
-
-        appUserService = new AppUserServiceImpl(
-                appUserRepository,
-                passwordEncoder,
-                jwtService,
-                javaMailSender,
-                new AppServiceErrors());
     }
 
     @Test
@@ -77,5 +77,23 @@ public class AppUserServiceTest {
 
     }
 
+    @Test
+    public void loginMethodIsSuccessfullyCalled() throws UsernameNotFoundException {
+            // Arrange: Mock user details and token generation
+            AppUser appUser = new AppUser();
+            appUser.setEmail(loginRequestDTO.email());
+            appUser.setPassword("encodedPassword");
 
-}
+            when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(Optional.of(appUser));
+            when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(true);
+            when(jwtService.generateToken(any(UserDetails.class))).thenReturn("mockedJwtToken");
+
+            // Act: Call the login method
+            String token = appUserService.login(loginRequestDTO);
+
+            // Assert: Verify the token and interactions
+            assertNotNull(token);
+            assertEquals("mockedJwtToken", token);
+            verify(jwtService, times(1)).generateToken(any(UserDetails.class));
+        }
+    }

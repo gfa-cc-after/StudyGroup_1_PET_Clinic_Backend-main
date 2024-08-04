@@ -126,11 +126,11 @@ public class AppUserServiceImpl implements AppUserService {
         );
     }
 
-    public boolean isPasswordLongerThanThreeChar(String password) {
+    private boolean isPasswordLongerThanThreeChar(String password) {
         return password.length() > 3;
     }
 
-    public boolean isUserRegistered(String email) {
+    private boolean isUserRegistered(String email) {
         return appUserRepository.findByEmail(email).isPresent();
     }
 
