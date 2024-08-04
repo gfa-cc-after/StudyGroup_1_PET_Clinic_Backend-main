@@ -1,6 +1,5 @@
 package com.greenfox.dramacsoport.petclinicbackend.services;
 
-import com.greenfox.dramacsoport.petclinicbackend.errors.UnIdentifiableRoleException;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -52,14 +51,7 @@ public class JwtService {
     public Role extractRole(String jwt) {
         Claims claims = getClaims(jwt);
         String roleAsString = claims.get("role", String.class);
-        Role role;
-        switch (roleAsString) {
-            case "USER" -> role = Role.USER;
-            case "VET" -> role = Role.VET;
-            case "ADMIN" -> role = Role.ADMIN;
-            default -> throw new UnIdentifiableRoleException();
-        }
-        return role;
+        return Role.fromString(roleAsString);
     }
 
     private Claims getClaims(String jwt) {

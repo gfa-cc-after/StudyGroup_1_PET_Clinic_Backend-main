@@ -1,7 +1,5 @@
 package com.greenfox.dramacsoport.petclinicbackend;
 
-
-import com.greenfox.dramacsoport.petclinicbackend.errors.UnIdentifiableRoleException;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import org.junit.jupiter.api.Test;
@@ -79,6 +77,6 @@ public class JwtServiceTest {
 
         String token = jwtService.generateToken(testUser);
 
-        assertThrows(UnIdentifiableRoleException.class, () -> jwtService.extractRole(token));
+        assertThrows(IllegalArgumentException.class, () -> jwtService.extractRole(token));
     }
 }
