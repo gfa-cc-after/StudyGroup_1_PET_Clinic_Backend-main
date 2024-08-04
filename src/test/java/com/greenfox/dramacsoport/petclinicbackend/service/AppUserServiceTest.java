@@ -53,8 +53,6 @@ public class AppUserServiceTest {
 
     private LoginRequestDTO loginRequestDTO;
 
-    private final String petClinicEmail = "petclinic@example.com";
-
     @BeforeEach
     public void setup() {
         // Initialize test data
@@ -63,6 +61,7 @@ public class AppUserServiceTest {
         loginRequestDTO = new LoginRequestDTO("test@example.com","password");
 
         // Set up the email sender
+        String petClinicEmail = "petclinic@example.com";
         System.setProperty("spring.mail.username", petClinicEmail);
     }
 
