@@ -2,8 +2,8 @@ package com.greenfox.dramacsoport.petclinicbackend.service;
 
 import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
+import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.AppUserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,12 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import javax.naming.NameAlreadyBoundException;
 
 import java.util.Optional;
 
@@ -28,28 +25,28 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class LoginUserTest {
 
-        @Mock
-        private AppUserRepository appUserRepository;
+    @Mock
+    private AppUserRepository appUserRepository;
 
-        @Mock
-        private PasswordEncoder passwordEncoder;
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
-        @Mock
-        private JavaMailSender javaMailSender;
+    @Mock
+    private JwtService jwtService;
 
-        @Mock
-        private JwtService jwtService;
+    @Mock
+    private AppServiceErrors appServiceErrors;
 
-        @InjectMocks
-        private AppUserServiceImpl appUserService;
+    @InjectMocks
+    private AppUserServiceImpl appUserService;
 
-        private LoginRequestDTO loginRequestDTO;
+    private LoginRequestDTO loginRequestDTO;
 
-        @BeforeEach
-        public void setup() {
-            // Initialize test data
-            loginRequestDTO = new LoginRequestDTO("test@example.com","password");
-        }
+    @BeforeEach
+    public void setup() {
+        // Initialize test data
+        loginRequestDTO = new LoginRequestDTO("test@example.com", "password");
+    }
 
     @Test
     public void loginMethodFailsWithWrongEmail() {
@@ -65,4 +62,23 @@ public class LoginUserTest {
         verify(jwtService, never()).generateToken(any(UserDetails.class));
     }
 
+    @Test
+    public void loginMethodFailsWithWrongPassword() {
+        // Arrange: Mock user with correct email but wrong password
+        AppUser appUser = new AppUser();
+        appUser.setEmail("test@example.com");
+        appUser.setPassword("encodedPassword");
+
+        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(Optional.of(appUser));
+        when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(false);
+        when(appServiceErrors.notFound()).thenReturn("Authentication failed!");
+
+        // Act & Assert: Expect an exception due to password mismatch
+        assertThrows(UsernameNotFoundException.class, () -> {
+            appUserService.login(loginRequestDTO);
+        });
+
+        // Verify no token is generated since login should fail
+        verify(jwtService, never()).generateToken(any(UserDetails.class));
+    }
 }
