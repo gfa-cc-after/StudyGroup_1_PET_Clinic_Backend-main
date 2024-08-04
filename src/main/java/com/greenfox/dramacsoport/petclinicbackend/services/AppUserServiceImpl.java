@@ -66,7 +66,7 @@ public class AppUserServiceImpl implements AppUserService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         AppUser appUser = appUserRepository
                 .findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("user cannot be found with this email: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException(error.usernameNotFound(email)));
         TypeMap<AppUser, UserDetails> typeMap = modelMapper.typeMap(AppUser.class, UserDetails.class);
 
         typeMap.setProvider(

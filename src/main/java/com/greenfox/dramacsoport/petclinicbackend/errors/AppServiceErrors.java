@@ -11,6 +11,8 @@ public class AppServiceErrors {
 
     public static final String NOT_FOUND = "Authentication failed! User not found.";
 
+    public static final String USERNAME_NOT_FOUND = "user cannot be found with this email: ";
+
     public String shortPassword() {
         return SHORT_PASSWORD;
     }
@@ -21,5 +23,9 @@ public class AppServiceErrors {
 
     public String notFound() {
         return NOT_FOUND;
+    }
+
+    public String usernameNotFound(String email) {
+        return USERNAME_NOT_FOUND;
     }
 }
