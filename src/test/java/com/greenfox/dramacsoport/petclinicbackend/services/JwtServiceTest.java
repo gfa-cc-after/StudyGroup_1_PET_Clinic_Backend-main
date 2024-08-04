@@ -1,7 +1,6 @@
-package com.greenfox.dramacsoport.petclinicbackend;
+package com.greenfox.dramacsoport.petclinicbackend.services;
 
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
-import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
