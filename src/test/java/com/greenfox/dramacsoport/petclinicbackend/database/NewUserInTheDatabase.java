@@ -20,8 +20,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import javax.naming.NameAlreadyBoundException;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -71,8 +72,13 @@ public class NewUserInTheDatabase {
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(appUserRepository.save(any(AppUser.class))).thenReturn(appUser);
 
-        // Call the method to be tested
-        AppUser registeredUser = appUserService.registerUser(registerRequestDTO);
+        // Call the method to be
+        AppUser registeredUser = null;
+        try {
+            registeredUser = appUserService.registerUser(registerRequestDTO);
+        } catch (NameAlreadyBoundException e){
+            assertTrue(false ,"Initialization of username is wrong.");
+        }
 
         // Verify interactions
         verify(passwordEncoder, times(1)).encode(registerRequestDTO.getPassword());

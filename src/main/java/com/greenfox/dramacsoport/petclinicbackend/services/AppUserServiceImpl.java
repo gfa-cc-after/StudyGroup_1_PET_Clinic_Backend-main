@@ -4,12 +4,12 @@ import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
+import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -93,13 +93,13 @@ public class AppUserServiceImpl implements AppUserService {
      * @param userRequest the user object created from the registration form
      */
     @Override
-    public AppUser registerUser(RegisterRequestDTO userRequest) throws RuntimeException {
+    public AppUser registerUser(RegisterRequestDTO userRequest) throws PasswordException, NameAlreadyBoundException {
 
         if (!isPasswordLongerThanThreeChar(userRequest.getPassword())) {
-            throw new RuntimeException(error.shortPasswordError(), new Exception());
+            throw new PasswordException(error.shortPassword());
         }
         if (isUserRegistered(userRequest.getEmail())) {
-            throw new RuntimeException("User already exists.", new NameAlreadyBoundException());
+            throw new NameAlreadyBoundException(error.userAlreadyExists());
         }
 
         AppUser newUser = convertToEntity(userRequest);
