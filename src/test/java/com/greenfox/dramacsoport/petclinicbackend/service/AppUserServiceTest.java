@@ -79,21 +79,26 @@ public class AppUserServiceTest {
 
     @Test
     public void loginMethodIsSuccessfullyCalled() throws UsernameNotFoundException {
-            // Arrange: Mock user details and token generation
-            AppUser appUser = new AppUser();
-            appUser.setEmail(loginRequestDTO.email());
-            appUser.setPassword("encodedPassword");
+        // Arrange: Mock user details and token generation
+        AppUser appUser = new AppUser();
+        appUser.setEmail("test@example.com"); // Ensure this matches the loginRequestDTO
+        appUser.setPassword("encodedPassword");
 
-            when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(Optional.of(appUser));
-            when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(true);
-            when(jwtService.generateToken(any(UserDetails.class))).thenReturn("mockedJwtToken");
+        // Mock the behavior of finding a user by email
+        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(Optional.of(appUser));
+        // Mock the behavior of password matching
+        when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(true);
+        // Mock the behavior of JWT token generation
+        when(jwtService.generateToken(any(UserDetails.class))).thenReturn("mockedJwtToken");
 
-            // Act: Call the login method
-            String token = appUserService.login(loginRequestDTO);
+        // Act: Call the login method
+        String token = appUserService.login(loginRequestDTO);
 
-            // Assert: Verify the token and interactions
-            assertNotNull(token);
-            assertEquals("mockedJwtToken", token);
-            verify(jwtService, times(1)).generateToken(any(UserDetails.class));
-        }
+        // Assert: Verify the token and interactions
+        assertNotNull(token);
+        assertEquals("mockedJwtToken", token);
+        verify(jwtService, times(1)).generateToken(any(UserDetails.class));
     }
+
+
+}
