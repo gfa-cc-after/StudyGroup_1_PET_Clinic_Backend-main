@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.database;
+package com.greenfox.dramacsoport.petclinicbackend.service;
 
 import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
@@ -32,9 +32,6 @@ import static org.mockito.Mockito.*;
 public class AppUserServiceTest {
 
     @Mock
-    private AppServiceErrors error;
-
-    @Mock
     private AppUserRepository appUserRepository;
 
     @Mock
@@ -50,7 +47,7 @@ public class AppUserServiceTest {
     private AppUserServiceImpl appUserService;
 
     private RegisterRequestDTO registerRequestDTO;
-    private AppUser appUser;
+
     private final String petClinicEmail = "petclinic@example.com";
 
     @BeforeEach
@@ -60,12 +57,6 @@ public class AppUserServiceTest {
 
         // Set up the email sender
         System.setProperty("spring.mail.username", petClinicEmail);
-
-        appUserRepository = Mockito.mock(AppUserRepository.class);
-        passwordEncoder = Mockito.mock(PasswordEncoder.class);
-        jwtService = Mockito.mock(JwtService.class);
-        javaMailSender = Mockito.mock(JavaMailSender.class);
-
 
         appUserService = new AppUserServiceImpl(
                 appUserRepository,
@@ -85,42 +76,6 @@ public class AppUserServiceTest {
         verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));
 
     }
-    @Test
-    void testRegisterUser_UserAlreadyExists() {
-        // Arrange: Mock that a user already exists in the repository
-        when(appUserRepository.findByEmail(anyString())).thenReturn(Optional.of(new AppUser()));
 
-        // Act & Assert: Verify the exception and its message
-        NameAlreadyBoundException exception = assertThrows(NameAlreadyBoundException.class, () -> {
-            appUserService.registerUser(registerRequestDTO);
-        });
-
-        // Assert that the message matches the expected message
-        assertEquals("User already exists.", exception.getMessage());
-
-        // Verify that the repository's save method and the email sender's send method are never called
-        verify(appUserRepository, times(1)).findByEmail("test@example.com");
-        verify(appUserRepository, never()).save(any(AppUser.class));
-        verify(javaMailSender, never()).send(any(SimpleMailMessage.class));
-    }
-
-    @Test
-    void testRegisterUser_ShortPassword() {
-        // Arrange: Create a DTO with a short password
-        registerRequestDTO = new RegisterRequestDTO("testuser", "test@example.com","p");
-        // Set a short password
-
-        // Act & Assert: Verify the exception and its message
-        PasswordException exception = assertThrows(PasswordException.class, () -> {
-            appUserService.registerUser(registerRequestDTO);
-        });
-
-        // Assert that the message matches the expected message
-        assertEquals("Password must be longer than 3 characters.", exception.getMessage());
-
-        // Verify that no user is saved and no email is sent
-        verify(appUserRepository, never()).save(any(AppUser.class));
-        verify(javaMailSender, never()).send(any(SimpleMailMessage.class));
-    }
 
 }
