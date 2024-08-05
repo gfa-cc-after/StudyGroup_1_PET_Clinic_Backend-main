@@ -48,8 +48,8 @@ public class LoginControllerTest {
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$.token").isString());
-
+                        jsonPath("$.token").isString(),
+                        jsonPath("$.role").value("ROLE_USER"));
     }
 
     @Test
@@ -81,6 +81,63 @@ public class LoginControllerTest {
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpectAll(
                         status().isForbidden());
+
+    }
+
+    @Test
+    public void responseShouldBeBadRequestIfEmptyPasswordProvided() throws Exception {
+
+        AppUser mockUser = new AppUser();
+        mockUser.setEmail("xy@example.com");
+        mockUser.setPassword(passwordEncoder.encode("ValidPassword1"));
+
+        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(Optional.of(mockUser));
+
+        LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", "");
+
+        this.mockMvc.perform(post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpectAll(
+                        status().isBadRequest());
+
+    }
+
+    @Test
+    public void responseShouldBeBadRequestIfNullPasswordProvided() throws Exception {
+
+        AppUser mockUser = new AppUser();
+        mockUser.setEmail("xy@example.com");
+        mockUser.setPassword(passwordEncoder.encode("ValidPassword1"));
+
+        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(Optional.of(mockUser));
+
+        LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", null);
+
+        this.mockMvc.perform(post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpectAll(
+                        status().isBadRequest());
+
+    }
+
+    @Test
+    public void responseShouldBeBadRequestIfEmptyEmailProvided() throws Exception {
+
+        AppUser mockUser = new AppUser();
+        mockUser.setEmail("xy@example.com");
+        mockUser.setPassword(passwordEncoder.encode("ValidPassword1"));
+
+        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(Optional.of(mockUser));
+
+        LoginRequestDTO loginRequest = new LoginRequestDTO("", "password");
+
+        this.mockMvc.perform(post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpectAll(
+                        status().isBadRequest());
 
     }
 }

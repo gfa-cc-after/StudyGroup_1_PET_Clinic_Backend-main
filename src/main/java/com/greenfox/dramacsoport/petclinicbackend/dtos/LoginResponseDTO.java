@@ -1,4 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.dtos;
 
-public record LoginResponseDTO (String token) {
+import com.greenfox.dramacsoport.petclinicbackend.models.Role;
+
+public record LoginResponseDTO (String token, String role) {
 }
