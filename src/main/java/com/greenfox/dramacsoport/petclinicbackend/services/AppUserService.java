@@ -1,6 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.services;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,5 +26,5 @@ public interface AppUserService {
      * @return A JWT token as a String for further authorization.
      * @throws UsernameNotFoundException when the username and/or the password is incorrect.
      */
-    String login(LoginRequestDTO requestDTO) throws UsernameNotFoundException;
+    LoginResponseDTO login(LoginRequestDTO requestDTO) throws UsernameNotFoundException;
 }
