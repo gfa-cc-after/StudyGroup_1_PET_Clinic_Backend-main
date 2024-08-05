@@ -110,8 +110,9 @@ public class AppUserServiceImpl implements AppUserService {
     @Override
     public LoginResponseDTO login(LoginRequestDTO requestDTO) throws UsernameNotFoundException {
         if (authenticateUser(requestDTO)) {
-            return new LoginResponseDTO(jwtService.generateToken(loadUserByUsername(requestDTO.email())),
-                    loadUserByUsername((requestDTO.email())).getAuthorities().iterator().next().getAuthority());
+            UserDetails userDetails = loadUserByUsername(requestDTO.email());
+            String token = jwtService.generateToken(userDetails);
+            return new LoginResponseDTO(token, jwtService.extractRole(token).toString());
         }
         throw new UsernameNotFoundException("Authentication failed!");
     }
