@@ -85,15 +85,13 @@ public class JwtServiceTest {
     }
 
     @Test
-    public void shouldGetInvalidRole() {
+    public void shouldThrowExceptionWhenGeneratingTokenWithInvalidRole() {
         UserDetails testUser = User.builder()
                 .username("testUser")
                 .password("password")
                 .roles("Invalid_ROLE")
                 .build();
 
-        String token = jwtService.generateToken(testUser);
-
-        assertThrows(IllegalArgumentException.class, () -> jwtService.extractRole(token));
+        assertThrows(IllegalArgumentException.class, () -> jwtService.generateToken(testUser));
     }
 }
