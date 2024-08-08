@@ -27,18 +27,17 @@ public class JwtService {
      * By default, the user roles are stored as a GrantedAuthority with a ROLE_ prefix in the UserDetails object (e.g
      * . ROLE_USER).
      * To be stored in the token, it has to be mapped with the Role.getRole() method first.
-     *
+     * For easier handling on the frontend, the role is stored as lowercase String in the token.
      * @param userDetails to use for creating a JWT token
      * @return a valid JWT token
      */
     public String generateToken(UserDetails userDetails) {
         Map<String, String> claims = new HashMap<>();
         GrantedAuthority firstAuthority = userDetails.getAuthorities().iterator().next();
-        String firstAuthorityName = firstAuthority.getAuthority();
-        String rolePrefix = "ROLE_";
-        String roleNameAsString = firstAuthorityName.substring(rolePrefix.length());
         String roleNameAsString = Role.getRole(firstAuthority).toString();
 
+        String roleAsLowercaseString = roleNameAsString.toLowerCase();
+        claims.put("role", roleAsLowercaseString);
         return Jwts.builder()
                 .claims(claims)
                 .subject(userDetails.getUsername())
@@ -60,11 +59,12 @@ public class JwtService {
 
     public Role extractRole(String jwt) {
         Claims claims = getClaims(jwt);
-        String roleAsString = claims.get("role", String.class);
+        String roleFromToken = claims.get("role", String.class);
+        String roleAsString = roleFromToken.toUpperCase();
         return Role.fromString(roleAsString);
     }
 
-    private Claims getClaims(String jwt) {
+    public Claims getClaims(String jwt) {
         return Jwts.parser()
                 .verifyWith(generateKey())
                 .build()
