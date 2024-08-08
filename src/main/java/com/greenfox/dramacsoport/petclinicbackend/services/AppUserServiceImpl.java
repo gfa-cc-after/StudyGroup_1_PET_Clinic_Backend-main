@@ -3,6 +3,8 @@ package com.greenfox.dramacsoport.petclinicbackend.services;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
+import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,8 @@ public class AppUserServiceImpl implements AppUserService {
 
     private final JavaMailSender javaMailSender;
 
+    private final AppServiceErrors error;
+
     @Value("${spring.mail.username}")
     private String petClinicEmail;
 
@@ -62,7 +66,7 @@ public class AppUserServiceImpl implements AppUserService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         AppUser appUser = appUserRepository
                 .findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("user cannot be found with this email: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException(error.usernameNotFound(email)));
         TypeMap<AppUser, UserDetails> typeMap = modelMapper.typeMap(AppUser.class, UserDetails.class);
 
         typeMap.setProvider(
@@ -89,13 +93,13 @@ public class AppUserServiceImpl implements AppUserService {
      * @param userRequest the user object created from the registration form
      */
     @Override
-    public AppUser registerUser(RegisterRequestDTO userRequest) throws RuntimeException {
+    public AppUser registerUser(RegisterRequestDTO userRequest) throws PasswordException, NameAlreadyBoundException {
 
         if (!isPasswordLongerThanThreeChar(userRequest.getPassword())) {
-            throw new RuntimeException("Password must be longer than 3 characters.", new Exception());
+            throw new PasswordException(error.shortPassword());
         }
         if (isUserRegistered(userRequest.getEmail())) {
-            throw new RuntimeException("User already exists.", new NameAlreadyBoundException());
+            throw new NameAlreadyBoundException(error.userAlreadyExists());
         }
 
         AppUser newUser = convertToEntity(userRequest);
@@ -114,7 +118,7 @@ public class AppUserServiceImpl implements AppUserService {
             String token = jwtService.generateToken(userDetails);
             return new LoginResponseDTO(token, jwtService.extractRole(token).toString());
         }
-        throw new UsernameNotFoundException("Authentication failed!");
+        throw new UsernameNotFoundException(error.notFound());
     }
 
     private boolean authenticateUser(LoginRequestDTO requestDTO) {
@@ -124,11 +128,11 @@ public class AppUserServiceImpl implements AppUserService {
         );
     }
 
-    public boolean isPasswordLongerThanThreeChar(String password) {
+    private boolean isPasswordLongerThanThreeChar(String password) {
         return password.length() > 3;
     }
 
-    public boolean isUserRegistered(String email) {
+    private boolean isUserRegistered(String email) {
         return appUserRepository.findByEmail(email).isPresent();
     }
 
