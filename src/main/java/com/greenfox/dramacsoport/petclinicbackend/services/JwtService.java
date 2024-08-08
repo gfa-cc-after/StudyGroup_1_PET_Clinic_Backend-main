@@ -22,13 +22,23 @@ public class JwtService {
     private final String secretKey = secretKeyGenerator();
     private static final long VALIDITY = TimeUnit.MINUTES.toMillis(30);
 
+    /**
+     * <h2>Creates a JWT token from a UserDetails object.</h2>
+     * By default, the user roles are stored as a GrantedAuthority with a ROLE_ prefix in the UserDetails object (e.g
+     * . ROLE_USER).
+     * To be stored in the token, it has to be mapped with the Role.getRole() method first.
+     *
+     * @param userDetails to use for creating a JWT token
+     * @return a valid JWT token
+     */
     public String generateToken(UserDetails userDetails) {
         Map<String, String> claims = new HashMap<>();
         GrantedAuthority firstAuthority = userDetails.getAuthorities().iterator().next();
         String firstAuthorityName = firstAuthority.getAuthority();
         String rolePrefix = "ROLE_";
         String roleNameAsString = firstAuthorityName.substring(rolePrefix.length());
-        claims.put("role", roleNameAsString);
+        String roleNameAsString = Role.getRole(firstAuthority).toString();
+
         return Jwts.builder()
                 .claims(claims)
                 .subject(userDetails.getUsername())
