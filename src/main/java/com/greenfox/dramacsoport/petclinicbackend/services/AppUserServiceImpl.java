@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.services;
 
-import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
@@ -112,9 +112,11 @@ public class AppUserServiceImpl implements AppUserService {
 
 
     @Override
-    public String login(LoginRequestDTO requestDTO) throws UsernameNotFoundException {
+    public LoginResponseDTO login(LoginRequestDTO requestDTO) throws UsernameNotFoundException {
         if (authenticateUser(requestDTO)) {
-            return jwtService.generateToken(loadUserByUsername(requestDTO.email()));
+            UserDetails userDetails = loadUserByUsername(requestDTO.email());
+            String token = jwtService.generateToken(userDetails);
+            return new LoginResponseDTO(token, jwtService.extractRole(token).toString());
         }
         throw new UsernameNotFoundException(error.notFound());
     }

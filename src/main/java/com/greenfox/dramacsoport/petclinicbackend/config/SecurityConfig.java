@@ -1,6 +1,5 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
-import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtAuthenticationFilter;
 import com.greenfox.dramacsoport.petclinicbackend.services.AppUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

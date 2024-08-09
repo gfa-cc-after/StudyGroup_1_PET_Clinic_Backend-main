@@ -1,9 +1,9 @@
-package com.greenfox.dramacsoport.petclinicbackend.config.webtoken;
+package com.greenfox.dramacsoport.petclinicbackend.services;
 
+import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
-@Configuration
 public class JwtService {
     private final String secretKey = secretKeyGenerator();
     private static final long VALIDITY = TimeUnit.MINUTES.toMillis(30);
@@ -26,7 +25,9 @@ public class JwtService {
         Map<String, String> claims = new HashMap<>();
         GrantedAuthority firstAuthority = userDetails.getAuthorities().iterator().next();
         String firstAuthorityName = firstAuthority.getAuthority();
-        claims.put("role", firstAuthorityName);
+        String rolePrefix = "ROLE_";
+        String roleNameAsString = firstAuthorityName.substring(rolePrefix.length());
+        claims.put("role", roleNameAsString);
         return Jwts.builder()
                 .claims(claims)
                 .subject(userDetails.getUsername())
@@ -44,6 +45,12 @@ public class JwtService {
     public String extractUsername(String jwt) {
         Claims claims = getClaims(jwt);
         return claims.getSubject();
+    }
+
+    public Role extractRole(String jwt) {
+        Claims claims = getClaims(jwt);
+        String roleAsString = claims.get("role", String.class);
+        return Role.fromString(roleAsString);
     }
 
     private Claims getClaims(String jwt) {
