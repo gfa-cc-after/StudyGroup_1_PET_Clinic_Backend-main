@@ -12,12 +12,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -35,7 +37,7 @@ public class LoginUserTest {
     private JwtService jwtService;
 
     @Mock
-    private AppServiceErrors appServiceErrors;
+    private JavaMailSender javaMailSender;
 
     @InjectMocks
     private AppUserServiceImpl appUserService;
@@ -46,6 +48,14 @@ public class LoginUserTest {
     public void setup() {
         // Initialize test data
         loginRequestDTO = new LoginRequestDTO("test@example.com", "password");
+
+        appUserService = new AppUserServiceImpl(
+                appUserRepository,
+                passwordEncoder,
+                jwtService,
+                javaMailSender,
+                new AppServiceErrors());
+
     }
 
     @Test
@@ -71,12 +81,13 @@ public class LoginUserTest {
 
         when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(Optional.of(appUser));
         when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(false);
-        when(appServiceErrors.notFound()).thenReturn("Authentication failed!");
 
         // Act & Assert: Expect an exception due to password mismatch
-        assertThrows(UsernameNotFoundException.class, () -> {
+       UsernameNotFoundException exception =  assertThrows(UsernameNotFoundException.class, () -> {
             appUserService.login(loginRequestDTO);
         });
+
+        assertEquals("Authentication failed! User not found.", exception.getMessage());
 
         // Verify no token is generated since login should fail
         verify(jwtService, never()).generateToken(any(UserDetails.class));
