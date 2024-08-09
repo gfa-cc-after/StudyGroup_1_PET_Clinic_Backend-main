@@ -1,12 +1,12 @@
-package com.greenfox.dramacsoport.petclinicbackend.service;
+package com.greenfox.dramacsoport.petclinicbackend.services;
 
-import com.greenfox.dramacsoport.petclinicbackend.config.webtoken.JwtService;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
+import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
-import com.greenfox.dramacsoport.petclinicbackend.services.AppUserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,15 +83,20 @@ public class AppUserServiceTest {
         when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(true);
         // Mock the behavior of JWT token generation
         when(jwtService.generateToken(any(UserDetails.class))).thenReturn("mockedJwtToken");
+        // Mock the behavior of role extraction
+        when(jwtService.extractRole("mockedJwtToken")).thenReturn(Role.USER); // Use a non-null role
 
         // Act: Call the login method
-        String token = appUserService.login(loginRequestDTO);
+        LoginResponseDTO token = appUserService.login(loginRequestDTO);
 
         // Assert: Verify the token and interactions
         assertNotNull(token);
-        assertEquals("mockedJwtToken", token);
+        assertEquals("mockedJwtToken", token.token()); // Ensure you're accessing the correct field
+        assertEquals("USER", token.role()); // Verify the role is correctly extracted and matches
         verify(jwtService, times(1)).generateToken(any(UserDetails.class));
+        verify(jwtService, times(1)).extractRole("mockedJwtToken");
     }
+
 
 
 }
