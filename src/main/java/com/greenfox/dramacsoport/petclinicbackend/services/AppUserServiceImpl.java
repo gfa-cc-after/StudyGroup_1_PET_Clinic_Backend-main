@@ -132,7 +132,7 @@ public class AppUserServiceImpl implements AppUserService {
         return appUserRepository.findByEmail(email).isPresent();
     }
 
-    private void sendEmailAfterRegistration(AppUser user) {
+    public void sendEmailAfterRegistration(AppUser user) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(petClinicEmail);
         message.setTo(user.getEmail());
