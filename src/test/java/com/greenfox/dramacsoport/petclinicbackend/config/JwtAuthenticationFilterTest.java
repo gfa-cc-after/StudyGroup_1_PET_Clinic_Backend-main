@@ -23,7 +23,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.IOException;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class JwtAuthenticationFilterTest {
@@ -85,7 +86,7 @@ class JwtAuthenticationFilterTest {
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         //THEN
-        verify(filterChain, times(1)).doFilter(request, response);
+        verify(filterChain).doFilter(request, response);
         Authentication securityContextAuthNow = SecurityContextHolder.getContext().getAuthentication();
         Assertions.assertNotNull(securityContextAuthNow);
         Assertions.assertTrue(securityContextAuthNow.isAuthenticated());
@@ -108,7 +109,7 @@ class JwtAuthenticationFilterTest {
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         //THEN
-        verify(filterChain, times(1)).doFilter(request, response);
+        verify(filterChain).doFilter(request, response);
         Authentication securityContextAuthNow = SecurityContextHolder.getContext().getAuthentication();
         Assertions.assertNull(securityContextAuthNow);
     }
@@ -131,9 +132,44 @@ class JwtAuthenticationFilterTest {
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         //THEN
-        verify(filterChain, times(1)).doFilter(request, response);
+        verify(filterChain).doFilter(request, response);
         Authentication securityContextAuthNow = SecurityContextHolder.getContext().getAuthentication();
         Assertions.assertNull(securityContextAuthNow);
+    }
+
+    /**
+     * <h3>Invalid token (expired)</h3>
+     * Doesn't update SecurityContext when token expired"
+     */
+    @Test
+    @DisplayName("Invalid token (expired)")
+    public void shouldNotUpdateSecurityContextWhenTokenExpired() throws ServletException, IOException {
+        //GIVEN
+        Authentication SecurityContextAuthBefore = SecurityContextHolder.getContext().getAuthentication();
+        Assertions.assertNull(SecurityContextAuthBefore);
+
+        String token = "EXPIRED_TOKEN";
+        request.addHeader("Authorization", "Bearer " + token);
+
+        //MOCK CALLS
+        when(jwtService.isTokenValid(anyString())).thenReturn(false);
+
+        //WHEN
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+
+        //THEN
+        verify(filterChain).doFilter(request, response);
+        Authentication securityContextAuthNow = SecurityContextHolder.getContext().getAuthentication();
+        Assertions.assertNull(securityContextAuthNow);
+    }
+
+    /**
+     * <h3>User already authenticated in SecurityContextHolder</h3>
+     * Doesn't update not null authenticated SecurityContext"
+     */
+    @Test
+    @DisplayName("Already authenticated")
+    public void shouldNotUpdateSecurityContextWhenUserAlreadyAuthenticated() throws ServletException, IOException {
     }
 
     /**
@@ -144,23 +180,5 @@ class JwtAuthenticationFilterTest {
     @Test
     @DisplayName("Invalid username from token")
     public void shouldNotUpdateSecurityContextWhenUsernameIsNotValid() throws ServletException, IOException {
-    }
-
-    /**
-     * <h3>Invalid token (expired)</h3>
-     * Doesn't update SecurityContext when token expired"
-     */
-    @Test
-    @DisplayName("Invalid token (expired)")
-    public void shouldNotUpdateSecurityContextWhenTokenExpired() throws ServletException, IOException {
-    }
-
-    /**
-     * <h3>User already authenticated in SecurityContextHolder</h3>
-     * Doesn't update not null authenticated SecurityContext"
-     */
-    @Test
-    @DisplayName("Already authenticated")
-    public void shouldNotUpdateSecurityContextWhenUserAlreadyAuthenticated() throws ServletException, IOException {
     }
 }
