@@ -67,15 +67,31 @@ public class JwtServiceTest {
     }
 
     @Test
-    public void shouldGetInvalidRole() {
+    public void shouldEncodeLowercaseRoles() {
+        for (Role role : Role.values()) {
+            UserDetails testUser = User.builder()
+                    .username("testUser")
+                    .password("password")
+                    .roles(role.toString())
+                    .build();
+
+            String token = jwtService.generateToken(testUser);
+            String extractedRole = jwtService.getClaims(token).get("role", String.class);
+
+            String lowercaseRole = role.toString().toLowerCase();
+
+            assertEquals(lowercaseRole, extractedRole);
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGeneratingTokenWithInvalidRole() {
         UserDetails testUser = User.builder()
                 .username("testUser")
                 .password("password")
                 .roles("Invalid_ROLE")
                 .build();
 
-        String token = jwtService.generateToken(testUser);
-
-        assertThrows(IllegalArgumentException.class, () -> jwtService.extractRole(token));
+        assertThrows(IllegalArgumentException.class, () -> jwtService.generateToken(testUser));
     }
 }

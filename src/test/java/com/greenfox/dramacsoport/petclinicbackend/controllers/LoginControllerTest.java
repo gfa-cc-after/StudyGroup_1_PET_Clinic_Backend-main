@@ -48,8 +48,7 @@ public class LoginControllerTest {
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$.token").isString(),
-                        jsonPath("$.role").value("USER"));
+                        jsonPath("$.token").isString());
     }
 
     @Test

@@ -116,7 +116,7 @@ public class AppUserServiceImpl implements AppUserService {
         if (authenticateUser(requestDTO)) {
             UserDetails userDetails = loadUserByUsername(requestDTO.email());
             String token = jwtService.generateToken(userDetails);
-            return new LoginResponseDTO(token, jwtService.extractRole(token).toString());
+            return new LoginResponseDTO(token);
         }
         throw new UsernameNotFoundException(error.notFound());
     }
