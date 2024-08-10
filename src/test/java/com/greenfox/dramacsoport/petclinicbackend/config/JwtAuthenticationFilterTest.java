@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -25,8 +25,7 @@ import java.io.IOException;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-//@ExtendWith(MockitoExtension.class)
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class JwtAuthenticationFilterTest {
 
     //Services to test
@@ -49,7 +48,7 @@ class JwtAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        //MockitoAnnotations.openMocks(this);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         SecurityContextHolder.clearContext();
@@ -69,6 +68,7 @@ class JwtAuthenticationFilterTest {
 
         //GIVEN
         Authentication securityContextBefore = SecurityContextHolder.getContext().getAuthentication();
+        Assertions.assertNull(securityContextBefore);
         UserDetails userDetails = User.builder()
                 .username("user")
                 .password("password")
@@ -80,7 +80,7 @@ class JwtAuthenticationFilterTest {
 
         //MOCK CALLS
         when(appUserDetailsService.loadUserByUsername(anyString())).thenReturn(userDetails);
-        when(jwtService.extractUsername(anyString())).thenReturn(userDetails.getUsername());
+        when(jwtService.extractUsername(anyString())).thenReturn("user");
         when(jwtService.isTokenValid(anyString())).thenReturn(true);
         //WHEN
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
@@ -88,7 +88,8 @@ class JwtAuthenticationFilterTest {
         //THEN
         verify(filterChain, times(1)).doFilter(request, response);
         Authentication securityContextNow = SecurityContextHolder.getContext().getAuthentication();
-        Assertions.assertEquals(securityContextBefore, securityContextNow);
+        Assertions.assertNotNull(securityContextNow);
+        Assertions.assertTrue(securityContextNow.isAuthenticated());
     }
 
     //UNHAPPY PATH
