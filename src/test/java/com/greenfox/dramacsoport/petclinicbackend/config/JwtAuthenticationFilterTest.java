@@ -48,7 +48,6 @@ class JwtAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
-        //MockitoAnnotations.openMocks(this);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         SecurityContextHolder.clearContext();
@@ -79,9 +78,9 @@ class JwtAuthenticationFilterTest {
         request.addHeader("Authorization", "Bearer " + token);
 
         //MOCK CALLS
-        when(appUserDetailsService.loadUserByUsername(anyString())).thenReturn(userDetails);
-        when(jwtService.extractUsername(anyString())).thenReturn("user");
         when(jwtService.isTokenValid(anyString())).thenReturn(true);
+        when(jwtService.extractUsername(anyString())).thenReturn(userDetails.getUsername());
+        when(appUserDetailsService.loadUserByUsername(anyString())).thenReturn(userDetails);
         //WHEN
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
