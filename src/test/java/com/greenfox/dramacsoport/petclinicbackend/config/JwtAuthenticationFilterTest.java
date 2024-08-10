@@ -15,7 +15,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +27,7 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -172,6 +175,45 @@ class JwtAuthenticationFilterTest {
     @Test
     @DisplayName("Already authenticated")
     public void shouldNotUpdateSecurityContextWhenUserAlreadyAuthenticated() throws ServletException, IOException {
+
+        //GIVEN
+        UserDetails userDetails = User.builder()
+                .username("user")
+                .password("password")
+                .roles(Role.USER.name())
+                .build();
+
+        String token = "AUTHENTICATED_TOKEN";
+        request.addHeader("Authorization", "Bearer " + token);
+
+        //MOCK CALLS
+        when(jwtService.isTokenValid(anyString())).thenReturn(true);
+
+        // Simulate a non-null authentication object in the SecurityContextHolder
+        UsernamePasswordAuthenticationToken firstAuthentication = new UsernamePasswordAuthenticationToken(
+                userDetails.getUsername(),
+                userDetails.getPassword(),
+                userDetails.getAuthorities()
+        );
+        SecurityContext securityContext = mock(SecurityContext.class);
+        securityContext.setAuthentication(firstAuthentication);
+        when(securityContext.getAuthentication())
+                .thenReturn(firstAuthentication);
+        SecurityContextHolder.setContext(securityContext);
+        Assertions.assertNotNull(securityContext);
+        Assertions.assertTrue(securityContext.getAuthentication().isAuthenticated());
+
+        //WHEN
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+
+        //THEN
+        verify(jwtService, never()).extractUsername(anyString());
+        verify(appUserDetailsService, never()).loadUserByUsername(anyString());
+        verify(securityContext, times(1)).setAuthentication(any());
+        verify(filterChain).doFilter(request, response);
+
+        securityContext = SecurityContextHolder.getContext();
+        Assertions.assertTrue(securityContext.getAuthentication().isAuthenticated());
     }
 
     /**
