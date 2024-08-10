@@ -67,8 +67,8 @@ class JwtAuthenticationFilterTest {
     public void shouldAuthorizeWhenAuthHeaderAndTokenIsValid() throws ServletException, IOException {
 
         //GIVEN
-        Authentication securityContextBefore = SecurityContextHolder.getContext().getAuthentication();
-        Assertions.assertNull(securityContextBefore);
+        Authentication SecurityContextAuthBefore = SecurityContextHolder.getContext().getAuthentication();
+        Assertions.assertNull(SecurityContextAuthBefore);
         UserDetails userDetails = User.builder()
                 .username("user")
                 .password("password")
@@ -87,9 +87,9 @@ class JwtAuthenticationFilterTest {
 
         //THEN
         verify(filterChain, times(1)).doFilter(request, response);
-        Authentication securityContextNow = SecurityContextHolder.getContext().getAuthentication();
-        Assertions.assertNotNull(securityContextNow);
-        Assertions.assertTrue(securityContextNow.isAuthenticated());
+        Authentication securityContextAuthNow = SecurityContextHolder.getContext().getAuthentication();
+        Assertions.assertNotNull(securityContextAuthNow);
+        Assertions.assertTrue(securityContextAuthNow.isAuthenticated());
     }
 
     //UNHAPPY PATH
@@ -100,7 +100,18 @@ class JwtAuthenticationFilterTest {
      */
     @Test
     @DisplayName("AuthorizationHeader is missing")
-    public void shouldNotUpdateSecurityContextWhenAuthHeaderIsMissing() {
+    public void shouldNotUpdateSecurityContextWhenAuthHeaderIsMissing() throws ServletException, IOException {
+        //GIVEN
+        Authentication securityContextAuthBefore = SecurityContextHolder.getContext().getAuthentication();
+        Assertions.assertNull(securityContextAuthBefore);
+
+        //WHEN
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+
+        //THEN
+        verify(filterChain, times(1)).doFilter(request, response);
+        Authentication securityContextAuthNow = SecurityContextHolder.getContext().getAuthentication();
+        Assertions.assertNull(securityContextAuthNow);
     }
 
     /**
@@ -109,7 +120,21 @@ class JwtAuthenticationFilterTest {
      */
     @Test
     @DisplayName("Does not begin with Bearer ")
-    public void shouldNotUpdateSecurityContextWhenAuthHeaderIsInvalid() {
+    public void shouldNotUpdateSecurityContextWhenAuthHeaderIsInvalid() throws ServletException, IOException {
+        //GIVEN
+        Authentication SecurityContextAuthBefore = SecurityContextHolder.getContext().getAuthentication();
+        Assertions.assertNull(SecurityContextAuthBefore);
+
+        String token = "Invalid_TOKEN";
+        request.addHeader("Authorization", token);
+
+        //WHEN
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+
+        //THEN
+        verify(filterChain, times(1)).doFilter(request, response);
+        Authentication securityContextAuthNow = SecurityContextHolder.getContext().getAuthentication();
+        Assertions.assertNull(securityContextAuthNow);
     }
 
     /**
@@ -119,7 +144,7 @@ class JwtAuthenticationFilterTest {
      */
     @Test
     @DisplayName("Invalid username from token")
-    public void shouldNotUpdateSecurityContextWhenUsernameIsNotValid() {
+    public void shouldNotUpdateSecurityContextWhenUsernameIsNotValid() throws ServletException, IOException {
     }
 
     /**
@@ -128,7 +153,7 @@ class JwtAuthenticationFilterTest {
      */
     @Test
     @DisplayName("Invalid token (expired)")
-    public void shouldNotUpdateSecurityContextWhenTokenExpired() {
+    public void shouldNotUpdateSecurityContextWhenTokenExpired() throws ServletException, IOException {
     }
 
     /**
@@ -137,6 +162,6 @@ class JwtAuthenticationFilterTest {
      */
     @Test
     @DisplayName("Already authenticated")
-    public void shouldNotUpdateSecurityContextWhenUserAlreadyAuthenticated() {
+    public void shouldNotUpdateSecurityContextWhenUserAlreadyAuthenticated() throws ServletException, IOException {
     }
 }
