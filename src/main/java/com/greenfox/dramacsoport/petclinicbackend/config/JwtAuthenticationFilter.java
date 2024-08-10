@@ -44,9 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Extract the username from the token and load the user details
         String username = jwtService.extractUsername(jwt);
         UserDetails userDetails;
-        try {
-            userDetails = appUserDetailsService.loadUserByUsername(username);
-        } catch (Exception e) {
+        userDetails = appUserDetailsService.loadUserByUsername(username);
+        if (userDetails == null) {
             filterChain.doFilter(request, response);
             return;
         }

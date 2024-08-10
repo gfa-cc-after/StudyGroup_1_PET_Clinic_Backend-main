@@ -19,12 +19,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class JwtAuthenticationFilterTest {
@@ -68,7 +70,7 @@ class JwtAuthenticationFilterTest {
 
         //GIVEN
         Authentication SecurityContextAuthBefore = SecurityContextHolder.getContext().getAuthentication();
-        Assertions.assertNull(SecurityContextAuthBefore);
+        assertNull(SecurityContextAuthBefore);
         UserDetails userDetails = User.builder()
                 .username("user")
                 .password("password")
@@ -103,7 +105,7 @@ class JwtAuthenticationFilterTest {
     public void shouldNotUpdateSecurityContextWhenAuthHeaderIsMissing() throws ServletException, IOException {
         //GIVEN
         Authentication securityContextAuthBefore = SecurityContextHolder.getContext().getAuthentication();
-        Assertions.assertNull(securityContextAuthBefore);
+        assertNull(securityContextAuthBefore);
 
         //WHEN
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
@@ -111,7 +113,7 @@ class JwtAuthenticationFilterTest {
         //THEN
         verify(filterChain).doFilter(request, response);
         Authentication securityContextAuthNow = SecurityContextHolder.getContext().getAuthentication();
-        Assertions.assertNull(securityContextAuthNow);
+        assertNull(securityContextAuthNow);
     }
 
     /**
@@ -123,7 +125,7 @@ class JwtAuthenticationFilterTest {
     public void shouldNotUpdateSecurityContextWhenAuthHeaderIsInvalid() throws ServletException, IOException {
         //GIVEN
         Authentication SecurityContextAuthBefore = SecurityContextHolder.getContext().getAuthentication();
-        Assertions.assertNull(SecurityContextAuthBefore);
+        assertNull(SecurityContextAuthBefore);
 
         String token = "Invalid_TOKEN";
         request.addHeader("Authorization", token);
@@ -134,7 +136,7 @@ class JwtAuthenticationFilterTest {
         //THEN
         verify(filterChain).doFilter(request, response);
         Authentication securityContextAuthNow = SecurityContextHolder.getContext().getAuthentication();
-        Assertions.assertNull(securityContextAuthNow);
+        assertNull(securityContextAuthNow);
     }
 
     /**
@@ -146,7 +148,7 @@ class JwtAuthenticationFilterTest {
     public void shouldNotUpdateSecurityContextWhenTokenExpired() throws ServletException, IOException {
         //GIVEN
         Authentication SecurityContextAuthBefore = SecurityContextHolder.getContext().getAuthentication();
-        Assertions.assertNull(SecurityContextAuthBefore);
+        assertNull(SecurityContextAuthBefore);
 
         String token = "EXPIRED_TOKEN";
         request.addHeader("Authorization", "Bearer " + token);
@@ -160,7 +162,7 @@ class JwtAuthenticationFilterTest {
         //THEN
         verify(filterChain).doFilter(request, response);
         Authentication securityContextAuthNow = SecurityContextHolder.getContext().getAuthentication();
-        Assertions.assertNull(securityContextAuthNow);
+        assertNull(securityContextAuthNow);
     }
 
     /**
@@ -173,12 +175,69 @@ class JwtAuthenticationFilterTest {
     }
 
     /**
-     * <h3>Invalid username from token</h3>
-     * Doesn't update SecurityContext when username cannot be retrieved from token or user could not be found in
-     * database"
+     * <h3>Missing username field in token</h3>
+     * Doesn't update SecurityContext when username cannot be retrieved from token
      */
     @Test
-    @DisplayName("Invalid username from token")
-    public void shouldNotUpdateSecurityContextWhenUsernameIsNotValid() throws ServletException, IOException {
+    @DisplayName("Missing username field in token")
+    public void shouldNotUpdateSecurityContextWhenUsernameCannotBeExtractedFromToken() throws ServletException,
+            IOException {
+        //GIVEN
+        Authentication SecurityContextAuthBefore = SecurityContextHolder.getContext().getAuthentication();
+        assertNull(SecurityContextAuthBefore);
+
+        String token = "MISSING_USERNAME_TOKEN";
+        request.addHeader("Authorization", "Bearer " + token);
+
+        //MOCK CALLS
+        when(jwtService.isTokenValid(anyString())).thenReturn(true);
+        when(jwtService.extractUsername(anyString())).thenReturn(null);
+        when(appUserDetailsService.loadUserByUsername(null))
+                .thenThrow(new UsernameNotFoundException("Bad credentials"));
+
+        //ACT and ASSERT
+        assertThrows(UsernameNotFoundException.class, () ->
+                jwtAuthenticationFilter.doFilterInternal(request, response, filterChain));
+        //THEN
+        verify(filterChain, never()).doFilter(request, response);
+        Authentication securityContextAuthNow = SecurityContextHolder.getContext().getAuthentication();
+        assertNull(securityContextAuthNow);
     }
+
+    /**
+     * <h3>Invalid username in token</h3>
+     * Doesn't update SecurityContext when username does not match any user in database
+     */
+    @Test
+    @DisplayName("Invalid username in token")
+    public void shouldNotUpdateSecurityContextWhenUsernameCannotBeFoundInDatabase() throws ServletException,
+            IOException {
+        //GIVEN
+        UserDetails userDetails = User.builder()
+                .username("user")
+                .password("password")
+                .roles(Role.USER.name())
+                .build();
+        Authentication SecurityContextAuthBefore = SecurityContextHolder.getContext().getAuthentication();
+        assertNull(SecurityContextAuthBefore);
+
+        String token = "INVALID_USERNAME_TOKEN";
+        request.addHeader("Authorization", "Bearer " + token);
+
+        //MOCK CALLS
+        when(jwtService.isTokenValid(anyString())).thenReturn(true);
+        when(jwtService.extractUsername(anyString())).thenReturn(userDetails.getUsername());
+        when(appUserDetailsService.loadUserByUsername(anyString())).thenThrow(new UsernameNotFoundException("Bad " +
+                "credentials"));
+
+        //ACT and ASSERT
+        assertThrows(UsernameNotFoundException.class,
+                () -> jwtAuthenticationFilter.doFilterInternal(request, response, filterChain));
+
+        //THEN
+        verify(filterChain, never()).doFilter(request, response);
+        Authentication securityContextAuthNow = SecurityContextHolder.getContext().getAuthentication();
+        assertNull(securityContextAuthNow);
+    }
+
 }
