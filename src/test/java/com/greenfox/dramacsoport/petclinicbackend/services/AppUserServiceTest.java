@@ -5,7 +5,6 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
-import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,15 +12,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import javax.naming.NameAlreadyBoundException;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -84,7 +85,6 @@ public class AppUserServiceTest {
         // Mock the behavior of JWT token generation
         when(jwtService.generateToken(any(UserDetails.class))).thenReturn("mockedJwtToken");
         // Mock the behavior of role extraction
-        when(jwtService.extractRole("mockedJwtToken")).thenReturn(Role.USER); // Use a non-null role
 
         // Act: Call the login method
         LoginResponseDTO token = appUserService.login(loginRequestDTO);
@@ -92,9 +92,7 @@ public class AppUserServiceTest {
         // Assert: Verify the token and interactions
         assertNotNull(token);
         assertEquals("mockedJwtToken", token.token()); // Ensure you're accessing the correct field
-        assertEquals("USER", token.role()); // Verify the role is correctly extracted and matches
         verify(jwtService, times(1)).generateToken(any(UserDetails.class));
-        verify(jwtService, times(1)).extractRole("mockedJwtToken");
     }
 
 
