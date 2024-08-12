@@ -1,12 +1,13 @@
 package com.greenfox.dramacsoport.petclinicbackend.services;
 
+import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
 import javax.crypto.SecretKey;
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -27,19 +28,21 @@ public class JwtService {
      * . ROLE_USER).
      * To be stored in the token, it has to be mapped with the Role.getRole() method first.
      * For easier handling on the frontend, the role is stored as lowercase String in the token.
-     * @param userDetails to use for creating a JWT token
+     * @param user to use for creating a JWT token
      * @return a valid JWT token
      */
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(AppUser user) {
         Map<String, String> claims = new HashMap<>();
-        GrantedAuthority firstAuthority = userDetails.getAuthorities().iterator().next();
+        GrantedAuthority firstAuthority = user.getAuthorities().iterator().next();
         String roleNameAsString = Role.getRole(firstAuthority).toString();
 
         String roleAsLowercaseString = roleNameAsString.toLowerCase();
         claims.put("role", roleAsLowercaseString);
+        claims.put("displayName", user.getDisplayName());
+        claims.put("email", user.getUsername());
         return Jwts.builder()
                 .claims(claims)
-                .subject(userDetails.getUsername())
+                .subject(user.getUsername())
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(Instant.now().plusMillis(VALIDITY)))
                 .signWith(generateKey())
