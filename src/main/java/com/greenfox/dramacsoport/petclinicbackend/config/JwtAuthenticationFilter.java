@@ -27,14 +27,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // Check the header for the Authorization Bearer token
+        String bearer = "Bearer "; // this is just a prefix, the actual token starts from the 7th character
         String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith(bearer)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         //Remove the Bearer prefix, validate the token and check if the user is authenticated
-        String bearer = "Bearer "; // this is just a prefix, the actual token starts from the 7th character
         String jwt = authHeader.substring(bearer.length());
         if (!jwtService.isTokenValid(jwt) || SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);

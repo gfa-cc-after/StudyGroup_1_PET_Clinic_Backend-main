@@ -9,12 +9,9 @@ import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -63,19 +60,10 @@ public class AppUserServiceImpl implements AppUserService {
      * @throws UsernameNotFoundException when no entity found under this email.
      */
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        AppUser appUser = appUserRepository
+    public AppUser loadUserByUsername(String email) throws UsernameNotFoundException {
+        return appUserRepository
                 .findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(error.usernameNotFound(email)));
-        TypeMap<AppUser, UserDetails> typeMap = modelMapper.typeMap(AppUser.class, UserDetails.class);
-
-        typeMap.setProvider(
-                request -> User.withUsername(appUser.getEmail())
-                        .password(appUser.getPassword())
-                        .roles(appUser.getRole().name())
-                        .build()
-        );
-        return modelMapper.map(appUser, UserDetails.class);
     }
 
 
@@ -114,8 +102,8 @@ public class AppUserServiceImpl implements AppUserService {
     @Override
     public LoginResponseDTO login(LoginRequestDTO requestDTO) throws UsernameNotFoundException {
         if (authenticateUser(requestDTO)) {
-            UserDetails userDetails = loadUserByUsername(requestDTO.email());
-            String token = jwtService.generateToken(userDetails);
+            AppUser appUser = loadUserByUsername(requestDTO.email());
+            String token = jwtService.generateToken(appUser);
             return new LoginResponseDTO(token);
         }
         throw new UsernameNotFoundException(error.notFound());
@@ -141,7 +129,7 @@ public class AppUserServiceImpl implements AppUserService {
         message.setFrom(petClinicEmail);
         message.setTo(user.getEmail());
         message.setSubject("Registration successful - Pet Clinic");
-        message.setText("Dear " + user.getUsername() + ",\n\n" +
+        message.setText("Dear " + user.getDisplayName() + ",\n\n" +
                 "Thank you for registering to our Pet Clinic application!\n\n" +
                 "Best regards,\n" +
                 "Pet Clinic Team");
