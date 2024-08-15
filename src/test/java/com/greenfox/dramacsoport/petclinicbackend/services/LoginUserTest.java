@@ -11,9 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,7 +66,7 @@ public class LoginUserTest {
         });
 
         // Verify no token is generated since login should fail
-        verify(jwtService, never()).generateToken(any(UserDetails.class));
+        verify(jwtService, never()).generateToken(any(AppUser.class));
     }
 
     @Test
@@ -87,6 +87,6 @@ public class LoginUserTest {
         assertEquals("Authentication failed! User not found.", exception.getMessage());
 
         // Verify no token is generated since login should fail
-        verify(jwtService, never()).generateToken(any(UserDetails.class));
+        verify(jwtService, never()).generateToken(any(AppUser.class));
     }
 }

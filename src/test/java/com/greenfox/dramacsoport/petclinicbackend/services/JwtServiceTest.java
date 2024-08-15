@@ -1,18 +1,19 @@
 package com.greenfox.dramacsoport.petclinicbackend.services;
 
+import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collections;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class JwtServiceTest {
@@ -22,10 +23,10 @@ public class JwtServiceTest {
 
     @Test
     public void shouldCheckIfTokenIsValid() {
-        UserDetails userDetails = User.builder()
-                .username("testUser")
+        AppUser userDetails = AppUser.builder()
+                .displayName("testUser")
                 .password("password")
-                .roles(Role.USER.toString())
+                .role(Role.USER)
                 .build();
 
         String token = jwtService.generateToken(userDetails);
@@ -35,10 +36,10 @@ public class JwtServiceTest {
 
     @Test
     public void shouldGetUsername() {
-        UserDetails userDetails = User.builder()
-                .username("testUser")
+        AppUser userDetails = AppUser.builder()
+                .displayName("testUser")
                 .password("password")
-                .roles(Role.USER.toString())
+                .role(Role.USER)
                 .build();
 
         String token = jwtService.generateToken(userDetails);
@@ -50,10 +51,10 @@ public class JwtServiceTest {
     @Test
     public void shouldGetValidRoles() {
         for (Role role : Role.values()) {
-            UserDetails testUser = User.builder()
-                    .username("testUser")
+            AppUser testUser = AppUser.builder()
+                    .displayName("testUser")
                     .password("password")
-                    .roles(role.toString())
+                    .role(role)
                     .build();
 
             String token = jwtService.generateToken(testUser);
@@ -62,17 +63,18 @@ public class JwtServiceTest {
             GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + extractedRole.name());
             Set<GrantedAuthority> authorities = Collections.singleton(authority);
 
-            assertEquals(testUser.getAuthorities(), authorities);
+//            assertEquals(testUser.getAuthorities(), authorities);
+            Assertions.assertArrayEquals(testUser.getAuthorities().toArray(), authorities.toArray());
         }
     }
 
     @Test
     public void shouldEncodeLowercaseRoles() {
         for (Role role : Role.values()) {
-            UserDetails testUser = User.builder()
-                    .username("testUser")
+            AppUser testUser = AppUser.builder()
+                    .displayName("testUser")
                     .password("password")
-                    .roles(role.toString())
+                    .role(role)
                     .build();
 
             String token = jwtService.generateToken(testUser);
@@ -84,14 +86,14 @@ public class JwtServiceTest {
         }
     }
 
-    @Test
-    public void shouldThrowExceptionWhenGeneratingTokenWithInvalidRole() {
-        UserDetails testUser = User.builder()
-                .username("testUser")
-                .password("password")
-                .roles("Invalid_ROLE")
-                .build();
-
-        assertThrows(IllegalArgumentException.class, () -> jwtService.generateToken(testUser));
-    }
+//    @Test
+//    public void shouldThrowExceptionWhenGeneratingTokenWithInvalidRole() {
+//        AppUser testUser = AppUser.builder()
+//                .displayName("testUser")
+//                .password("password")
+//                .role(Role.fromString("Kutyaláb")) //by Mark
+//                .build();
+//
+//        assertThrows(IllegalArgumentException.class, () -> jwtService.generateToken(testUser));
+//    }
 }

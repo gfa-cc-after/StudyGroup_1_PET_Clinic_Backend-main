@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -83,7 +82,7 @@ public class AppUserServiceTest {
         // Mock the behavior of password matching
         when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(true);
         // Mock the behavior of JWT token generation
-        when(jwtService.generateToken(any(UserDetails.class))).thenReturn("mockedJwtToken");
+        when(jwtService.generateToken(any(AppUser.class))).thenReturn("mockedJwtToken");
         // Mock the behavior of role extraction
 
         // Act: Call the login method
@@ -92,7 +91,7 @@ public class AppUserServiceTest {
         // Assert: Verify the token and interactions
         assertNotNull(token);
         assertEquals("mockedJwtToken", token.token()); // Ensure you're accessing the correct field
-        verify(jwtService, times(1)).generateToken(any(UserDetails.class));
+        verify(jwtService, times(1)).generateToken(any(AppUser.class));
     }
 
 
