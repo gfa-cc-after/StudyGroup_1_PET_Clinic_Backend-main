@@ -92,6 +92,7 @@ public class AppUserServiceImpl implements AppUserService {
 
         AppUser newUser = convertToEntity(userRequest);
         newUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        newUser.setDisplayName(userRequest.getUsername());
 
         sendEmailAfterRegistration(newUser);
 

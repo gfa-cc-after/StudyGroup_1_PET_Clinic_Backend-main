@@ -29,6 +29,9 @@ public class AppUser implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Pet> pets;
+
     /**
      * Returns the authorities granted to the user. Cannot return <code>null</code>.
      *
