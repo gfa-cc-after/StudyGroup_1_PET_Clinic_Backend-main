@@ -30,4 +30,6 @@ public interface AppUserService {
      * @throws UsernameNotFoundException when the username and/or the password is incorrect.
      */
     LoginResponseDTO login(LoginRequestDTO requestDTO) throws UsernameNotFoundException;
+
+
 }

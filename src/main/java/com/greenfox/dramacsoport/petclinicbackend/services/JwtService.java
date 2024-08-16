@@ -86,4 +86,9 @@ public class JwtService {
         random.nextBytes(key);
         return Base64.getEncoder().encodeToString(key);
     }
+
+    public String stripBearer(String token) {
+        return token.substring(7);
+    }
+
 }
