@@ -1,6 +1,8 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.*;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginResponseDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
@@ -132,10 +134,13 @@ public class AppUserServiceImpl implements AppUserService {
         message.setFrom(petClinicEmail);
         message.setTo(user.getEmail());
         message.setSubject("Registration successful - Pet Clinic");
-        message.setText("Dear " + user.getDisplayName() + ",\n\n" +
-                "Thank you for registering to our Pet Clinic application!\n\n" +
-                "Best regards,\n" +
-                "Pet Clinic Team");
+        message.setText("""
+                Dear %s,
+
+                Thank you for registering to our Pet Clinic application!
+
+                Best regards,
+                Pet Clinic Team""".formatted(user.getDisplayName()));
         javaMailSender.send(message);
     }
 

@@ -60,7 +60,7 @@ public class AppUserServiceTest {
     @BeforeEach
     public void setup() {
         // Initialize test data
-        registerRequestDTO = new RegisterRequestDTO("testuser", "test@example.com","password");
+        registerRequestDTO = new RegisterRequestDTO("testUser", "test@example.com", "password");
 
         loginRequestDTO = new LoginRequestDTO("test@example.com","password");
 
@@ -91,10 +91,13 @@ public class AppUserServiceTest {
 
         assertEquals("test@example.com", actualMessage.getTo()[0]);
         assertEquals("Registration successful - Pet Clinic", actualMessage.getSubject());
-        assertEquals("Dear testUser,\n\n" +
-                        "Thank you for registering to our Pet Clinic application!\n\n" +
-                        "Best regards,\n" +
-                        "Pet Clinic Team",
+        assertEquals("""
+                        Dear testUser,
+
+                        Thank you for registering to our Pet Clinic application!
+
+                        Best regards,
+                        Pet Clinic Team""",
                 actualMessage.getText());
     }
 
