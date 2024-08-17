@@ -5,11 +5,15 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
+import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
+import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,6 +23,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.naming.NameAlreadyBoundException;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,6 +33,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AppUserServiceTest {
+
+    @InjectMocks
+    private AppUserServiceImpl appUserService;
 
     @Mock
     private AppUserRepository appUserRepository;
@@ -41,8 +49,9 @@ public class AppUserServiceTest {
     @Mock
     private JwtService jwtService;
 
-    @InjectMocks
-    private AppUserServiceImpl appUserService;
+    @Captor
+    private ArgumentCaptor<SimpleMailMessage> captor;
+
 
     private RegisterRequestDTO registerRequestDTO;
 
@@ -69,6 +78,24 @@ public class AppUserServiceTest {
         verify(appUserRepository, times(1)).save(any(AppUser.class));
         verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));
 
+    }
+
+    @Test
+    void sendEmailAfterRegistration_shouldSendEmailWhenNewUserIsRegistered() {
+        AppUser testUser = new AppUser((long) 2, "test@example.com", "testUser", "password", Role.USER,
+                List.of(new Pet()));
+        appUserService.sendEmailAfterRegistration(testUser);
+
+        verify(javaMailSender).send(captor.capture());
+        SimpleMailMessage actualMessage = captor.getValue();
+
+        assertEquals("test@example.com", actualMessage.getTo()[0]);
+        assertEquals("Registration successful - Pet Clinic", actualMessage.getSubject());
+        assertEquals("Dear testUser,\n\n" +
+                        "Thank you for registering to our Pet Clinic application!\n\n" +
+                        "Best regards,\n" +
+                        "Pet Clinic Team",
+                actualMessage.getText());
     }
 
     @Test

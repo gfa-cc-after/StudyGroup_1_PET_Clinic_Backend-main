@@ -1,34 +1,43 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
+import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
-import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @Configuration
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final AppUserService appUserService;
 
-    public JwtAuthenticationFilter(JwtService jwtService, @Lazy AppUserService appUserService) {
-        this.jwtService = jwtService;
-        this.appUserService = appUserService;
+    private final AppUserRepository appUserRepository;
+
+    //    public JwtAuthenticationFilter(JwtService jwtService, @Lazy AppUserService appUserService) {
+//        this.jwtService = jwtService;
+//        this.appUserService = appUserService;
+//    }
+
+    UserDetails loadUserDetailsByUsername(String username) {
+        return appUserRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
         // Check the header for the Authorization Bearer token
         String bearer = "Bearer "; // this is just a prefix, the actual token starts from the 7th character
         String authHeader = request.getHeader("Authorization");
@@ -46,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Extract the username from the token and load the user details
         String username = jwtService.extractUsername(jwt);
-        UserDetails userDetails = appUserService.loadUserByUsername(username);
+        UserDetails userDetails = loadUserDetailsByUsername(username);
 
         // Set user details into the security context, and authenticate the user
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
