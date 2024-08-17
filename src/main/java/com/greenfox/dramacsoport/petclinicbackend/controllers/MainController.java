@@ -1,7 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
 import com.greenfox.dramacsoport.petclinicbackend.services.petHandling.PetService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +23,5 @@ public class MainController {
     public ResponseEntity<?> handleUserHome(Principal user) {
         return new ResponseEntity<>(petService.getUserPets(user.getName()), HttpStatus.OK);
     }
-
 
 }

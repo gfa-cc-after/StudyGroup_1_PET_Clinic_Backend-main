@@ -1,6 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.services;
 
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
+import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -30,7 +33,7 @@ public class AppUserServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        testUser = new AppUser( (long)2,"test@example.com", "testUser", "password", Role.USER);
+        testUser = new AppUser((long)2,"test@example.com", "testUser", "password", Role.USER, List.of(any(Pet.class)));
     }
 
     @Test

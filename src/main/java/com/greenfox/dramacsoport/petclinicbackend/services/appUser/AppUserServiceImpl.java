@@ -4,10 +4,8 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.*;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
-import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.naming.NameAlreadyBoundException;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -114,13 +110,6 @@ public class AppUserServiceImpl implements AppUserService {
             return new LoginResponseDTO(token);
         }
         throw new UsernameNotFoundException(error.notFound());
-    }
-
-    @Override
-    public String getEmailFromToken(String tokenWithBearer) {
-        String token = jwtService.stripBearer(tokenWithBearer);
-        Claims claims= jwtService.getClaims(token);
-        return claims.getSubject();
     }
 
     private boolean authenticateUser(LoginRequestDTO requestDTO) {

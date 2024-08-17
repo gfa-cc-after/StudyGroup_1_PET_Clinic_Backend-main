@@ -37,7 +37,6 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     private final AppUserRepository appUserRepository;
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
