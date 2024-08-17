@@ -55,7 +55,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(decodedKey);
     }
 
-    public String extractUsername(String jwt) {
+    public String extractUsername(String jwt) {     //jwt is the token without prefix
         Claims claims = getClaims(jwt);
         return claims.getSubject();
     }
@@ -88,7 +88,7 @@ public class JwtService {
     }
 
     public String stripBearer(String token) {
-        return token.substring(7);
+        return token.substring(7);          // "Bearer " is 7 characters long
     }
 
 }

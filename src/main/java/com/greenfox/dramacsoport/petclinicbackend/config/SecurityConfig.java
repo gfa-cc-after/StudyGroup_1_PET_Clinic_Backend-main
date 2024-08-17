@@ -1,6 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
-import com.greenfox.dramacsoport.petclinicbackend.services.AppUserDetailsService;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

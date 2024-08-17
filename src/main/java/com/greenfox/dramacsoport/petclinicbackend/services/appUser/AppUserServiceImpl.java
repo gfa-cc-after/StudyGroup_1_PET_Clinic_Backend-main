@@ -1,12 +1,13 @@
-package com.greenfox.dramacsoport.petclinicbackend.services;
+package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginResponseDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.*;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
+import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
+import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.naming.NameAlreadyBoundException;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -61,6 +64,7 @@ public class AppUserServiceImpl implements AppUserService {
      */
     @Override
     public AppUser loadUserByUsername(String email) throws UsernameNotFoundException {
+
         return appUserRepository
                 .findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(error.usernameNotFound(email)));
@@ -92,7 +96,7 @@ public class AppUserServiceImpl implements AppUserService {
 
         AppUser newUser = convertToEntity(userRequest);
         newUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        newUser.setDisplayName(userRequest.getDisplayName());
+        //newUser.setDisplayName(userRequest.getDisplayName());
 
         sendEmailAfterRegistration(newUser);
 
@@ -108,6 +112,13 @@ public class AppUserServiceImpl implements AppUserService {
             return new LoginResponseDTO(token);
         }
         throw new UsernameNotFoundException(error.notFound());
+    }
+
+    @Override
+    public String getEmailFromToken(String tokenWithBearer) {
+        String token = jwtService.stripBearer(tokenWithBearer);
+        Claims claims= jwtService.getClaims(token);
+        return claims.getSubject();
     }
 
     private boolean authenticateUser(LoginRequestDTO requestDTO) {

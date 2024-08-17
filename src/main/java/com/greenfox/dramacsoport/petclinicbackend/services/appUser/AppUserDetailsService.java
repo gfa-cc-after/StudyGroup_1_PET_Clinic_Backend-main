@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.services;
+package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;

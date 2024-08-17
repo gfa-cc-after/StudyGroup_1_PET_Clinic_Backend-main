@@ -1,6 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
-import com.greenfox.dramacsoport.petclinicbackend.services.AppUserDetailsService;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserDetailsService;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
