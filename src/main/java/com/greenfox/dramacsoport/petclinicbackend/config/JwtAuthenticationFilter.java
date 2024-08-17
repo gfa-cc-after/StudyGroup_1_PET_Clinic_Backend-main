@@ -1,13 +1,15 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
-import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserDetailsService;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,12 +19,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Configuration
-@RequiredArgsConstructor
+@ComponentScan(value = "com.greenfox.dramacsoport.petclinicbackend")
+//@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final AppUserService appUserService;
 
-    private final AppUserDetailsService appUserDetailsService;
+    public JwtAuthenticationFilter(JwtService jwtService, @Lazy AppUserService appUserService) {
+        this.jwtService = jwtService;
+        this.appUserService = appUserService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -43,8 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Extract the username from the token and load the user details
         String username = jwtService.extractUsername(jwt);
-        UserDetails userDetails;
-        userDetails = appUserDetailsService.loadUserByUsername(username);
+        UserDetails userDetails = appUserService.loadUserByUsername(username);
 
         // Set user details into the security context, and authenticate the user
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

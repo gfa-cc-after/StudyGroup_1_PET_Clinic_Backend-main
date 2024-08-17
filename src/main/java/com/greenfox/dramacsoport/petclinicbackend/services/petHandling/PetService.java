@@ -5,5 +5,5 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public interface PetService {
 
-    PetListResponse getUserPets(HttpServletRequest request);
+    PetListResponse getUserPets(String email);
 }
