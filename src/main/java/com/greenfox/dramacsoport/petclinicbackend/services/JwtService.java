@@ -40,6 +40,7 @@ public class JwtService {
         claims.put("role", roleAsLowercaseString);
         claims.put("displayName", user.getDisplayName());
         claims.put("email", user.getUsername());
+        System.out.println("-----------------------"+claims);
         return Jwts.builder()
                 .claims(claims)
                 .subject(user.getUsername())
@@ -54,7 +55,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(decodedKey);
     }
 
-    public String extractUsername(String jwt) {
+    public String extractUsername(String jwt) {     //jwt is the token without prefix
         Claims claims = getClaims(jwt);
         return claims.getSubject();
     }
@@ -85,4 +86,9 @@ public class JwtService {
         random.nextBytes(key);
         return Base64.getEncoder().encodeToString(key);
     }
+
+    public String stripBearer(String token) {
+        return token.substring(7);          // "Bearer " is 7 characters long
+    }
+
 }

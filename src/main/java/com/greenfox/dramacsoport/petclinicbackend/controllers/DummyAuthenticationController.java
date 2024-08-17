@@ -1,6 +1,9 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
+import com.greenfox.dramacsoport.petclinicbackend.repositories.PetRepository;
+import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -13,20 +16,18 @@ public class DummyAuthenticationController {
     @Autowired
     private AppUserRepository appUserRepository;
     @Autowired
+    private PetRepository petRepository;
+    @Autowired
     private PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper = new ModelMapper();
+
+    @Autowired
+    private JwtService jwtService;
 
     @GetMapping("/home")
     public String handleWelcome() {
         return "index";
     }
 
-    @GetMapping("/admin/home")
-    public String handleAdminHome() {
-        return "home_admin";
-    }
 
-    @GetMapping("/user/home")
-    public String handleUserHome() {
-        return "home_user";
-    }
 }

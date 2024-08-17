@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.services;
+package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginResponseDTO;
@@ -20,7 +20,7 @@ public interface AppUserService {
      * @return an implementation of the security core UserDetails interface, NOT the same as the AppUser Entity
      * @throws UsernameNotFoundException when no entity found under this email.
      */
-    UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;
+    AppUser loadUserByUsername(String email) throws UsernameNotFoundException;
 
     AppUser registerUser(RegisterRequestDTO userRequest) throws PasswordException, NameAlreadyBoundException;
     /**
@@ -30,4 +30,8 @@ public interface AppUserService {
      * @throws UsernameNotFoundException when the username and/or the password is incorrect.
      */
     LoginResponseDTO login(LoginRequestDTO requestDTO) throws UsernameNotFoundException;
+
+    String getEmailFromToken (String token);
+
+
 }
