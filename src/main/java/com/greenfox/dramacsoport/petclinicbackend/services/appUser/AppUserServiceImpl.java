@@ -96,7 +96,7 @@ public class AppUserServiceImpl implements AppUserService {
         newUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
         try {
-            sendEmailAfterRegistration(newUser);
+            sendEmailAfterRegistration(userRequest);
         } catch (Exception e) {
         }
 
@@ -129,7 +129,7 @@ public class AppUserServiceImpl implements AppUserService {
         return appUserRepository.findByEmail(email).isPresent();
     }
 
-    public void sendEmailAfterRegistration(AppUser user) {
+    public void sendEmailAfterRegistration(RegisterRequestDTO user) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(petClinicEmail);
         message.setTo(user.getEmail());

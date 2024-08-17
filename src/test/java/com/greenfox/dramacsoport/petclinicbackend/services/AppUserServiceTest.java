@@ -5,8 +5,6 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
-import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
-import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +21,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.naming.NameAlreadyBoundException;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -82,8 +79,7 @@ public class AppUserServiceTest {
 
     @Test
     void sendEmailAfterRegistration_shouldSendEmailWhenNewUserIsRegistered() {
-        AppUser testUser = new AppUser((long) 2, "test@example.com", "testUser", "password", Role.USER,
-                List.of(new Pet()));
+        RegisterRequestDTO testUser = new RegisterRequestDTO("testUser", "test@example.com", "password");
         appUserService.sendEmailAfterRegistration(testUser);
 
         verify(javaMailSender).send(captor.capture());
