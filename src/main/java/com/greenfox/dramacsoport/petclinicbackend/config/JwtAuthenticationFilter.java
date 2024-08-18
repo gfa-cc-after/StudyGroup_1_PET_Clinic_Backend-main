@@ -25,11 +25,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final AppUserRepository appUserRepository;
 
-    //    public JwtAuthenticationFilter(JwtService jwtService, @Lazy AppUserService appUserService) {
-//        this.jwtService = jwtService;
-//        this.appUserService = appUserService;
-//    }
-
     UserDetails loadUserDetailsByUsername(String username) {
         return appUserRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
