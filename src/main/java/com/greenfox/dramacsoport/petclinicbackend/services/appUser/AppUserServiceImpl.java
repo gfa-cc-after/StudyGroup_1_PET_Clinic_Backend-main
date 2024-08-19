@@ -1,13 +1,13 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.*;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
-import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.naming.NameAlreadyBoundException;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -96,9 +94,11 @@ public class AppUserServiceImpl implements AppUserService {
 
         AppUser newUser = convertToEntity(userRequest);
         newUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        //newUser.setDisplayName(userRequest.getDisplayName());
 
-        sendEmailAfterRegistration(newUser);
+        try {
+            sendEmailAfterRegistration(userRequest);
+        } catch (Exception e) {
+        }
 
         return saveUser(newUser);
     }
@@ -112,13 +112,6 @@ public class AppUserServiceImpl implements AppUserService {
             return new LoginResponseDTO(token);
         }
         throw new UsernameNotFoundException(error.notFound());
-    }
-
-    @Override
-    public String getEmailFromToken(String tokenWithBearer) {
-        String token = jwtService.stripBearer(tokenWithBearer);
-        Claims claims= jwtService.getClaims(token);
-        return claims.getSubject();
     }
 
     private boolean authenticateUser(LoginRequestDTO requestDTO) {
@@ -136,15 +129,18 @@ public class AppUserServiceImpl implements AppUserService {
         return appUserRepository.findByEmail(email).isPresent();
     }
 
-    public void sendEmailAfterRegistration(AppUser user) {
+    public void sendEmailAfterRegistration(RegisterRequestDTO user) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(petClinicEmail);
         message.setTo(user.getEmail());
         message.setSubject("Registration successful - Pet Clinic");
-        message.setText("Dear " + user.getDisplayName() + ",\n\n" +
-                "Thank you for registering to our Pet Clinic application!\n\n" +
-                "Best regards,\n" +
-                "Pet Clinic Team");
+        message.setText("""
+                Dear %s,
+
+                Thank you for registering to our Pet Clinic application!
+
+                Best regards,
+                Pet Clinic Team""".formatted(user.getDisplayName()));
         javaMailSender.send(message);
     }
 

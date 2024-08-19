@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.dtos;
+package com.greenfox.dramacsoport.petclinicbackend.dtos.pet;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,6 +8,5 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class PetListResponse {
-    private String token;
     private List<PetDTO> pets;
 }

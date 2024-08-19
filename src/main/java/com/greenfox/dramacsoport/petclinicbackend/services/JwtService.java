@@ -87,8 +87,4 @@ public class JwtService {
         return Base64.getEncoder().encodeToString(key);
     }
 
-    public String stripBearer(String token) {
-        return token.substring(7);          // "Bearer " is 7 characters long
-    }
-
 }

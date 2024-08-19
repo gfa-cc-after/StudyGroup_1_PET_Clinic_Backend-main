@@ -1,9 +1,8 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.petHandling;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.PetListResponse;
-import jakarta.servlet.http.HttpServletRequest;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetListResponse;
 
 public interface PetService {
 
-    PetListResponse getUserPets(HttpServletRequest request);
+    PetListResponse getUserPets(String email);
 }

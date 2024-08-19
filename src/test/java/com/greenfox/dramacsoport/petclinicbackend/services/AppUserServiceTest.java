@@ -1,8 +1,8 @@
 package com.greenfox.dramacsoport.petclinicbackend.services;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginResponseDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
@@ -10,6 +10,8 @@ import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserServic
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,6 +31,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class AppUserServiceTest {
 
+    @InjectMocks
+    private AppUserServiceImpl appUserService;
+
     @Mock
     private AppUserRepository appUserRepository;
 
@@ -41,8 +46,9 @@ public class AppUserServiceTest {
     @Mock
     private JwtService jwtService;
 
-    @InjectMocks
-    private AppUserServiceImpl appUserService;
+    @Captor
+    private ArgumentCaptor<SimpleMailMessage> captor;
+
 
     private RegisterRequestDTO registerRequestDTO;
 
@@ -51,7 +57,7 @@ public class AppUserServiceTest {
     @BeforeEach
     public void setup() {
         // Initialize test data
-        registerRequestDTO = new RegisterRequestDTO("testuser", "test@example.com","password");
+        registerRequestDTO = new RegisterRequestDTO("testUser", "test@example.com", "password");
 
         loginRequestDTO = new LoginRequestDTO("test@example.com","password");
 
@@ -69,6 +75,26 @@ public class AppUserServiceTest {
         verify(appUserRepository, times(1)).save(any(AppUser.class));
         verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));
 
+    }
+
+    @Test
+    void sendEmailAfterRegistration_shouldSendEmailWhenNewUserIsRegistered() {
+        RegisterRequestDTO testUser = new RegisterRequestDTO("testUser", "test@example.com", "password");
+        appUserService.sendEmailAfterRegistration(testUser);
+
+        verify(javaMailSender).send(captor.capture());
+        SimpleMailMessage actualMessage = captor.getValue();
+
+        assertEquals("test@example.com", actualMessage.getTo()[0]);
+        assertEquals("Registration successful - Pet Clinic", actualMessage.getSubject());
+        assertEquals("""
+                        Dear testUser,
+
+                        Thank you for registering to our Pet Clinic application!
+
+                        Best regards,
+                        Pet Clinic Team""",
+                actualMessage.getText());
     }
 
     @Test

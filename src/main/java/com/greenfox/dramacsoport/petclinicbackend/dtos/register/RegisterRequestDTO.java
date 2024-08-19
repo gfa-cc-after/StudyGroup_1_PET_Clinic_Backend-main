@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.dtos;
+package com.greenfox.dramacsoport.petclinicbackend.dtos.register;
 
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import jakarta.validation.constraints.NotBlank;

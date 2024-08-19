@@ -1,11 +1,10 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginResponseDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.naming.NameAlreadyBoundException;
@@ -30,8 +29,5 @@ public interface AppUserService {
      * @throws UsernameNotFoundException when the username and/or the password is incorrect.
      */
     LoginResponseDTO login(LoginRequestDTO requestDTO) throws UsernameNotFoundException;
-
-    String getEmailFromToken (String token);
-
 
 }
