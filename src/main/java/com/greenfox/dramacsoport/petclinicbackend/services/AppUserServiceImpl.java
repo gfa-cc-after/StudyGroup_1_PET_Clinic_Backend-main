@@ -9,6 +9,8 @@ import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -21,6 +23,7 @@ import javax.naming.NameAlreadyBoundException;
 @RequiredArgsConstructor
 @Service
 public class AppUserServiceImpl implements AppUserService {
+    private Logger logger = LoggerFactory.getLogger(AppUserServiceImpl.class);
 
     private final AppUserRepository appUserRepository;
 
@@ -84,16 +87,23 @@ public class AppUserServiceImpl implements AppUserService {
     public AppUser registerUser(RegisterRequestDTO userRequest) throws PasswordException, NameAlreadyBoundException {
 
         if (!isPasswordLongerThanThreeChar(userRequest.getPassword())) {
+            logger.error("short password");
             throw new PasswordException(error.shortPassword());
         }
         if (isUserRegistered(userRequest.getEmail())) {
+            logger.error("short email already taken");
             throw new NameAlreadyBoundException(error.userAlreadyExists());
         }
 
         AppUser newUser = convertToEntity(userRequest);
         newUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
-        sendEmailAfterRegistration(newUser);
+        try {
+            sendEmailAfterRegistration(newUser);
+            logger.info("email sent {}", newUser.getEmail());
+        } catch (Exception e) {
+            logger.error("email failed to send {}", e.getLocalizedMessage());
+        }
 
         return saveUser(newUser);
     }
