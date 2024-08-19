@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.petHandling;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.PetDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.PetListResponse;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetListResponse;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserServiceImpl;
 import lombok.RequiredArgsConstructor;

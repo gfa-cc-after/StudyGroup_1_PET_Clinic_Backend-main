@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.dtos;
+package com.greenfox.dramacsoport.petclinicbackend.dtos.pet;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
