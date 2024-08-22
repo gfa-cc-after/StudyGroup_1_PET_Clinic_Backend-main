@@ -1,31 +1,23 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
-import com.greenfox.dramacsoport.petclinicbackend.config.JwtAuthenticationFilter;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.PetRepository;
-import com.greenfox.dramacsoport.petclinicbackend.services.petHandling.PetService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import java.util.Arrays;
-import java.util.List;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.any;
+
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -40,9 +32,6 @@ public class MainControllerTest {
 
     @Autowired
     private AppUserRepository appUserRepository;
-
-//    @MockBean
-//    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @BeforeEach
     public void setUp() {
@@ -69,12 +58,11 @@ public class MainControllerTest {
     @Test
     @WithMockUser(username = "userWithPets@example.com")
     public void testCorrectEmailWithExistingPets() throws Exception {
-//        doNothing().when(jwtAuthenticationFilter).doFilterInternal(any(), any(), any());
-        List<Pet> petList = petRepository.findAllByOwnerId(1L);
         mockMvc.perform(get("/user/home")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[{'name':'Buddy'},{'name':'Max'}]"));
+                .andExpect(jsonPath("$.pets[0].petName").value("Buddy"))
+                .andExpect(jsonPath("$.pets[1].petName").value("Max"));
     }
 
     @Test
@@ -83,7 +71,7 @@ public class MainControllerTest {
         mockMvc.perform(get("/user/home")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
+                .andExpect(jsonPath("$.pets").isEmpty());
     }
 
     @Test
@@ -91,8 +79,7 @@ public class MainControllerTest {
     public void testHandleUserHome_IncorrectEmail() throws Exception {
         mockMvc.perform(get("/user/home")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
+                .andExpect(status().isForbidden());
     }
 }
 
