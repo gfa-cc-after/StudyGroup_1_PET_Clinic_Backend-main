@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
+package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
@@ -29,10 +29,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class AppUserServiceTest {
+public class AppUserAuthServiceTest {
 
     @InjectMocks
-    private AppUserServiceImpl appUserService;
+    private AppUserAuthServiceImpl appUserAuthService;
 
     @Mock
     private AppUserRepository appUserRepository;
@@ -69,7 +69,7 @@ public class AppUserServiceTest {
     @Test
     public void registerMethodIsSuccessfullyCalled() throws PasswordException, NameAlreadyBoundException {
 
-        appUserService.registerUser(registerRequestDTO);
+        appUserAuthService.registerUser(registerRequestDTO);
 
         verify(passwordEncoder, times(1)).encode(registerRequestDTO.getPassword());
         verify(appUserRepository, times(1)).save(any(AppUser.class));
@@ -80,7 +80,7 @@ public class AppUserServiceTest {
     @Test
     void sendEmailAfterRegistration_shouldSendEmailWhenNewUserIsRegistered() {
         RegisterRequestDTO testUser = new RegisterRequestDTO("testUser", "test@example.com", "password");
-        appUserService.sendEmailAfterRegistration(testUser);
+        appUserAuthService.sendEmailAfterRegistration(testUser);
 
         verify(javaMailSender).send(captor.capture());
         SimpleMailMessage actualMessage = captor.getValue();
@@ -113,7 +113,7 @@ public class AppUserServiceTest {
         // Mock the behavior of role extraction
 
         // Act: Call the login method
-        LoginResponseDTO token = appUserService.login(loginRequestDTO);
+        LoginResponseDTO token = appUserAuthService.login(loginRequestDTO);
 
         // Assert: Verify the token and interactions
         assertNotNull(token);

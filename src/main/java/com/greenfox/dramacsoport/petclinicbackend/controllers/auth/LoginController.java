@@ -1,7 +1,7 @@
-package com.greenfox.dramacsoport.petclinicbackend.controllers;
+package com.greenfox.dramacsoport.petclinicbackend.controllers.auth;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AppUserAuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginController {
 
     @Autowired
-    private AppUserService appUserService;
+    private AppUserAuthService appUserAuthService;
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequestDTO requestDTO,
@@ -26,7 +26,7 @@ public class LoginController {
             return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
         }
         try {
-            return new ResponseEntity<>(appUserService.login(requestDTO), HttpStatus.OK);
+            return new ResponseEntity<>(appUserAuthService.login(requestDTO), HttpStatus.OK);
         } catch (UsernameNotFoundException e) {
             return new ResponseEntity<>("Bad credentials!", HttpStatus.FORBIDDEN);
         }

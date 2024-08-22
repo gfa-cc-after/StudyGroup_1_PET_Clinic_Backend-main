@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
+package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
@@ -38,7 +38,7 @@ public class LoginUserTest {
     private JavaMailSender javaMailSender;
 
     @InjectMocks
-    private AppUserServiceImpl appUserService;
+    private AppUserAuthServiceImpl appUserAuthService;
 
     private LoginRequestDTO loginRequestDTO;
 
@@ -47,7 +47,7 @@ public class LoginUserTest {
         // Initialize test data
         loginRequestDTO = new LoginRequestDTO("test@example.com", "password");
 
-        appUserService = new AppUserServiceImpl(
+        appUserAuthService = new AppUserAuthServiceImpl(
                 appUserRepository,
                 passwordEncoder,
                 jwtService,
@@ -63,7 +63,7 @@ public class LoginUserTest {
 
         // Act & Assert: Expect an exception due to email mismatch
         assertThrows(UsernameNotFoundException.class, () -> {
-            appUserService.login(loginRequestDTO);
+            appUserAuthService.login(loginRequestDTO);
         });
 
         // Verify no token is generated since login should fail
@@ -82,7 +82,7 @@ public class LoginUserTest {
 
         // Act & Assert: Expect an exception due to password mismatch
        UsernameNotFoundException exception =  assertThrows(UsernameNotFoundException.class, () -> {
-            appUserService.login(loginRequestDTO);
+            appUserAuthService.login(loginRequestDTO);
         });
 
         assertEquals("Authentication failed! User not found.", exception.getMessage());
