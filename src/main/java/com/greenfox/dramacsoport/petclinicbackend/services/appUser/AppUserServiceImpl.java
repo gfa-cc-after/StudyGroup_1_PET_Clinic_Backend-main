@@ -101,7 +101,7 @@ public class AppUserServiceImpl implements AppUserService {
         newUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
         try {
-            sendEmailAfterRegistration(newUser);
+            sendEmailAfterRegistration(userRequest);
             logger.info("email sent {}", newUser.getEmail());
         } catch (Exception e) {
             logger.error("email failed to send {}", e.getLocalizedMessage());
