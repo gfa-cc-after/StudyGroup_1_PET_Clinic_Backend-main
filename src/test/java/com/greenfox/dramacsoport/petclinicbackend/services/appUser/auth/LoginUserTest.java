@@ -85,7 +85,7 @@ public class LoginUserTest {
             appUserAuthService.login(loginRequestDTO);
         });
 
-        assertEquals("Authentication failed! User not found.", exception.getMessage());
+        assertEquals("Authentication failed! Bad credentials.", exception.getMessage());
 
         // Verify no token is generated since login should fail
         verify(jwtService, never()).generateToken(any(AppUser.class));
