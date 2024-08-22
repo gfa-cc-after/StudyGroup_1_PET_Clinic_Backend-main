@@ -38,7 +38,7 @@ public class LoginUserTest {
     private JavaMailSender javaMailSender;
 
     @InjectMocks
-    private AppUserAuthServiceImpl appUserAuthService;
+    private AuthServiceImpl appUserAuthService;
 
     private LoginRequestDTO loginRequestDTO;
 
@@ -47,7 +47,7 @@ public class LoginUserTest {
         // Initialize test data
         loginRequestDTO = new LoginRequestDTO("test@example.com", "password");
 
-        appUserAuthService = new AppUserAuthServiceImpl(
+        appUserAuthService = new AuthServiceImpl(
                 appUserRepository,
                 passwordEncoder,
                 jwtService,

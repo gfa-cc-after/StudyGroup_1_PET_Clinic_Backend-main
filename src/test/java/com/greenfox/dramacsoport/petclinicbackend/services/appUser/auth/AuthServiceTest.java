@@ -29,10 +29,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class AppUserAuthServiceTest {
+public class AuthServiceTest {
 
     @InjectMocks
-    private AppUserAuthServiceImpl appUserAuthService;
+    private AuthServiceImpl appUserAuthService;
 
     @Mock
     private AppUserRepository appUserRepository;

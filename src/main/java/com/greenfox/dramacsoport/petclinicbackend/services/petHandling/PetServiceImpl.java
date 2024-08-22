@@ -4,7 +4,7 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetListResponse;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.PetRepository;
-import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AppUserAuthServiceImpl;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AuthServiceImpl;
 import lombok.RequiredArgsConstructor;
 
 import org.modelmapper.ModelMapper;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PetServiceImpl implements PetService{
-    private final AppUserAuthServiceImpl appUserAuthService;
+    private final AuthServiceImpl appUserAuthService;
     private final PetRepository petRepository;
     private final ModelMapper modelMapper = new ModelMapper();
 

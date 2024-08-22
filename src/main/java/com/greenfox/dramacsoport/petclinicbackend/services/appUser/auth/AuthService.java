@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.naming.NameAlreadyBoundException;
 
-public interface AppUserAuthService {
+public interface AuthService {
     AppUser saveUser(AppUser user);
 
     /**

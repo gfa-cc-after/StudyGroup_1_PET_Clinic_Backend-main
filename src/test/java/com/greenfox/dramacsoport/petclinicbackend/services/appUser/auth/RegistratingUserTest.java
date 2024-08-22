@@ -40,7 +40,7 @@ public class RegistratingUserTest {
     private JwtService jwtService;
 
     @InjectMocks
-    private AppUserAuthServiceImpl appUserAuthService;
+    private AuthServiceImpl appUserAuthService;
 
     private RegisterRequestDTO registerRequestDTO;
 
@@ -49,7 +49,7 @@ public class RegistratingUserTest {
         // Initialize test data
         registerRequestDTO = new RegisterRequestDTO("testuser", "test@example.com","password");
 
-        appUserAuthService = new AppUserAuthServiceImpl(
+        appUserAuthService = new AuthServiceImpl(
                 appUserRepository,
                 passwordEncoder,
                 jwtService,

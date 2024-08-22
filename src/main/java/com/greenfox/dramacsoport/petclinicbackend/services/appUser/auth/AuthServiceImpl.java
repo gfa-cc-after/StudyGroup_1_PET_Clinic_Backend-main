@@ -21,7 +21,7 @@ import javax.naming.NameAlreadyBoundException;
 
 @RequiredArgsConstructor
 @Service
-public class AppUserAuthServiceImpl implements AppUserAuthService {
+public class AuthServiceImpl implements AuthService {
 
     private final AppUserRepository appUserRepository;
 

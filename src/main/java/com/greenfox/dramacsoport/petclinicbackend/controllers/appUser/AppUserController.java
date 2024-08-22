@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.controllers;
+package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser;
 
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.DeletionException;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
@@ -13,7 +13,7 @@ import java.security.Principal;
 
 @RequiredArgsConstructor
 @Controller
-public class UserController {
+public class AppUserController {
 
     private final AppUserService appUserService;
 
