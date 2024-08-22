@@ -6,12 +6,15 @@ import com.greenfox.dramacsoport.petclinicbackend.exeptions.DeletionException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
 public class AppUserServiceImpl implements AppUserService{
+    private Logger logger = LoggerFactory.getLogger(AppUserServiceImpl.class);
 
     private final AppUserRepository appUserRepository;
     private final AppServiceErrors error;
