@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import org.junit.jupiter.api.Test;

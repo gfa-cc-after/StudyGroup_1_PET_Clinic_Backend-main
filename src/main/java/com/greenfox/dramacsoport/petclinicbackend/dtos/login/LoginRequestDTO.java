@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.dtos;
+package com.greenfox.dramacsoport.petclinicbackend.dtos.login;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

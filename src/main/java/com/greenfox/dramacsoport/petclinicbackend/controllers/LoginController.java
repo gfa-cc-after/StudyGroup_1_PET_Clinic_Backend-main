@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.services.AppUserService;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

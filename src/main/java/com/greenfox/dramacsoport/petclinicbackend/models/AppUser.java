@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,6 +29,9 @@ public class AppUser implements UserDetails {
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL , fetch = FetchType.LAZY)
+    private List<Pet> pets = new ArrayList<>();
 
     /**
      * Returns the authorities granted to the user. Cannot return <code>null</code>.

@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.services.AppUserService;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

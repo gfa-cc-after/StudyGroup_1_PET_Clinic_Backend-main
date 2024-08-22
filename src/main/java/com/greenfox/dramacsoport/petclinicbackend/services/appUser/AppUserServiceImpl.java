@@ -1,12 +1,13 @@
-package com.greenfox.dramacsoport.petclinicbackend.services;
+package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.LoginResponseDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.RegisterRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
+import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -64,6 +65,7 @@ public class AppUserServiceImpl implements AppUserService {
      */
     @Override
     public AppUser loadUserByUsername(String email) throws UsernameNotFoundException {
+
         return appUserRepository
                 .findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(error.usernameNotFound(email)));
@@ -99,7 +101,7 @@ public class AppUserServiceImpl implements AppUserService {
         newUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
         try {
-            sendEmailAfterRegistration(newUser);
+            sendEmailAfterRegistration(userRequest);
             logger.info("email sent {}", newUser.getEmail());
         } catch (Exception e) {
             logger.error("email failed to send {}", e.getLocalizedMessage());
@@ -134,15 +136,18 @@ public class AppUserServiceImpl implements AppUserService {
         return appUserRepository.findByEmail(email).isPresent();
     }
 
-    public void sendEmailAfterRegistration(AppUser user) {
+    public void sendEmailAfterRegistration(RegisterRequestDTO user) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(petClinicEmail);
         message.setTo(user.getEmail());
         message.setSubject("Registration successful - Pet Clinic");
-        message.setText("Dear " + user.getDisplayName() + ",\n\n" +
-                "Thank you for registering to our Pet Clinic application!\n\n" +
-                "Best regards,\n" +
-                "Pet Clinic Team");
+        message.setText("""
+                Dear %s,
+
+                Thank you for registering to our Pet Clinic application!
+
+                Best regards,
+                Pet Clinic Team""".formatted(user.getDisplayName()));
         javaMailSender.send(message);
     }
 

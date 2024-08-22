@@ -1,7 +1,8 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
+import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
-import com.greenfox.dramacsoport.petclinicbackend.services.AppUserDetailsService;
+import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,11 +20,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -43,7 +43,7 @@ class JwtAuthenticationFilterTest {
     JwtService jwtService;
 
     @Mock
-    AppUserDetailsService appUserDetailsService;
+    AppUserRepository repository;
 
     @Mock
     FilterChain filterChain;
@@ -52,11 +52,19 @@ class JwtAuthenticationFilterTest {
 
     MockHttpServletResponse response;
 
+    AppUser appUser;
+
     @BeforeEach
     void setUp() {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         SecurityContextHolder.clearContext();
+        appUser = AppUser.builder()
+                .email("user@example.com")
+                .displayName("user")
+                .password("password")
+                .role(Role.USER)
+                .build();
     }
 
     /**
@@ -74,19 +82,14 @@ class JwtAuthenticationFilterTest {
         //GIVEN
         Authentication SecurityContextAuthBefore = SecurityContextHolder.getContext().getAuthentication();
         assertNull(SecurityContextAuthBefore);
-        UserDetails userDetails = User.builder()
-                .username("user")
-                .password("password")
-                .roles(Role.USER.name())
-                .build();
 
         String token = "token";
         request.addHeader("Authorization", "Bearer " + token);
 
         //MOCK CALLS
         when(jwtService.isTokenValid(anyString())).thenReturn(true);
-        when(jwtService.extractUsername(anyString())).thenReturn(userDetails.getUsername());
-        when(appUserDetailsService.loadUserByUsername(anyString())).thenReturn(userDetails);
+        when(jwtService.extractUsername(anyString())).thenReturn(appUser.getUsername());
+        when(repository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
         //WHEN
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
@@ -177,12 +180,6 @@ class JwtAuthenticationFilterTest {
     public void shouldNotUpdateSecurityContextWhenUserAlreadyAuthenticated() throws ServletException, IOException {
 
         //GIVEN
-        UserDetails userDetails = User.builder()
-                .username("user")
-                .password("password")
-                .roles(Role.USER.name())
-                .build();
-
         String token = "AUTHENTICATED_TOKEN";
         request.addHeader("Authorization", "Bearer " + token);
 
@@ -191,9 +188,9 @@ class JwtAuthenticationFilterTest {
 
         // Simulate a non-null authentication object in the SecurityContextHolder
         UsernamePasswordAuthenticationToken firstAuthentication = new UsernamePasswordAuthenticationToken(
-                userDetails.getUsername(),
-                userDetails.getPassword(),
-                userDetails.getAuthorities()
+                appUser.getUsername(),
+                appUser.getPassword(),
+                appUser.getAuthorities()
         );
         SecurityContext securityContext = mock(SecurityContext.class);
         securityContext.setAuthentication(firstAuthentication);
@@ -208,7 +205,7 @@ class JwtAuthenticationFilterTest {
 
         //THEN
         verify(jwtService, never()).extractUsername(anyString());
-        verify(appUserDetailsService, never()).loadUserByUsername(anyString());
+        verify(repository, never()).findByEmail(anyString());
         verify(securityContext, times(1)).setAuthentication(any());
         verify(filterChain).doFilter(request, response);
 
@@ -234,7 +231,7 @@ class JwtAuthenticationFilterTest {
         //MOCK CALLS
         when(jwtService.isTokenValid(anyString())).thenReturn(true);
         when(jwtService.extractUsername(anyString())).thenReturn(null);
-        when(appUserDetailsService.loadUserByUsername(null))
+        when(repository.findByEmail(null))
                 .thenThrow(new UsernameNotFoundException("Bad credentials"));
 
         //ACT and ASSERT
@@ -255,11 +252,6 @@ class JwtAuthenticationFilterTest {
     public void shouldNotUpdateSecurityContextWhenUsernameCannotBeFoundInDatabase() throws ServletException,
             IOException {
         //GIVEN
-        UserDetails userDetails = User.builder()
-                .username("user")
-                .password("password")
-                .roles(Role.USER.name())
-                .build();
         Authentication SecurityContextAuthBefore = SecurityContextHolder.getContext().getAuthentication();
         assertNull(SecurityContextAuthBefore);
 
@@ -268,8 +260,8 @@ class JwtAuthenticationFilterTest {
 
         //MOCK CALLS
         when(jwtService.isTokenValid(anyString())).thenReturn(true);
-        when(jwtService.extractUsername(anyString())).thenReturn(userDetails.getUsername());
-        when(appUserDetailsService.loadUserByUsername(anyString())).thenThrow(new UsernameNotFoundException("Bad " +
+        when(jwtService.extractUsername(anyString())).thenReturn(appUser.getUsername());
+        when(repository.findByEmail(anyString())).thenThrow(new UsernameNotFoundException("Bad " +
                 "credentials"));
 
         //ACT and ASSERT

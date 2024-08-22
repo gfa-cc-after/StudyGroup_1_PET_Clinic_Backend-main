@@ -1,6 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
-import com.greenfox.dramacsoport.petclinicbackend.services.AppUserDetailsService;
+import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,10 +23,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
-    private final AppUserDetailsService appUserDetailsService;
+    private final AppUserRepository appUserRepository;
+
+    UserDetails loadUserDetailsByUsername(String username) {
+        return appUserRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
         // Check the header for the Authorization Bearer token
         String bearer = "Bearer "; // this is just a prefix, the actual token starts from the 7th character
         String authHeader = request.getHeader("Authorization");
@@ -43,8 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Extract the username from the token and load the user details
         String username = jwtService.extractUsername(jwt);
-        UserDetails userDetails;
-        userDetails = appUserDetailsService.loadUserByUsername(username);
+        UserDetails userDetails = loadUserDetailsByUsername(username);
 
         // Set user details into the security context, and authenticate the user
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
