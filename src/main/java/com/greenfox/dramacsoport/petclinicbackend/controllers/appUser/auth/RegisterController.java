@@ -20,7 +20,7 @@ public class RegisterController {
     @Autowired
     private AuthService authService;
 
-    private Logger logger = LoggerFactory.getLogger(RegisterController.class);
+    private final Logger logger = LoggerFactory.getLogger(RegisterController.class);
 
     @PostMapping("/register")
     @ResponseBody
