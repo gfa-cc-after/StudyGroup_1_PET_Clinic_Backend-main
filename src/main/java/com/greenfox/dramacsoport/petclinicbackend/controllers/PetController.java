@@ -11,16 +11,12 @@ import java.security.Principal;
 
 @RequiredArgsConstructor
 @Controller
-public class MainController {
+public class PetController {
 
     private final PetService petService;
-    @GetMapping("/admin/home")
-    public String handleAdminHome() {
-        return "home_admin";
-    }
 
-    @GetMapping("/user/home")
-    public ResponseEntity<?> handleUserHome(Principal user) {
+    @GetMapping("/user/pets")
+    public ResponseEntity<?> getPets(Principal user) {
         return new ResponseEntity<>(petService.getUserPets(user.getName()), HttpStatus.OK);
     }
 

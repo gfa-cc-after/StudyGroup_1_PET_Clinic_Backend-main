@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class MainControllerTest {
+public class PetControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -58,7 +58,7 @@ public class MainControllerTest {
     @Test
     @WithMockUser(username = "userWithPets@example.com")
     public void testCorrectEmailWithExistingPets() throws Exception {
-        mockMvc.perform(get("/user/home")
+        mockMvc.perform(get("/user/pets")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.pets[0].petName").value("Buddy"))
@@ -68,7 +68,7 @@ public class MainControllerTest {
     @Test
     @WithMockUser(username = "userWithNoPets@example.com")
     public void testCorrectEmailWithNoExistingPets() throws Exception {
-        mockMvc.perform(get("/user/home")
+        mockMvc.perform(get("/user/pets")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.pets").isEmpty());
@@ -76,8 +76,8 @@ public class MainControllerTest {
 
     @Test
     @WithMockUser(username = "nonExistingUser@example.com")
-    public void testHandleUserHome_IncorrectEmail() throws Exception {
-        mockMvc.perform(get("/user/home")
+    public void testIncorrectEmail() throws Exception {
+        mockMvc.perform(get("/user/pets")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
