@@ -3,6 +3,7 @@ package com.greenfox.dramacsoport.petclinicbackend.services.petHandling;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetListResponse;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
+import com.greenfox.dramacsoport.petclinicbackend.repositories.PetRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AppUserAuthServiceImpl;
 import lombok.RequiredArgsConstructor;
 
@@ -15,12 +16,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PetServiceImpl implements PetService{
-    private final AppUserAuthServiceImpl appUserService;
-
+    private final AppUserAuthServiceImpl appUserAuthService;
+    private final PetRepository petRepository;
     private final ModelMapper modelMapper = new ModelMapper();
+
     @Override
     public PetListResponse getUserPets(String email) {
-        List<Pet> petList=  appUserService.loadUserByUsername(email).getPets();
+        List<Pet> petList=  petRepository.findAllByOwnerId(appUserAuthService.loadUserByUsername(email).getId());
 
         List<PetDTO> petDTOList = petList.stream()
                 .map(pet -> modelMapper.map(pet, PetDTO.class))
