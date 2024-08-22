@@ -1,5 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
+import com.greenfox.dramacsoport.petclinicbackend.exeptions.DeletionException;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import com.greenfox.dramacsoport.petclinicbackend.services.petHandling.PetService;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +32,14 @@ public class MainController {
 
     @DeleteMapping("/user/delete")
     public ResponseEntity<?> deleteUser(Principal user) {
-        System.out.println(user.getName());
         try {
             return new ResponseEntity<>(appUserService.deleteUser(user.getName()), HttpStatus.OK);
         } catch (UsernameNotFoundException e) {
             return new ResponseEntity<>("Bad credentials!", HttpStatus.FORBIDDEN);
+        } catch (DeletionException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
