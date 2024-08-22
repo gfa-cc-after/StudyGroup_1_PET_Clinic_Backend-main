@@ -9,7 +9,7 @@ public class AppServiceErrors {
 
     public static final String USER_ALREADY_EXISTS = "User already exists.";
 
-    public static final String NOT_FOUND = "Authentication failed! User not found.";
+    public static final String AUTHENTICATION_FAILED_BAD_CREDENTIALS = "Authentication failed! Bad credentials.";
 
     public static final String USERNAME_NOT_FOUND = "User cannot be found with this email: ";
 
@@ -22,7 +22,7 @@ public class AppServiceErrors {
     }
 
     public String notFound() {
-        return NOT_FOUND;
+        return AUTHENTICATION_FAILED_BAD_CREDENTIALS;
     }
 
     public String usernameNotFound(String email) {
