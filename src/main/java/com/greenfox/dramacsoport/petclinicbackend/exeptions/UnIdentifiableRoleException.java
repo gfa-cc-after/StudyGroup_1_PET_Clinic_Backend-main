@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.errors;
+package com.greenfox.dramacsoport.petclinicbackend.exeptions;
 
 /**
  * This exception should be used when a role cannot be identified from a String (e.g when extracting from a token)
