@@ -49,7 +49,6 @@ public class AuthServiceTest {
     @Captor
     private ArgumentCaptor<SimpleMailMessage> captor;
 
-
     private RegisterRequestDTO registerRequestDTO;
 
     private LoginRequestDTO loginRequestDTO;
@@ -120,7 +119,5 @@ public class AuthServiceTest {
         assertEquals("mockedJwtToken", token.token()); // Ensure you're accessing the correct field
         verify(jwtService, times(1)).generateToken(any(AppUser.class));
     }
-
-
 
 }
