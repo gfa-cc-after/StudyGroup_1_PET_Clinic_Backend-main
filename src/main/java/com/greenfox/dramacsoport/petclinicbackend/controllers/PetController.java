@@ -1,5 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
+import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetDTO;
 import com.greenfox.dramacsoport.petclinicbackend.services.petHandling.PetService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -8,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.security.Principal;
 
@@ -22,6 +25,11 @@ public class PetController {
     public ResponseEntity<?> getPets(Principal user) {
         logger.info("Getting pets for user: {}", user.getName());
         return new ResponseEntity<>(petService.getUserPets(user.getName()), HttpStatus.OK);
+    }
+
+    @PostMapping("user/pet/add")
+    public ResponseEntity<?> addPet(Principal user, @RequestBody PetDTO petDTO){
+        return new ResponseEntity<>(petService.addPet(user.getName(),petDTO),HttpStatus.OK);
     }
 
 }
