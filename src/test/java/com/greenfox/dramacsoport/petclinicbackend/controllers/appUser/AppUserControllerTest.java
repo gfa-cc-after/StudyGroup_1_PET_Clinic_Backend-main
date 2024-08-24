@@ -36,7 +36,7 @@ public class AppUserControllerTest {
         when(appUserService.deleteUser(anyString())).thenReturn(response);
 
         // Act & Assert
-        this.mockMvc.perform(delete("/user/delete")
+        this.mockMvc.perform(delete("/api/v1/user/delete")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"message\":\"Your profile has been successfully deleted.\"}"));

@@ -9,17 +9,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.security.Principal;
 
 @RequiredArgsConstructor
 @Controller
+@RequestMapping("api/v1/user")
 public class AppUserController {
 
     private final AppUserService appUserService;
     private final Logger logger = LoggerFactory.getLogger(AppUserController.class);
 
-    @DeleteMapping("/user/delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<?> deleteUser(Principal user) {
         try {
             logger.info("Deleting user: {}", user.getName());

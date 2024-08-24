@@ -42,7 +42,7 @@ public class LoginControllerTest {
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", "ValidPassword1");
 
-        this.mockMvc.perform(post("/login")
+        this.mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpectAll(
@@ -57,7 +57,7 @@ public class LoginControllerTest {
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("aaa@example.com", "password");
 
-        this.mockMvc.perform(post("/login")
+        this.mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpectAll(
@@ -75,7 +75,7 @@ public class LoginControllerTest {
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", "wrongPassword");
 
-        this.mockMvc.perform(post("/login")
+        this.mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpectAll(
@@ -94,7 +94,7 @@ public class LoginControllerTest {
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", "");
 
-        this.mockMvc.perform(post("/login")
+        this.mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpectAll(
@@ -113,7 +113,7 @@ public class LoginControllerTest {
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", null);
 
-        this.mockMvc.perform(post("/login")
+        this.mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpectAll(
@@ -132,7 +132,7 @@ public class LoginControllerTest {
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("", "password");
 
-        this.mockMvc.perform(post("/login")
+        this.mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpectAll(
