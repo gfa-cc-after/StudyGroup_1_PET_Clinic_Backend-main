@@ -1,7 +1,7 @@
-package com.greenfox.dramacsoport.petclinicbackend.controllers;
+package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser.auth;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AuthService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class RegisterController {
 
     @Autowired
-    private AppUserService appUserService;
+    private AuthService authService;
 
-    private Logger logger = LoggerFactory.getLogger(RegisterController.class);
+    private final Logger logger = LoggerFactory.getLogger(RegisterController.class);
+
     @PostMapping("/register")
     @ResponseBody
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequestDTO newUserDTO,
@@ -31,7 +32,7 @@ public class RegisterController {
         }
 
         try {
-            appUserService.registerUser(newUserDTO);
+            authService.registerUser(newUserDTO);
             logger.info("successful reg");
             return new ResponseEntity<>("User registered", HttpStatus.CREATED);
         } catch (Exception e) {

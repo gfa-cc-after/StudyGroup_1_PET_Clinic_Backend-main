@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.controllers;
+package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;

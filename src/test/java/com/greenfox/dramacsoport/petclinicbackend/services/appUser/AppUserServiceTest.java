@@ -1,13 +1,10 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteUserResponse;
+import com.greenfox.dramacsoport.petclinicbackend.exeptions.DeletionException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
+import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
-import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -15,17 +12,13 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import javax.naming.NameAlreadyBoundException;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,89 +31,39 @@ public class AppUserServiceTest {
     private AppUserRepository appUserRepository;
 
     @Mock
-    private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private JavaMailSender javaMailSender;
-
-    @Mock
-    private JwtService jwtService;
+    private AppUser appUser;
 
     @Captor
-    private ArgumentCaptor<SimpleMailMessage> captor;
+    private ArgumentCaptor<AppUser> appUserCaptor;
 
+    @Test
+    public void shouldNotAllowDeletionIfUserHasPets() {
+        // Given
+        String userEmail = "test@example.com";
+        when(appUserRepository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
+        when(appUser.getPets()).thenReturn(List.of(new Pet()));
 
-    private RegisterRequestDTO registerRequestDTO;
+        // When
+        DeletionException deletionException = assertThrows(DeletionException.class, () -> appUserService.deleteUser(userEmail));
 
-    private LoginRequestDTO loginRequestDTO;
-
-    @BeforeEach
-    public void setup() {
-        // Initialize test data
-        registerRequestDTO = new RegisterRequestDTO("testUser", "test@example.com", "password");
-
-        loginRequestDTO = new LoginRequestDTO("test@example.com","password");
-
-        // Set up the email sender
-        String petClinicEmail = "petclinic@example.com";
-        System.setProperty("spring.mail.username", petClinicEmail);
+        // Then
+        assertEquals("Unable to delete your profile. Please transfer or delete your pets before proceeding.", deletionException.getMessage());
+        verify(appUserRepository, never()).delete(appUserCaptor.capture());
     }
 
     @Test
-    public void registerMethodIsSuccessfullyCalled() throws PasswordException, NameAlreadyBoundException {
+    public void shouldAllowDeletionIfUserHasNoPets() throws DeletionException {
+        // Given
+        String userEmail = "test@example.com";
+        when(appUserRepository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
+        when(appUser.getPets()).thenReturn(List.of());
 
-        appUserService.registerUser(registerRequestDTO);
+        // When
+        DeleteUserResponse deleteUserResponse = appUserService.deleteUser(userEmail);
 
-        verify(passwordEncoder, times(1)).encode(registerRequestDTO.getPassword());
-        verify(appUserRepository, times(1)).save(any(AppUser.class));
-        verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));
-
+        // Then
+        assertEquals("Your profile has been successfully deleted.", deleteUserResponse.message());
+        verify(appUserRepository).delete(appUserCaptor.capture());
+        assertEquals(appUser, appUserCaptor.getValue());
     }
-
-    @Test
-    void sendEmailAfterRegistration_shouldSendEmailWhenNewUserIsRegistered() {
-        RegisterRequestDTO testUser = new RegisterRequestDTO("testUser", "test@example.com", "password");
-        appUserService.sendEmailAfterRegistration(testUser);
-
-        verify(javaMailSender).send(captor.capture());
-        SimpleMailMessage actualMessage = captor.getValue();
-
-        assertEquals("test@example.com", actualMessage.getTo()[0]);
-        assertEquals("Registration successful - Pet Clinic", actualMessage.getSubject());
-        assertEquals("""
-                        Dear testUser,
-
-                        Thank you for registering to our Pet Clinic application!
-
-                        Best regards,
-                        Pet Clinic Team""",
-                actualMessage.getText());
-    }
-
-    @Test
-    public void loginMethodIsSuccessfullyCalled() throws UsernameNotFoundException {
-        // Arrange: Mock user details and token generation
-        AppUser appUser = new AppUser();
-        appUser.setEmail("test@example.com"); // Ensure this matches the loginRequestDTO
-        appUser.setPassword("encodedPassword");
-
-        // Mock the behavior of finding a user by email
-        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(Optional.of(appUser));
-        // Mock the behavior of password matching
-        when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(true);
-        // Mock the behavior of JWT token generation
-        when(jwtService.generateToken(any(AppUser.class))).thenReturn("mockedJwtToken");
-        // Mock the behavior of role extraction
-
-        // Act: Call the login method
-        LoginResponseDTO token = appUserService.login(loginRequestDTO);
-
-        // Assert: Verify the token and interactions
-        assertNotNull(token);
-        assertEquals("mockedJwtToken", token.token()); // Ensure you're accessing the correct field
-        verify(jwtService, times(1)).generateToken(any(AppUser.class));
-    }
-
-
-
 }

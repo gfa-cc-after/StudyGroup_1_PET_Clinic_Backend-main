@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
+package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
@@ -40,7 +40,7 @@ public class RegistratingUserTest {
     private JwtService jwtService;
 
     @InjectMocks
-    private AppUserServiceImpl appUserService;
+    private AuthServiceImpl appUserAuthService;
 
     private RegisterRequestDTO registerRequestDTO;
 
@@ -49,7 +49,7 @@ public class RegistratingUserTest {
         // Initialize test data
         registerRequestDTO = new RegisterRequestDTO("testuser", "test@example.com","password");
 
-        appUserService = new AppUserServiceImpl(
+        appUserAuthService = new AuthServiceImpl(
                 appUserRepository,
                 passwordEncoder,
                 jwtService,
@@ -65,7 +65,7 @@ public class RegistratingUserTest {
 
         // Act & Assert: Verify the exception and its message
         NameAlreadyBoundException exception = assertThrows(NameAlreadyBoundException.class, () -> {
-            appUserService.registerUser(registerRequestDTO);
+            appUserAuthService.registerUser(registerRequestDTO);
         });
 
         // Assert that the message matches the expected message
@@ -84,7 +84,7 @@ public class RegistratingUserTest {
 
         // Act & Assert: Verify the exception and its message
         PasswordException exception = assertThrows(PasswordException.class, () -> {
-            appUserService.registerUser(registerRequestDTO);
+            appUserAuthService.registerUser(registerRequestDTO);
         });
 
         // Assert that the message matches the expected message
