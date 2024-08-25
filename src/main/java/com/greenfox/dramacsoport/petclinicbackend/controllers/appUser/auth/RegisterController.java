@@ -3,25 +3,26 @@ package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser.auth;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AuthService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/auth")
 public class RegisterController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
 
     private final Logger logger = LoggerFactory.getLogger(RegisterController.class);
 
+    @SneakyThrows
     @PostMapping("/register")
-    @ResponseBody
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequestDTO newUserDTO,
                                           BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -29,14 +30,9 @@ public class RegisterController {
             return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
         }
 
-        try {
-            authService.registerUser(newUserDTO);
-            logger.info("successful reg");
-            return new ResponseEntity<>("User registered", HttpStatus.CREATED);
-        } catch (Exception e) {
-            logger.error("errors during registration {}", bindingResult.getAllErrors());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        authService.registerUser(newUserDTO);
+        logger.info("successful reg");
+        return new ResponseEntity<>("User registered", HttpStatus.CREATED);
     }
 }
 

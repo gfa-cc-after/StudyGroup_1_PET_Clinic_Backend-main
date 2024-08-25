@@ -40,7 +40,7 @@ public class RegistratingUserTest {
     private JwtService jwtService;
 
     @InjectMocks
-    private AuthServiceImpl appUserAuthService;
+    private AuthServiceImpl authService;
 
     private RegisterRequestDTO registerRequestDTO;
 
@@ -49,7 +49,7 @@ public class RegistratingUserTest {
         // Initialize test data
         registerRequestDTO = new RegisterRequestDTO("testuser", "test@example.com","password");
 
-        appUserAuthService = new AuthServiceImpl(
+        authService = new AuthServiceImpl(
                 appUserRepository,
                 passwordEncoder,
                 jwtService,
@@ -57,16 +57,13 @@ public class RegistratingUserTest {
                 new AppServiceErrors());
     }
 
-
     @Test
     void testRegisterUser_UserAlreadyExists() {
         // Arrange: Mock that a user already exists in the repository
         when(appUserRepository.findByEmail(anyString())).thenReturn(Optional.of(new AppUser()));
 
         // Act & Assert: Verify the exception and its message
-        NameAlreadyBoundException exception = assertThrows(NameAlreadyBoundException.class, () -> {
-            appUserAuthService.registerUser(registerRequestDTO);
-        });
+        NameAlreadyBoundException exception = assertThrows(NameAlreadyBoundException.class, () -> authService.registerUser(registerRequestDTO));
 
         // Assert that the message matches the expected message
         assertEquals("User already exists.", exception.getMessage());
@@ -83,9 +80,7 @@ public class RegistratingUserTest {
         registerRequestDTO = new RegisterRequestDTO("testuser", "test@example.com","p");
 
         // Act & Assert: Verify the exception and its message
-        PasswordException exception = assertThrows(PasswordException.class, () -> {
-            appUserAuthService.registerUser(registerRequestDTO);
-        });
+        PasswordException exception = assertThrows(PasswordException.class, () -> authService.registerUser(registerRequestDTO));
 
         // Assert that the message matches the expected message
         assertEquals("Password must be longer than 3 characters.", exception.getMessage());

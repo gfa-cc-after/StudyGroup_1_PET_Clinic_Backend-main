@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteUserResponse;
-import com.greenfox.dramacsoport.petclinicbackend.exeptions.DeletionException;
+import com.greenfox.dramacsoport.petclinicbackend.exeptions.DeletionErrorException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
@@ -45,15 +45,15 @@ public class AppUserServiceTest {
         when(appUser.getId()).thenReturn(1L);
 
         // When
-        DeletionException deletionException = assertThrows(DeletionException.class, () -> appUserService.deleteUser(userEmail, 1L));
+        DeletionErrorException deletionErrorException = assertThrows(DeletionErrorException.class, () -> appUserService.deleteUser(userEmail, 1L));
 
         // Then
-        assertEquals("Unable to delete your profile. Please transfer or delete your pets before proceeding.", deletionException.getMessage());
+        assertEquals("Unable to delete your profile. Please transfer or delete your pets before proceeding.", deletionErrorException.getMessage());
         verify(appUserRepository, never()).delete(appUserCaptor.capture());
     }
 
     @Test
-    public void shouldAllowDeletionIfUserHasNoPets() throws DeletionException {
+    public void shouldAllowDeletionIfUserHasNoPets() throws DeletionErrorException {
         // Given
         String userEmail = "test@example.com";
         when(appUserRepository.findByEmail(anyString())).thenReturn(Optional.of(appUser));

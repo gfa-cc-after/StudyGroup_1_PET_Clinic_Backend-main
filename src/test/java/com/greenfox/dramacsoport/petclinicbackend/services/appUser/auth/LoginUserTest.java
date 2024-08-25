@@ -38,7 +38,7 @@ public class LoginUserTest {
     private JavaMailSender javaMailSender;
 
     @InjectMocks
-    private AuthServiceImpl appUserAuthService;
+    private AuthServiceImpl authService;
 
     private LoginRequestDTO loginRequestDTO;
 
@@ -47,13 +47,12 @@ public class LoginUserTest {
         // Initialize test data
         loginRequestDTO = new LoginRequestDTO("test@example.com", "password");
 
-        appUserAuthService = new AuthServiceImpl(
+        authService = new AuthServiceImpl(
                 appUserRepository,
                 passwordEncoder,
                 jwtService,
                 javaMailSender,
                 new AppServiceErrors());
-
     }
 
     @Test
@@ -62,9 +61,7 @@ public class LoginUserTest {
         when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(Optional.empty());
 
         // Act & Assert: Expect an exception due to email mismatch
-        assertThrows(UsernameNotFoundException.class, () -> {
-            appUserAuthService.login(loginRequestDTO);
-        });
+        assertThrows(UsernameNotFoundException.class, () -> authService.login(loginRequestDTO));
 
         // Verify no token is generated since login should fail
         verify(jwtService, never()).generateToken(any(AppUser.class));
@@ -81,9 +78,7 @@ public class LoginUserTest {
         when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(false);
 
         // Act & Assert: Expect an exception due to password mismatch
-       UsernameNotFoundException exception =  assertThrows(UsernameNotFoundException.class, () -> {
-            appUserAuthService.login(loginRequestDTO);
-        });
+       UsernameNotFoundException exception =  assertThrows(UsernameNotFoundException.class, () -> authService.login(loginRequestDTO));
 
         assertEquals("Authentication failed! Bad credentials.", exception.getMessage());
 
