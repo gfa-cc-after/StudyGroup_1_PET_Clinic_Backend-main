@@ -2,6 +2,7 @@ package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteUserResponse;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionErrorException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
@@ -67,5 +68,21 @@ public class AppUserServiceTest {
         assertEquals("Your profile has been successfully deleted.", deleteUserResponse.message());
         verify(appUserRepository).delete(appUserCaptor.capture());
         assertEquals(appUser, appUserCaptor.getValue());
+    }
+    
+    @Test
+    public void shouldThrowExceptionWhenUserIdDoesNotMatchEmailId() {
+        // Given
+        String userEmail = "test@example.com";
+        Long userId = 2L;
+        when(appUserRepository.findByEmail("test@example.com")).thenReturn(Optional.of(appUser));
+        when(appUser.getId()).thenReturn(1L);
+
+        // When
+        UnauthorizedActionException unauthorizedActionException = assertThrows(UnauthorizedActionException.class, () -> appUserService.deleteUser(userEmail, userId));
+
+        // Then
+        assertEquals("User is not authorized to delete this account", unauthorizedActionException.getMessage());
+        verify(appUserRepository, never()).delete(appUserCaptor.capture());
     }
 }
