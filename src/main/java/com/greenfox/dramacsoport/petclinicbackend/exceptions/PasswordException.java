@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.exeptions;
+package com.greenfox.dramacsoport.petclinicbackend.exceptions;
 
 public class PasswordException extends RuntimeException {
 

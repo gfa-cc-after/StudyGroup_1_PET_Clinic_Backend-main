@@ -2,8 +2,8 @@ package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteUserResponse;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
-import com.greenfox.dramacsoport.petclinicbackend.exeptions.DeletionErrorException;
-import com.greenfox.dramacsoport.petclinicbackend.exeptions.UnauthorizedActionException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionErrorException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import lombok.RequiredArgsConstructor;

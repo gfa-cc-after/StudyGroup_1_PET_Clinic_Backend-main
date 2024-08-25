@@ -1,9 +1,9 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.ErrorResponse;
-import com.greenfox.dramacsoport.petclinicbackend.exeptions.DeletionErrorException;
-import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
-import com.greenfox.dramacsoport.petclinicbackend.exeptions.UnauthorizedActionException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionErrorException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.PasswordException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
