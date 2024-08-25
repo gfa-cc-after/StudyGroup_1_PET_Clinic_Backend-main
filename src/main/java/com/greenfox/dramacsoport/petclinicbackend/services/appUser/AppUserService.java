@@ -4,6 +4,6 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteUserResponse
 import com.greenfox.dramacsoport.petclinicbackend.exeptions.DeletionException;
 
 public interface AppUserService {
-    DeleteUserResponse deleteUser(String userEmail) throws DeletionException;
+    DeleteUserResponse deleteUser(String userEmail, Long id) throws DeletionException;
 
 }

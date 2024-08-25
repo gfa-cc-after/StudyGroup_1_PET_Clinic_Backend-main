@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -33,10 +34,10 @@ public class AppUserControllerTest {
         // Arrange
         DeleteUserResponse response = new DeleteUserResponse("Your profile has been successfully deleted.");
 
-        when(appUserService.deleteUser(anyString())).thenReturn(response);
+        when(appUserService.deleteUser(anyString(), anyLong())).thenReturn(response);
 
         // Act & Assert
-        this.mockMvc.perform(delete("/api/v1/user/delete")
+        this.mockMvc.perform(delete("/api/v1/user/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"message\":\"Your profile has been successfully deleted.\"}"));

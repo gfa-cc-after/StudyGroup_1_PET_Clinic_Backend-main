@@ -42,9 +42,10 @@ public class AppUserServiceTest {
         String userEmail = "test@example.com";
         when(appUserRepository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
         when(appUser.getPets()).thenReturn(List.of(new Pet()));
+        when(appUser.getId()).thenReturn(1L);
 
         // When
-        DeletionException deletionException = assertThrows(DeletionException.class, () -> appUserService.deleteUser(userEmail));
+        DeletionException deletionException = assertThrows(DeletionException.class, () -> appUserService.deleteUser(userEmail, 1L));
 
         // Then
         assertEquals("Unable to delete your profile. Please transfer or delete your pets before proceeding.", deletionException.getMessage());
@@ -57,9 +58,10 @@ public class AppUserServiceTest {
         String userEmail = "test@example.com";
         when(appUserRepository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
         when(appUser.getPets()).thenReturn(List.of());
+        when(appUser.getId()).thenReturn(1L);
 
         // When
-        DeleteUserResponse deleteUserResponse = appUserService.deleteUser(userEmail);
+        DeleteUserResponse deleteUserResponse = appUserService.deleteUser(userEmail, 1L);
 
         // Then
         assertEquals("Your profile has been successfully deleted.", deleteUserResponse.message());
