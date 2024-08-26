@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.NameAlreadyBoundException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/auth")
@@ -21,10 +23,9 @@ public class RegisterController {
 
     private final Logger logger = LoggerFactory.getLogger(RegisterController.class);
 
-    @SneakyThrows
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequestDTO newUserDTO,
-                                          BindingResult bindingResult) {
+                                          BindingResult bindingResult) throws NameAlreadyBoundException {
         if (bindingResult.hasErrors()) {
             logger.error("errors during validation {}", bindingResult.getAllErrors());
             return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);

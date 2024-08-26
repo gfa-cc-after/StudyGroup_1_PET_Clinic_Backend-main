@@ -1,5 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser;
 
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -22,9 +23,8 @@ public class AppUserController {
     private final AppUserService appUserService;
     private final Logger logger = LoggerFactory.getLogger(AppUserController.class);
 
-    @SneakyThrows
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id, Principal user) {
+    public ResponseEntity<?> deleteUser(@PathVariable Long id, Principal user) throws DeletionException {
         String userEmail = user.getName();
 
         logger.info("Deleting user: {}", userEmail);
