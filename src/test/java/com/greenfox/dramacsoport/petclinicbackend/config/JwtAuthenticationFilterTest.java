@@ -23,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -89,7 +88,7 @@ class JwtAuthenticationFilterTest {
         //MOCK CALLS
         when(jwtService.isTokenValid(anyString())).thenReturn(true);
         when(jwtService.extractUsername(anyString())).thenReturn(appUser.getUsername());
-        when(repository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
+        when(repository.findByEmail(anyString())).thenReturn(appUser);
         //WHEN
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 

@@ -10,10 +10,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -38,7 +37,7 @@ public class LoginControllerTest {
         mockUser.setEmail("xy@example.com");
         mockUser.setPassword(passwordEncoder.encode("ValidPassword1"));
 
-        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(Optional.of(mockUser));
+        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(mockUser);
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", "ValidPassword1");
 
@@ -53,7 +52,7 @@ public class LoginControllerTest {
 
     @Test
     public void responseShouldBeForbiddenIfUserNotFound() throws Exception {
-        when(appUserRepository.findByEmail("aaa@example.com")).thenReturn(Optional.empty());
+        when(appUserRepository.findByEmail("aaa@example.com")).thenThrow(UsernameNotFoundException.class);
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("aaa@example.com", "password");
 
@@ -71,7 +70,7 @@ public class LoginControllerTest {
         mockUser.setEmail("xy@example.com");
         mockUser.setPassword(passwordEncoder.encode("ValidPassword1"));
 
-        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(Optional.of(mockUser));
+        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(mockUser);
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", "wrongPassword");
 
@@ -90,7 +89,7 @@ public class LoginControllerTest {
         mockUser.setEmail("xy@example.com");
         mockUser.setPassword(passwordEncoder.encode("ValidPassword1"));
 
-        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(Optional.of(mockUser));
+        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(mockUser);
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", "");
 
@@ -109,7 +108,7 @@ public class LoginControllerTest {
         mockUser.setEmail("xy@example.com");
         mockUser.setPassword(passwordEncoder.encode("ValidPassword1"));
 
-        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(Optional.of(mockUser));
+        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(mockUser);
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", null);
 
@@ -128,7 +127,7 @@ public class LoginControllerTest {
         mockUser.setEmail("xy@example.com");
         mockUser.setPassword(passwordEncoder.encode("ValidPassword1"));
 
-        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(Optional.of(mockUser));
+        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(mockUser);
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("", "password");
 

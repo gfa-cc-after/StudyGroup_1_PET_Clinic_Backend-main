@@ -10,16 +10,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import javax.naming.NameAlreadyBoundException;
 
 public interface AuthService {
-    AppUser saveUser(AppUser user);
-
-    /**
-     * <h3>Looks for an entity in the storage and gives back a UserDetails object made from it.</h3>
-     *
-     * @param email the email, that is used as a username
-     * @return an implementation of the security core UserDetails interface, NOT the same as the AppUser Entity
-     * @throws UsernameNotFoundException when no entity found under this email.
-     */
-    AppUser loadUserByUsername(String email) throws UsernameNotFoundException;
 
     AppUser registerUser(RegisterRequestDTO userRequest) throws PasswordException, NameAlreadyBoundException;
     /**

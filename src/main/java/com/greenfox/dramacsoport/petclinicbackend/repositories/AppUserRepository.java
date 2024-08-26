@@ -2,10 +2,10 @@ package com.greenfox.dramacsoport.petclinicbackend.repositories;
 
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
-    Optional<AppUser> findByEmail(String email);
+    AppUser findByEmail(String email) throws UsernameNotFoundException;
 
+    boolean existsAppUserByEmail(String email) throws UsernameNotFoundException;
 }

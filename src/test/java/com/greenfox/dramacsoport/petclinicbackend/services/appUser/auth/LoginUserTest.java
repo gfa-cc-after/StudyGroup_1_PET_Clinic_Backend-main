@@ -15,8 +15,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -58,7 +56,7 @@ public class LoginUserTest {
     @Test
     public void loginMethodFailsWithWrongEmail() {
         // Arrange: Set up a non-matching email scenario
-        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(Optional.empty());
+        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenThrow(UsernameNotFoundException.class);
 
         // Act & Assert: Expect an exception due to email mismatch
         assertThrows(UsernameNotFoundException.class, () -> authService.login(loginRequestDTO));
@@ -74,7 +72,7 @@ public class LoginUserTest {
         appUser.setEmail("test@example.com");
         appUser.setPassword("encodedPassword");
 
-        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(Optional.of(appUser));
+        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(appUser);
         when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(false);
 
         // Act & Assert: Expect an exception due to password mismatch

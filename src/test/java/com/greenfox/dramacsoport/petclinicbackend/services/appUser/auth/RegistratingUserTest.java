@@ -15,8 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import javax.naming.NameAlreadyBoundException;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -60,7 +60,8 @@ public class RegistratingUserTest {
     @Test
     void testRegisterUser_UserAlreadyExists() {
         // Arrange: Mock that a user already exists in the repository
-        when(appUserRepository.findByEmail(anyString())).thenReturn(Optional.of(new AppUser()));
+//        when(appUserRepository.findByEmail(anyString())).thenReturn(new AppUser());
+        when(appUserRepository.existsAppUserByEmail(anyString())).thenReturn(true);
 
         // Act & Assert: Verify the exception and its message
         NameAlreadyBoundException exception = assertThrows(NameAlreadyBoundException.class, () -> authService.registerUser(registerRequestDTO));
@@ -69,7 +70,7 @@ public class RegistratingUserTest {
         assertEquals("User already exists.", exception.getMessage());
 
         // Verify that the repository's save method and the email sender's send method are never called
-        verify(appUserRepository, times(1)).findByEmail("test@example.com");
+        verify(appUserRepository, times(1)).existsAppUserByEmail("test@example.com");
         verify(appUserRepository, never()).save(any(AppUser.class));
         verify(javaMailSender, never()).send(any(SimpleMailMessage.class));
     }

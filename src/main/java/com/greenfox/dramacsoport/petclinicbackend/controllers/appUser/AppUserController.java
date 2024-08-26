@@ -20,6 +20,7 @@ import java.security.Principal;
 public class AppUserController {
 
     private final AppUserService appUserService;
+    //private final Auth
     private final Logger logger = LoggerFactory.getLogger(AppUserController.class);
 
     @DeleteMapping("/{id}")
@@ -29,4 +30,14 @@ public class AppUserController {
         logger.info("Deleting user: {}", userEmail);
         return new ResponseEntity<>(appUserService.deleteUser(userEmail, id), HttpStatus.OK);
     }
+
+//    @PostMapping({"/user/profile", "admin/profile"})
+//    public ResponseEntity<?> editUserData(Principal principal, @RequestBody EditUserRequestDTO editUserRequest) {
+//        AppUser user = appUserService.loadUserByUsername(principal.getName());
+//        try {
+//            return new ResponseEntity<>(appUserService.changeUserData(user, editUserRequest), HttpStatus.OK);
+//        } catch (Exception e) {
+//            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+//        }
+//    }
 }

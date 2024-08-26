@@ -1,5 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
+import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -67,8 +68,13 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Bean
     UserDetailsService userDetailsService() {
-        return (username) -> appUserRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        return (username) -> {
+            AppUser user = appUserRepository.findByEmail(username);
+            if (user == null) {
+                throw new UsernameNotFoundException("User not found: " + username);
+            }
+            return user;
+        };
     }
 
     @Bean

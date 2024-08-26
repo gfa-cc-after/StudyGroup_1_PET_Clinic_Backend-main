@@ -15,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -41,7 +40,7 @@ public class AppUserServiceTest {
     public void shouldNotAllowDeletionIfUserHasPets() {
         // Given
         String userEmail = "test@example.com";
-        when(appUserRepository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
+        when(appUserRepository.findByEmail(anyString())).thenReturn(appUser);
         when(appUser.getPets()).thenReturn(List.of(new Pet()));
         when(appUser.getId()).thenReturn(1L);
 
@@ -57,7 +56,7 @@ public class AppUserServiceTest {
     public void shouldAllowDeletionIfUserHasNoPets() throws DeletionException {
         // Given
         String userEmail = "test@example.com";
-        when(appUserRepository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
+        when(appUserRepository.findByEmail(anyString())).thenReturn(appUser);
         when(appUser.getPets()).thenReturn(List.of());
         when(appUser.getId()).thenReturn(1L);
 
@@ -75,7 +74,7 @@ public class AppUserServiceTest {
         // Given
         String userEmail = "test@example.com";
         Long userId = 2L;
-        when(appUserRepository.findByEmail("test@example.com")).thenReturn(Optional.of(appUser));
+        when(appUserRepository.findByEmail("test@example.com")).thenReturn(appUser);
         when(appUser.getId()).thenReturn(1L);
 
         // When

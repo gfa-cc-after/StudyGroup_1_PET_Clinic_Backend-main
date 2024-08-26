@@ -21,7 +21,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.naming.NameAlreadyBoundException;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -104,7 +103,7 @@ public class AuthServiceTest {
         appUser.setPassword("encodedPassword");
 
         // Mock the behavior of finding a user by email
-        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(Optional.of(appUser));
+        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(appUser);
         // Mock the behavior of password matching
         when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(true);
         // Mock the behavior of JWT token generation

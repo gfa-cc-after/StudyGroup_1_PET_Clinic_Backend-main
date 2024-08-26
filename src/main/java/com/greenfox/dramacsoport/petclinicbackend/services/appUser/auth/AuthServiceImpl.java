@@ -48,26 +48,6 @@ public class AuthServiceImpl implements AuthService {
         return modelMapper.map(sourceDTO, AppUser.class);
     }
 
-    @Override
-    public AppUser saveUser(AppUser user) {
-        return appUserRepository.save(user);
-    }
-
-    /**
-     * <h3>Looks for an entity in the storage and gives back a UserDetails object made from it.</h3>
-     *
-     * @param email the email, that is used as a username
-     * @return an implementation of the security core UserDetails interface, NOT the same as the AppUser Entity
-     * @throws UsernameNotFoundException when no entity found under this email.
-     */
-    @Override
-    public AppUser loadUserByUsername(String email) throws UsernameNotFoundException {
-
-        return appUserRepository
-                .findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(error.usernameNotFound(email)));
-    }
-
     /**
      * <h3>This method registers a new user.</h3>
      * <ul>
@@ -81,7 +61,6 @@ public class AuthServiceImpl implements AuthService {
      *
      * @param userRequest the user object created from the registration form
      */
-    @Override
     public AppUser registerUser(RegisterRequestDTO userRequest) throws PasswordException, NameAlreadyBoundException {
 
         if (!isPasswordLongerThanThreeChar(userRequest.getPassword())) {
@@ -99,13 +78,12 @@ public class AuthServiceImpl implements AuthService {
         } catch (Exception e) {
         }
 
-        return saveUser(newUser);
+        return appUserRepository.save(newUser);
     }
 
-    @Override
     public LoginResponseDTO login(LoginRequestDTO requestDTO) throws UsernameNotFoundException {
         if (authenticateUser(requestDTO)) {
-            AppUser appUser = loadUserByUsername(requestDTO.email());
+            AppUser appUser = appUserRepository.findByEmail(requestDTO.email());
             String token = jwtService.generateToken(appUser);
             return new LoginResponseDTO(token);
         }
@@ -115,7 +93,7 @@ public class AuthServiceImpl implements AuthService {
     private boolean authenticateUser(LoginRequestDTO requestDTO) {
         return passwordEncoder.matches(
                 requestDTO.password(),
-                loadUserByUsername(requestDTO.email()).getPassword()
+                appUserRepository.findByEmail(requestDTO.email()).getPassword()
         );
     }
 
@@ -124,7 +102,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private boolean isUserRegistered(String email) {
-        return appUserRepository.findByEmail(email).isPresent();
+        return appUserRepository.existsAppUserByEmail(email);
     }
 
     public void sendEmailAfterRegistration(RegisterRequestDTO user) {
