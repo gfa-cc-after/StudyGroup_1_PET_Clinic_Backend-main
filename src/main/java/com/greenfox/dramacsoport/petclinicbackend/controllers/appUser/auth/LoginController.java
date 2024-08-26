@@ -31,7 +31,7 @@ public class LoginController {
             return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
         }
 
-        logger.info("Login request successful: {}", requestDTO);
+        logger.info("Login request successful: {}", requestDTO.email());
         return new ResponseEntity<>(authService.login(requestDTO), HttpStatus.OK);
     }
 }
