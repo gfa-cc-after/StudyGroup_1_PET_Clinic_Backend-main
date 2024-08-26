@@ -1,17 +1,19 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser;
 
+import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
+import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
+import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.naming.NameAlreadyBoundException;
 import java.security.Principal;
 
 @RequiredArgsConstructor
@@ -20,7 +22,7 @@ import java.security.Principal;
 public class AppUserController {
 
     private final AppUserService appUserService;
-    //private final Auth
+    private final AppUserRepository userRepo;
     private final Logger logger = LoggerFactory.getLogger(AppUserController.class);
 
     @DeleteMapping("/{id}")
@@ -31,13 +33,10 @@ public class AppUserController {
         return new ResponseEntity<>(appUserService.deleteUser(userEmail, id), HttpStatus.OK);
     }
 
-//    @PostMapping({"/user/profile", "admin/profile"})
-//    public ResponseEntity<?> editUserData(Principal principal, @RequestBody EditUserRequestDTO editUserRequest) {
-//        AppUser user = appUserService.loadUserByUsername(principal.getName());
-//        try {
-//            return new ResponseEntity<>(appUserService.changeUserData(user, editUserRequest), HttpStatus.OK);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-//        }
-//    }
+    @PostMapping({"/user/profile", "admin/profile"})
+    public ResponseEntity<?> editUserData(Principal principal, @RequestBody EditUserRequestDTO editUserRequest) throws NameAlreadyBoundException {
+        AppUser user = userRepo.findByEmail(principal.getName());
+        return new ResponseEntity<EditUserResponseDTO>(appUserService.changeUserData(user, editUserRequest),
+                HttpStatus.OK);
+    }
 }
