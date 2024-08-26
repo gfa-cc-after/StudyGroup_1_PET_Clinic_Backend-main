@@ -40,7 +40,7 @@ public class JwtService {
         claims.put("role", roleAsLowercaseString);
         claims.put("displayName", user.getDisplayName());
         claims.put("email", user.getUsername());
-        System.out.println("-----------------------"+claims);
+        claims.put("id", String.valueOf(user.getId()));
         return Jwts.builder()
                 .claims(claims)
                 .subject(user.getUsername())
