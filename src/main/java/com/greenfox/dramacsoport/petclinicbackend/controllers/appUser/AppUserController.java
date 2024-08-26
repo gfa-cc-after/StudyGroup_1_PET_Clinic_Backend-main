@@ -27,7 +27,7 @@ public class AppUserController {
     public ResponseEntity<?> deleteUser(@PathVariable Long id, Principal user) {
         String userEmail = user.getName();
 
-        logger.info("Deleting user: {}", user.getName());
+        logger.info("Deleting user: {}", userEmail);
         return new ResponseEntity<>(appUserService.deleteUser(userEmail, id), HttpStatus.OK);
     }
 }
