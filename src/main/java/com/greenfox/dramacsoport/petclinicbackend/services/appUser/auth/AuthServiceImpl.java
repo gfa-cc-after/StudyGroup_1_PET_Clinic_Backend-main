@@ -102,7 +102,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private boolean isUserRegistered(String email) {
-        return appUserRepository.existsAppUserByEmail(email);
+        return appUserRepository.existsByEmail(email);
     }
 
     public void sendEmailAfterRegistration(RegisterRequestDTO user) {

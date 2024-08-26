@@ -61,7 +61,7 @@ public class RegistratingUserTest {
     void testRegisterUser_UserAlreadyExists() {
         // Arrange: Mock that a user already exists in the repository
 //        when(appUserRepository.findByEmail(anyString())).thenReturn(new AppUser());
-        when(appUserRepository.existsAppUserByEmail(anyString())).thenReturn(true);
+        when(appUserRepository.existsByEmail(anyString())).thenReturn(true);
 
         // Act & Assert: Verify the exception and its message
         NameAlreadyBoundException exception = assertThrows(NameAlreadyBoundException.class, () -> authService.registerUser(registerRequestDTO));
@@ -70,7 +70,7 @@ public class RegistratingUserTest {
         assertEquals("User already exists.", exception.getMessage());
 
         // Verify that the repository's save method and the email sender's send method are never called
-        verify(appUserRepository, times(1)).existsAppUserByEmail("test@example.com");
+        verify(appUserRepository, times(1)).existsByEmail("test@example.com");
         verify(appUserRepository, never()).save(any(AppUser.class));
         verify(javaMailSender, never()).send(any(SimpleMailMessage.class));
     }
