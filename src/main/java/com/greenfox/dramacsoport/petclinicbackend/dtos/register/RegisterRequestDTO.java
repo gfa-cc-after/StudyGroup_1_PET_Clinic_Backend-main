@@ -18,7 +18,7 @@ public final class RegisterRequestDTO {
     private final String email;
     @NotBlank(message = "Password field is required.")
     @NotNull(message = "Password field is required.")
-    @Size(min = 3, message = "Username must be at least 3 characters long.")
+    @Size(min = 3, message = "Password must be at least 3 characters long.")
     private final String password;
     private final Role role = Role.USER;
 }
