@@ -1,7 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
@@ -48,19 +47,11 @@ public class RegistratingUserTest {
     public void setup() {
         // Initialize test data
         registerRequestDTO = new RegisterRequestDTO("testuser", "test@example.com","password");
-
-        authService = new AuthServiceImpl(
-                appUserRepository,
-                passwordEncoder,
-                jwtService,
-                javaMailSender,
-                new AppServiceErrors());
     }
 
     @Test
     void testRegisterUser_UserAlreadyExists() {
         // Arrange: Mock that a user already exists in the repository
-//        when(appUserRepository.findByEmail(anyString())).thenReturn(new AppUser());
         when(appUserRepository.existsByEmail(anyString())).thenReturn(true);
 
         // Act & Assert: Verify the exception and its message

@@ -44,13 +44,6 @@ public class LoginUserTest {
     public void setup() {
         // Initialize test data
         loginRequestDTO = new LoginRequestDTO("test@example.com", "password");
-
-        authService = new AuthServiceImpl(
-                appUserRepository,
-                passwordEncoder,
-                jwtService,
-                javaMailSender,
-                new AppServiceErrors());
     }
 
     @Test
