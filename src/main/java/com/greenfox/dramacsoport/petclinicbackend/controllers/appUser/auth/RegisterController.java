@@ -4,7 +4,6 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestD
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
