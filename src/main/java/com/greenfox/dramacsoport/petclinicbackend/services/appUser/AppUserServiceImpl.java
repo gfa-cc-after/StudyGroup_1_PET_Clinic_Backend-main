@@ -2,7 +2,7 @@ package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteUserResponse;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
-import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionErrorException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
@@ -18,7 +18,7 @@ public class AppUserServiceImpl implements AppUserService{
     private final AppServiceErrors error;
 
     @Override
-    public DeleteUserResponse deleteUser(String userEmail, Long id) throws DeletionErrorException {
+    public DeleteUserResponse deleteUser(String userEmail, Long id) throws DeletionException {
         AppUser userToDelete = appUserRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException(error.usernameNotFound(userEmail)));
 
         if (!userToDelete.getId().equals(id)) {
@@ -27,7 +27,7 @@ public class AppUserServiceImpl implements AppUserService{
             appUserRepository.delete(userToDelete);
             return new DeleteUserResponse("Your profile has been successfully deleted.");
         } else {
-            throw new DeletionErrorException("Unable to delete your profile. Please transfer or delete your pets before proceeding.");
+            throw new DeletionException("Unable to delete your profile. Please transfer or delete your pets before proceeding.");
         }
     }
 }

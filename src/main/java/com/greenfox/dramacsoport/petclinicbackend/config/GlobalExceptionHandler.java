@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.ErrorResponse;
-import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionErrorException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
 import org.springframework.http.HttpStatus;
@@ -15,8 +15,8 @@ import javax.naming.NameAlreadyBoundException;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(DeletionErrorException.class)
-    public ResponseEntity<ErrorResponse> handleDeletionError(DeletionErrorException ex) {
+    @ExceptionHandler(DeletionException.class)
+    public ResponseEntity<ErrorResponse> handleDeletionError(DeletionException ex) {
         ErrorResponse errorResponse = new ErrorResponse("Deletion Error", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
