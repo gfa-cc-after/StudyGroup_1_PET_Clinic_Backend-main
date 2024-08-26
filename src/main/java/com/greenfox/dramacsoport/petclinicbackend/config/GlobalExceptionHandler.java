@@ -20,8 +20,6 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Custom exceptions
-
     @ExceptionHandler(DeletionException.class)
     public ResponseEntity<ErrorResponse> handleDeletionError(DeletionException ex) {
         ErrorResponse errorResponse = new ErrorResponse("Deletion Error", ex.getMessage());
@@ -56,9 +54,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-
-    // Not custom exceptions
-
     @ExceptionHandler(NameAlreadyBoundException.class)
     public ResponseEntity<ErrorResponse> handleNameAlreadyBoundException(NameAlreadyBoundException ex) {
         ErrorResponse errorResponse = new ErrorResponse("Name Already Bound", ex.getMessage());
@@ -71,6 +66,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
+     // Default exception handler
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
         ErrorResponse errorResponse = new ErrorResponse("Internal Server Error", "An unexpected error occurred");
