@@ -9,6 +9,7 @@ import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
+import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -16,13 +17,13 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.naming.NameAlreadyBoundException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -43,6 +44,9 @@ public class AppUserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JwtService jwtService;
 
     @Test
     public void shouldNotAllowDeletionIfUserHasPets() {
@@ -125,6 +129,6 @@ public class AppUserServiceTest {
         verify(passwordEncoder).matches(request.newPassword(), dbUser.getPassword());
         verify(passwordEncoder).encode(request.newPassword());
         verify(appUserRepository).save(any(AppUser.class));
-        assertFalse(SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
+        verify(jwtService).logoutUser();
     }
 }
