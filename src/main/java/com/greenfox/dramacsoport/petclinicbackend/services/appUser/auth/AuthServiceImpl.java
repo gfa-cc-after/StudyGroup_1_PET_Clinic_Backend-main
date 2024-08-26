@@ -33,8 +33,6 @@ public class AuthServiceImpl implements AuthService {
 
     private final JavaMailSender javaMailSender;
 
-    private final AppServiceErrors error;
-
     @Value("${spring.mail.username}")
     private String petClinicEmail;
 
@@ -64,10 +62,10 @@ public class AuthServiceImpl implements AuthService {
     public AppUser registerUser(RegisterRequestDTO userRequest) throws PasswordException, NameAlreadyBoundException {
 
         if (!isPasswordLongerThanThreeChar(userRequest.getPassword())) {
-            throw new PasswordException(error.shortPassword());
+            throw new PasswordException(AppServiceErrors.SHORT_PASSWORD);
         }
         if (isUserRegistered(userRequest.getEmail())) {
-            throw new NameAlreadyBoundException(error.userAlreadyExists());
+            throw new NameAlreadyBoundException(AppServiceErrors.USER_ALREADY_EXISTS);
         }
 
         AppUser newUser = convertToEntity(userRequest);
@@ -87,14 +85,19 @@ public class AuthServiceImpl implements AuthService {
             String token = jwtService.generateToken(appUser);
             return new LoginResponseDTO(token);
         }
-        throw new UsernameNotFoundException(error.notFound());
+        throw new UsernameNotFoundException(AppServiceErrors.AUTHENTICATION_FAILED_BAD_CREDENTIALS);
     }
 
     private boolean authenticateUser(LoginRequestDTO requestDTO) {
-        return passwordEncoder.matches(
+        boolean isAuthenticated = passwordEncoder.matches(
                 requestDTO.password(),
                 appUserRepository.findByEmail(requestDTO.email()).getPassword()
         );
+
+        if (!isAuthenticated) {
+            throw new UsernameNotFoundException(AppServiceErrors.AUTHENTICATION_FAILED_BAD_CREDENTIALS);
+        }
+        return isAuthenticated;
     }
 
     private boolean isPasswordLongerThanThreeChar(String password) {

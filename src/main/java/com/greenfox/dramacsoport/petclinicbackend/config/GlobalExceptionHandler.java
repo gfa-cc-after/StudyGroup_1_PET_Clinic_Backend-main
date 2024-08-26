@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PasswordException.class)
     public ResponseEntity<ErrorResponse> handlePasswordException(PasswordException ex) {
         ErrorResponse errorResponse = new ErrorResponse("Password Error", ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

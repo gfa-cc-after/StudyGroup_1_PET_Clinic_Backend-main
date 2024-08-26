@@ -78,7 +78,7 @@ public class LoginUserTest {
         // Act & Assert: Expect an exception due to password mismatch
        UsernameNotFoundException exception =  assertThrows(UsernameNotFoundException.class, () -> authService.login(loginRequestDTO));
 
-        assertEquals("Authentication failed! Bad credentials.", exception.getMessage());
+        assertEquals(AppServiceErrors.AUTHENTICATION_FAILED_BAD_CREDENTIALS, exception.getMessage());
 
         // Verify no token is generated since login should fail
         verify(jwtService, never()).generateToken(any(AppUser.class));
