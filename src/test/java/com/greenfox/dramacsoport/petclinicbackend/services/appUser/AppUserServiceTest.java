@@ -1,10 +1,13 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteUserResponse;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
+import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,11 +16,13 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.naming.NameAlreadyBoundException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -35,6 +40,9 @@ public class AppUserServiceTest {
 
     @Captor
     private ArgumentCaptor<AppUser> appUserCaptor;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @Test
     public void shouldNotAllowDeletionIfUserHasPets() {
@@ -83,5 +91,40 @@ public class AppUserServiceTest {
         // Then
         assertEquals("User is not authorized to delete this account", unauthorizedActionException.getMessage());
         verify(appUserRepository, never()).delete(appUserCaptor.capture());
+    }
+
+    @Test
+    public void changeUserDataMethodIsSuccessfullyCalled() throws PasswordException, NameAlreadyBoundException {
+        //Arrange: Mock user from token and mock request DTO
+        AppUser dbUser = AppUser.builder()
+                .displayName("Test User")
+                .email("test@example.com")
+                .password("encodedPassword")
+                .role(Role.USER)
+                .pets(List.of())
+                .build();
+
+        EditUserRequestDTO request = new EditUserRequestDTO(
+                "a@b.com",
+                "Pr3v_p4ssw0rd",
+                "N3w_p4ssw0rd",
+                "Edited_Name");
+
+        //Mock methods
+        when(appUserRepository.existsByEmail(request.email())).thenReturn(false);
+        when(passwordEncoder.encode(request.newPassword())).thenReturn("encodedPW").thenReturn("encodedNewPW");
+        when(passwordEncoder.matches(request.prevPassword(), dbUser.getPassword())).thenReturn(true);
+        when(passwordEncoder.matches(request.newPassword(), dbUser.getPassword())).thenReturn(false);
+
+        //Call method
+        appUserService.changeUserData(dbUser, request);
+
+        //Check if every method had been called
+        verify(appUserRepository).existsByEmail(request.email());
+        verify(passwordEncoder).matches(request.prevPassword(), dbUser.getPassword());
+        verify(passwordEncoder).matches(request.newPassword(), dbUser.getPassword());
+        verify(passwordEncoder).encode(request.newPassword());
+        verify(appUserRepository).save(any(AppUser.class));
+        assertFalse(SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
     }
 }
