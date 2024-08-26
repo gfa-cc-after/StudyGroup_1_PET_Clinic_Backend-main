@@ -1,6 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser.auth;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.ValidationException;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class RegisterController {
                                           BindingResult bindingResult) throws NameAlreadyBoundException {
         if (bindingResult.hasErrors()) {
             logger.error("errors during validation {}", bindingResult.getAllErrors());
-            return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
+            throw new ValidationException("Validation errors: " + bindingResult.getAllErrors());
         }
 
         authService.registerUser(newUserDTO);

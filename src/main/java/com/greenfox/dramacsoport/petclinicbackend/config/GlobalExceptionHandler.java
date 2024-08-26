@@ -4,16 +4,23 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.ErrorResponse;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
+import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.naming.NameAlreadyBoundException;
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    // Custom exceptions
 
     @ExceptionHandler(DeletionException.class)
     public ResponseEntity<ErrorResponse> handleDeletionError(DeletionException ex) {
@@ -27,17 +34,30 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidCredentials(UsernameNotFoundException ex) {
-        ErrorResponse errorResponse = new ErrorResponse("Invalid Credentials", ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
-    }
-
     @ExceptionHandler(PasswordException.class)
     public ResponseEntity<ErrorResponse> handlePasswordException(PasswordException ex) {
         ErrorResponse errorResponse = new ErrorResponse("Password Error", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<String> handleValidationException(ValidationException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+
+    // Not custom exceptions
 
     @ExceptionHandler(NameAlreadyBoundException.class)
     public ResponseEntity<ErrorResponse> handleNameAlreadyBoundException(NameAlreadyBoundException ex) {
@@ -45,7 +65,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
-    // Additional exception handlers can be added here
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(UsernameNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Invalid Credentials", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
