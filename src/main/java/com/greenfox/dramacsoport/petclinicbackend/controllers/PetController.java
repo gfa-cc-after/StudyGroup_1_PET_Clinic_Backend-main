@@ -11,11 +11,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 
 @RequiredArgsConstructor
-@Controller
+@RestController
 public class PetController {
 
     private final PetService petService;
@@ -27,7 +28,7 @@ public class PetController {
         return new ResponseEntity<>(petService.getUserPets(user.getName()), HttpStatus.OK);
     }
 
-    @PostMapping("user/pet/add")
+    @PostMapping("/api/v1/user/pet/add")
     public ResponseEntity<?> addPet(Principal user, @RequestBody PetDTO petDTO){
         return new ResponseEntity<>(petService.addPet(user.getName(),petDTO),HttpStatus.OK);
     }
