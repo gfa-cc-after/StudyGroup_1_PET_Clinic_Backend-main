@@ -49,7 +49,7 @@ public class AddPetControllerTest {
 
         when(petService.addPet(anyString(), any(PetDTO.class))).thenReturn(pet);
 
-        mockMvc.perform(post("/api/v1/user/pet/add")
+        mockMvc.perform(post("/api/v1/user/pet")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(petDTO)))
                 .andExpect(status().isOk())

@@ -28,7 +28,7 @@ public class PetController {
         return new ResponseEntity<>(petService.getUserPets(user.getName()), HttpStatus.OK);
     }
 
-    @PostMapping("/api/v1/user/pet/add")
+    @PostMapping("/api/v1/user/pet")
     public ResponseEntity<?> addPet(Principal user, @RequestBody PetDTO petDTO){
         return new ResponseEntity<>(petService.addPet(user.getName(),petDTO),HttpStatus.OK);
     }
