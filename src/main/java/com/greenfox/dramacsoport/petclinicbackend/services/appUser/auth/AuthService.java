@@ -3,7 +3,7 @@ package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.exeptions.PasswordException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 

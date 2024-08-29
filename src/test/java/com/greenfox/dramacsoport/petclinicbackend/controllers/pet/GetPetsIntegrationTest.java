@@ -58,7 +58,7 @@ public class GetPetsIntegrationTest {
     @Test
     @WithMockUser(username = "userWithPets@example.com")
     public void testCorrectEmailWithExistingPets() throws Exception {
-        mockMvc.perform(get("/user/pets")
+        mockMvc.perform(get("/api/v1/user/pets")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.pets[0].petName").value("Buddy"))
@@ -68,7 +68,7 @@ public class GetPetsIntegrationTest {
     @Test
     @WithMockUser(username = "userWithNoPets@example.com")
     public void testCorrectEmailWithNoExistingPets() throws Exception {
-        mockMvc.perform(get("/user/pets")
+        mockMvc.perform(get("/api/v1/user/pets")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.pets").isEmpty());
@@ -77,7 +77,7 @@ public class GetPetsIntegrationTest {
     @Test
     @WithMockUser(username = "nonExistingUser@example.com")
     public void testIncorrectEmail() throws Exception {
-        mockMvc.perform(get("/user/pets")
+        mockMvc.perform(get("/api/v1/user/pets")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
