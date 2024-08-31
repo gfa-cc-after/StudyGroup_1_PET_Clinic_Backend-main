@@ -47,7 +47,7 @@ public class AddPetControllerTest {
     @WithMockUser(username = "xy@example.com")
     void shouldAddPetSuccessfully() throws Exception {
 
-        when(petService.addPet(anyString(), any(PetDTO.class))).thenReturn(pet);
+        when(petService.addPet(anyString(), any(PetDTO.class))).thenReturn(modelMapper.map(pet, PetDTO.class));
 
         mockMvc.perform(post("/api/v1/user/pet")
                         .contentType("application/json")

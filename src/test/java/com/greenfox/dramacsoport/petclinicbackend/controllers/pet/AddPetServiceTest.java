@@ -1,5 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers.pet;
 
+import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -14,6 +15,7 @@ import com.greenfox.dramacsoport.petclinicbackend.services.petHandling.PetServic
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -57,14 +59,22 @@ public class AddPetServiceTest {
         when(appUserAuthService.loadUserByUsername(anyString())).thenReturn(appUser);
         when(petRepository.save(any(Pet.class))).thenReturn(pet);
 
-        Pet savedPet = petService.addPet("xy@example.com", petDTO);
+        PetDTO savedPetDTO = petService.addPet("xy@example.com", petDTO);
 
-        assertEquals("Max", savedPet.getPetName());
-        assertEquals("dog", savedPet.getPetBreed());
-        assertEquals(appUser, savedPet.getOwner());
+        assertEquals(petDTO.getPetName(), savedPetDTO.getPetName());
+        assertEquals(petDTO.getPetBreed(), savedPetDTO.getPetBreed());
 
         verify(appUserAuthService).loadUserByUsername("xy@example.com");
-        verify(petRepository).save(any(Pet.class));
+
+        ArgumentCaptor<Pet> petCaptor = forClass(Pet.class);
+        verify(petRepository).save(petCaptor.capture());
+        Pet actualPet = petCaptor.getValue();
+
+        assertEquals(petDTO.getPetName(), actualPet.getPetName());
+        assertEquals(petDTO.getPetBreed(), actualPet.getPetBreed());
+        assertEquals(appUser, actualPet.getOwner());
+
     }
+
 }
 
