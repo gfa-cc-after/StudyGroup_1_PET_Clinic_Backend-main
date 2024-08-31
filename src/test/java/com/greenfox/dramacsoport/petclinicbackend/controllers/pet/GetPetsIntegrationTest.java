@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.controllers;
+package com.greenfox.dramacsoport.petclinicbackend.controllers.pet;
 
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class PetControllerTest {
+public class GetPetsIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
