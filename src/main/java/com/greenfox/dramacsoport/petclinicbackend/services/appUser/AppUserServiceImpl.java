@@ -51,29 +51,28 @@ public class AppUserServiceImpl implements AppUserService{
         AppUser user = appUserRepository.findByEmail(email);
 
         //check if new email is not already taken - NameAlreadyBoundException
-        if (appUserRepository.existsByEmail(request.newEmail()) && !request.newEmail().equals(user.getEmail())) {
+        if (appUserRepository.existsByEmail(request.email()) && !request.email().equals(user.getEmail())) {
             throw new NameAlreadyBoundException(AppServiceErrors.USERNAME_ALREADY_EXISTS);
         }
         //check if old pw is valid - PWException
-        if (!passwordEncoder.matches(request.prevPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.originalPassword(), user.getPassword())) {
             throw new IncorrectPasswordException();
         }
         //check if new pw is not the same as old pw - PWException
-        if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
+        if (passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new InvalidPasswordException("New password cannot be the same as the old one.");
         }
 
         //map the request to the user entity
         AppUser updatedUser = modelMapper.map(request, AppUser.class);
-        updatedUser.setPassword(passwordEncoder.encode(request.newPassword()));
+        updatedUser.setPassword(passwordEncoder.encode(request.password()));
 
         //save user
         appUserRepository.save(updatedUser);
 
         //if password has been changed, log out user
-        logoutIfPasswordHasChanged(request.newPassword(), request.prevPassword());
+        logoutIfPasswordHasChanged(request.password(), request.originalPassword());
 
-        //return OK message for now - TODO: discuss the return
         return new EditUserResponseDTO("New user data saved.");
     }
 
