@@ -5,7 +5,6 @@ import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.PetRepository;
-import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AuthServiceImpl;
 import com.greenfox.dramacsoport.petclinicbackend.services.petHandling.PetServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,10 +29,10 @@ public class AddPetServiceTest {
 
     @Mock
     private PetRepository petRepository;
+
     @Mock
     private AppUserRepository appUserRepository;
-    @Mock
-    private AuthServiceImpl appUserAuthService;
+
     @InjectMocks
     private PetServiceImpl petService;
 

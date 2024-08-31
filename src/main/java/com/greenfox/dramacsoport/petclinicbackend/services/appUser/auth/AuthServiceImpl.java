@@ -1,5 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 
+import com.greenfox.dramacsoport.petclinicbackend.controllers.appUser.auth.LoginController;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
@@ -11,6 +12,8 @@ import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -33,6 +36,8 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
 
     private final JavaMailSender javaMailSender;
+
+    private final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @Value("${spring.mail.username}")
     private String petClinicEmail;
@@ -76,6 +81,7 @@ public class AuthServiceImpl implements AuthService {
         try {
             sendEmailAfterRegistration(userRequest);
         } catch (Exception e) {
+            logger.error("Failed to send email after registration: {}", e.getMessage());
         }
 
         return appUserRepository.save(newUser);
@@ -123,6 +129,7 @@ public class AuthServiceImpl implements AuthService {
                 Best regards,
                 Pet Clinic Team""".formatted(user.getDisplayName()));
         javaMailSender.send(message);
+        logger.info("Email sent successfully");
     }
 
 }

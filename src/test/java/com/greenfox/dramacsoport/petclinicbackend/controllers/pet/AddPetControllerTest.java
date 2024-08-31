@@ -31,7 +31,7 @@ public class AddPetControllerTest {
     private PetService petService;
     @Autowired
     private ObjectMapper objectMapper;
-    private ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper = new ModelMapper();
     private PetDTO petDTO;
     private Pet pet;
 
