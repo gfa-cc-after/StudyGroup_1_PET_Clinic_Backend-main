@@ -44,8 +44,10 @@ public class AppUserServiceImpl implements AppUserService{
     }
 
     @Override
-    public EditUserResponseDTO changeUserData(AppUser user, EditUserRequestDTO request) throws PasswordException,
+    public EditUserResponseDTO changeUserData(String email, EditUserRequestDTO request) throws PasswordException,
             NameAlreadyBoundException {
+
+        AppUser user = appUserRepository.findByEmail(email);
 
         //check if new email is not already taken - NameAlreadyBoundException
         if (appUserRepository.existsByEmail(request.email()) && !request.email().equals(user.getEmail())) {

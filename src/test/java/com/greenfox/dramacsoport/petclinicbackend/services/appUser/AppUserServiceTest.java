@@ -109,19 +109,20 @@ public class AppUserServiceTest {
                 .build();
 
         EditUserRequestDTO request = new EditUserRequestDTO(
-                "a@b.com",
+                "newEmail@example.com",
                 "Pr3v_p4ssw0rd",
                 "N3w_p4ssw0rd",
                 "Edited_Name");
 
         //Mock methods
+        when(appUserRepository.findByEmail(anyString())).thenReturn(dbUser);
         when(appUserRepository.existsByEmail(request.email())).thenReturn(false);
         when(passwordEncoder.encode(request.newPassword())).thenReturn("encodedPW").thenReturn("encodedNewPW");
         when(passwordEncoder.matches(request.prevPassword(), dbUser.getPassword())).thenReturn(true);
         when(passwordEncoder.matches(request.newPassword(), dbUser.getPassword())).thenReturn(false);
 
         //Call method
-        appUserService.changeUserData(dbUser, request);
+        appUserService.changeUserData(dbUser.getEmail(), request);
 
         //Check if every method had been called
         verify(appUserRepository).existsByEmail(request.email());
