@@ -12,6 +12,8 @@ public class AppServiceErrors {
 
     public static final String USERNAME_ALREADY_EXISTS = "User already exists by this email.";
 
+    public static final String EMAIL_FIELD_NOT_VALID = "Email field is not a valid email address";
+
 //    public String shortPassword() {
 //        return SHORT_PASSWORD;
 //    }
