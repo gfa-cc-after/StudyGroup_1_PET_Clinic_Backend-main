@@ -10,27 +10,27 @@ import java.time.LocalDate;
 
 @Data
 public class PetDTO {
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Pet Name field is required.")
+    @NotBlank(message = "Pet Name field is required.")
     private String petName;
 
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Pet Breed field is required.")
+    @NotBlank(message = "Pet Breed field is required.")
     private String petBreed;
 
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Pet Sex field is required.")
+    @NotBlank(message = "Pet Sex field is required.")
     private String petSex;
 
-    @NotNull
-    @NotBlank
-    @PastOrPresent
+    @NotNull(message = "Pet Birthdate field is required.")
+    @NotBlank(message = "Pet Birthdate field is required.")
+    @PastOrPresent(message = "Pet Birthdate should be a date in the past or the present day.")
     private LocalDate petBirthDate;
 
-    @PastOrPresent
+    @PastOrPresent(message = "Last Checkup should be a date in the past or the present day.")
     private LocalDate lastCheckUp;
 
-    @Future
+    @Future(message = "Next Checkup should be a date in the future.")
     private LocalDate nextCheckUp;
 
     private String specialCondition;
