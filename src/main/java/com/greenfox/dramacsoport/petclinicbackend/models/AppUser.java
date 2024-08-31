@@ -22,14 +22,19 @@ public class AppUser implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false, unique = true)
     private String email;
     private String displayName;
+
     @Column(nullable = false)
     private String password;
+
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private Role role = Role.USER;
 
+    @Builder.Default
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL , fetch = FetchType.LAZY)
     private List<Pet> pets = new ArrayList<>();
 
