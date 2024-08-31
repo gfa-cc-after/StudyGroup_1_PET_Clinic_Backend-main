@@ -130,7 +130,12 @@ public class AppUserServiceTest {
         verify(passwordEncoder).matches(request.prevPassword(), dbUser.getPassword());
         verify(passwordEncoder).matches(request.newPassword(), dbUser.getPassword());
         verify(passwordEncoder).encode(request.newPassword());
-        verify(appUserRepository).save(any(AppUser.class));
+        verify(appUserRepository).save(appUserCaptor.capture());
         verify(jwtService).logoutUser();
+
+        assertEquals(request.newEmail(), appUserCaptor.getValue().getEmail());
+        assertEquals(request.newPassword(), appUserCaptor.getValue().getPassword());
+        assertEquals(request.newDisplayName(), appUserCaptor.getValue().getDisplayName());
+
     }
 }
