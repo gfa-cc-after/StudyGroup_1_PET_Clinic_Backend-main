@@ -3,7 +3,6 @@ package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.exceptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
@@ -65,7 +64,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void registerMethodIsSuccessfullyCalled() throws PasswordException, NameAlreadyBoundException {
+    public void registerMethodIsSuccessfullyCalled() throws NameAlreadyBoundException {
 
         appUserAuthService.registerUser(registerRequestDTO);
 

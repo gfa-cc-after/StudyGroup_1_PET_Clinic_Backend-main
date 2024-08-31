@@ -2,7 +2,8 @@ package com.greenfox.dramacsoport.petclinicbackend.config;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.ErrorResponse;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
-import com.greenfox.dramacsoport.petclinicbackend.exceptions.PasswordException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectPasswordException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.InvalidPasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
@@ -20,24 +21,6 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(DeletionException.class)
-    public ResponseEntity<ErrorResponse> handleDeletionError(DeletionException ex) {
-        ErrorResponse errorResponse = new ErrorResponse("Deletion Error", ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(UnauthorizedActionException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedAction(UnauthorizedActionException ex) {
-        ErrorResponse errorResponse = new ErrorResponse("Unauthorized", ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(PasswordException.class)
-    public ResponseEntity<ErrorResponse> handlePasswordException(PasswordException ex) {
-        ErrorResponse errorResponse = new ErrorResponse("Password Error", ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -54,16 +37,40 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(UsernameNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Invalid Credentials", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(IncorrectPasswordException.class)
+    public ResponseEntity<ErrorResponse> handlePasswordException(IncorrectPasswordException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Incorrect Password Error", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(UnauthorizedActionException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedAction(UnauthorizedActionException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Unauthorized", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(DeletionException.class)
+    public ResponseEntity<ErrorResponse> handleDeletionError(DeletionException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Deletion Error", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(NameAlreadyBoundException.class)
     public ResponseEntity<ErrorResponse> handleNameAlreadyBoundException(NameAlreadyBoundException ex) {
         ErrorResponse errorResponse = new ErrorResponse("Name Already Bound", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidCredentials(UsernameNotFoundException ex) {
-        ErrorResponse errorResponse = new ErrorResponse("Invalid Credentials", ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPasswordException(InvalidPasswordException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Invalid Password", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
      // Default exception handler

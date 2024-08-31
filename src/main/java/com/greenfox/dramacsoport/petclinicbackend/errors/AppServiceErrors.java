@@ -14,19 +14,5 @@ public class AppServiceErrors {
 
     public static final String EMAIL_FIELD_NOT_VALID = "Email field is not a valid email address";
 
-//    public String shortPassword() {
-//        return SHORT_PASSWORD;
-//    }
-//
-//    public String userAlreadyExists() {
-//        return USER_ALREADY_EXISTS;
-//    }
-//
-//    public String notFound() {
-//        return AUTHENTICATION_FAILED_BAD_CREDENTIALS;
-//    }
-//
-//    public String usernameNotFound(String email) {
-//        return USERNAME_NOT_FOUND;
-//    }
+    public static final String INCORRECT_PASSWORD = "Incorrect password!";
 }

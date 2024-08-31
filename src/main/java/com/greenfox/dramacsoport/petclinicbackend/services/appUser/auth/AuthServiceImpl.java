@@ -4,7 +4,8 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
-import com.greenfox.dramacsoport.petclinicbackend.exceptions.PasswordException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectPasswordException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.InvalidPasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
@@ -59,10 +60,11 @@ public class AuthServiceImpl implements AuthService {
      *
      * @param userRequest the user object created from the registration form
      */
-    public AppUser registerUser(RegisterRequestDTO userRequest) throws PasswordException, NameAlreadyBoundException {
+    public AppUser registerUser(RegisterRequestDTO userRequest) throws IncorrectPasswordException,
+            NameAlreadyBoundException {
 
         if (!isPasswordLongerThanThreeChar(userRequest.getPassword())) {
-            throw new PasswordException(AppServiceErrors.SHORT_PASSWORD);
+            throw new InvalidPasswordException(AppServiceErrors.SHORT_PASSWORD);
         }
         if (isUserRegistered(userRequest.getEmail())) {
             throw new NameAlreadyBoundException(AppServiceErrors.USER_ALREADY_EXISTS);

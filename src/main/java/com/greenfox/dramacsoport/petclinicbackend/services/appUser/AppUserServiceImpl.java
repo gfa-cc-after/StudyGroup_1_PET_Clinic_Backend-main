@@ -5,7 +5,8 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserRequestDTO
 import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
-import com.greenfox.dramacsoport.petclinicbackend.exceptions.PasswordException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectPasswordException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.InvalidPasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
@@ -44,7 +45,7 @@ public class AppUserServiceImpl implements AppUserService{
     }
 
     @Override
-    public EditUserResponseDTO changeUserData(String email, EditUserRequestDTO request) throws PasswordException,
+    public EditUserResponseDTO changeUserData(String email, EditUserRequestDTO request) throws IncorrectPasswordException,
             NameAlreadyBoundException {
 
         AppUser user = appUserRepository.findByEmail(email);
@@ -55,11 +56,11 @@ public class AppUserServiceImpl implements AppUserService{
         }
         //check if old pw is valid - PWException
         if (!passwordEncoder.matches(request.prevPassword(), user.getPassword())) {
-            throw new PasswordException("Incorrect password. Please try again!");
+            throw new IncorrectPasswordException();
         }
         //check if new pw is not the same as old pw - PWException
         if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
-            throw new PasswordException("New password cannot be the same as the old one.");
+            throw new InvalidPasswordException("New password cannot be the same as the old one.");
         }
 
         //map the request to the user entity

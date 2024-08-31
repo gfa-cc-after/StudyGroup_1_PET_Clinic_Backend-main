@@ -3,7 +3,7 @@ package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.exceptions.PasswordException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.InvalidPasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -11,7 +11,7 @@ import javax.naming.NameAlreadyBoundException;
 
 public interface AuthService {
 
-    AppUser registerUser(RegisterRequestDTO userRequest) throws PasswordException, NameAlreadyBoundException;
+    AppUser registerUser(RegisterRequestDTO userRequest) throws InvalidPasswordException, NameAlreadyBoundException;
     /**
      * @param requestDTO The DTO, that is created when the user is try to log in. Contains the login credentials
      *                   (username & password).
