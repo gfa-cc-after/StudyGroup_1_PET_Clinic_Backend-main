@@ -30,4 +30,12 @@ public class PetServiceImpl implements PetService{
 
         return new PetListResponse(petDTOList);
     }
+
+    @Override
+    public PetDTO addPet(String email, PetDTO petDTO) {
+        Pet pet = modelMapper.map(petDTO, Pet.class);
+        pet.setOwner(appUserAuthService.loadUserByUsername(email));
+        petRepository.save(pet);
+        return modelMapper.map(pet, PetDTO.class);
+    }
 }
