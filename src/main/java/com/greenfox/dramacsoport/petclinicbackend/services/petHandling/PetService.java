@@ -7,5 +7,5 @@ import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 public interface PetService {
 
     PetListResponse getUserPets(String email);
-    Pet addPet(String email, PetDTO petDTO);
+    PetDTO addPet(String email, PetDTO petDTO);
 }
