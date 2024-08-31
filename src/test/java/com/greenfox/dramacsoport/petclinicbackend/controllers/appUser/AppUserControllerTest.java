@@ -1,9 +1,15 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteUserResponse;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
+import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
+import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +22,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -29,8 +36,15 @@ public class AppUserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private AppUserRepository appUserRepository;
+
+    @Mock
+    AppUser user;
+
     @Test
     @WithMockUser("testuser")
+    @DisplayName("Delete user Controller - HAPPY PATH (HTTP 200 OK)")
     public void deleteUser_shouldReturn200Ok_whenUserIsAuthenticatedAndIdIsMatchingAndSuccessfullyDeleted() throws Exception {
         // Arrange
         DeleteUserResponse response = new DeleteUserResponse("Your profile has been successfully deleted.");
@@ -49,6 +63,7 @@ public class AppUserControllerTest {
     
     @Test
     @WithMockUser("testuser@test.com")
+    @DisplayName("Delete user Controller - UNHAPPY PATH (HTTP 403 FORBIDDEN)")
     public void deleteUser_shouldReturn403Forbidden_whenUserIsAuthenticatedAndIdIsNotMatching() throws Exception {
         // Arrange
         when(appUserService.deleteUser("testuser@test.com", 2L)).thenThrow(new UnauthorizedActionException("User is not authorized to delete this account"));

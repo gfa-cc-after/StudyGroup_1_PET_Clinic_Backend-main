@@ -3,7 +3,6 @@ package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
-import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ import java.security.Principal;
 public class AppUserController {
 
     private final AppUserService appUserService;
-    private final AppUserRepository userRepo;
     private final Logger logger = LoggerFactory.getLogger(AppUserController.class);
 
     @DeleteMapping("/{id}")
@@ -34,10 +32,8 @@ public class AppUserController {
     }
 
     @PostMapping({"/profile"})
-    public ResponseEntity<?> editUserData(Principal principal,
+    public ResponseEntity<EditUserResponseDTO> editUserData(Principal principal,
                                           @Valid @RequestBody EditUserRequestDTO editUserRequest) throws NameAlreadyBoundException {
-        return new ResponseEntity<EditUserResponseDTO>(appUserService.changeUserData(principal.getName(),
-                editUserRequest),
-                HttpStatus.OK);
+        return new ResponseEntity<>(appUserService.changeUserData(principal.getName(), editUserRequest), HttpStatus.OK);
     }
 }
