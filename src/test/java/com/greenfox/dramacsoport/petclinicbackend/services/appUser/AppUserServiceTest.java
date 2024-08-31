@@ -9,6 +9,7 @@ import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -21,8 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.naming.NameAlreadyBoundException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -100,6 +100,7 @@ public class AppUserServiceTest {
     }
 
     @Test
+    @DisplayName("Update user - HAPPY PATH")
     public void changeUserDataMethodIsSuccessfullyCalled() throws NameAlreadyBoundException {
         //Arrange: Mock user from token and mock request DTO
         EditUserRequestDTO request = new EditUserRequestDTO(
@@ -144,10 +145,12 @@ public class AppUserServiceTest {
         verify(appUserRepository).save(appUserCaptor.capture());
         verify(jwtService).logoutUser();
 
+        assertNotEquals(dbUser, oldUser);
         assertEquals(dbUser.getId(), oldUser.getId());
+        assertEquals(dbUser.getRole(), oldUser.getRole());
+        assertEquals(dbUser.getPets(), oldUser.getPets());
         assertEquals(request.email(), appUserCaptor.getValue().getEmail());
         assertEquals(passwordEncoder.encode(request.password()), appUserCaptor.getValue().getPassword());
         assertEquals(request.username(), appUserCaptor.getValue().getDisplayName());
-
     }
 }

@@ -66,7 +66,7 @@ public class AppUserServiceImpl implements AppUserService {
             throw new InvalidPasswordException("New password cannot be the same as the old one.");
         }
 
-        //map the request to the user entity
+        //map the request to the user entity TODO: extract this part to configuration
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         TypeMap<EditUserRequestDTO, AppUser> typeMap = modelMapper.typeMap(EditUserRequestDTO.class, AppUser.class);
         typeMap.addMappings(mapper -> {
