@@ -13,6 +13,8 @@ import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +22,7 @@ import javax.naming.NameAlreadyBoundException;
 
 @RequiredArgsConstructor
 @Service
-public class AppUserServiceImpl implements AppUserService{
+public class AppUserServiceImpl implements AppUserService {
 
     private final AppUserRepository appUserRepository;
 
@@ -40,7 +42,8 @@ public class AppUserServiceImpl implements AppUserService{
             appUserRepository.delete(userToDelete);
             return new DeleteUserResponse("Your profile has been successfully deleted.");
         } else {
-            throw new DeletionException("Unable to delete your profile. Please transfer or delete your pets before proceeding.");
+            throw new DeletionException("Unable to delete your profile. " +
+                    "Please transfer or delete your pets before proceeding.");
         }
     }
 
@@ -64,16 +67,24 @@ public class AppUserServiceImpl implements AppUserService{
         }
 
         //map the request to the user entity
-        AppUser updatedUser = modelMapper.map(request, AppUser.class);
-        updatedUser.setPassword(passwordEncoder.encode(request.password()));
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        TypeMap<EditUserRequestDTO, AppUser> typeMap = modelMapper.typeMap(EditUserRequestDTO.class, AppUser.class);
+        typeMap.addMappings(mapper -> {
+            mapper.map(EditUserRequestDTO::email, AppUser::setEmail);
+            mapper.map(EditUserRequestDTO::username, AppUser::setDisplayName);
+            mapper.map(EditUserRequestDTO::password, AppUser::setPassword);
+        });
+
+        modelMapper.map(request, user);
+        user.setPassword(passwordEncoder.encode(request.password()));
 
         //save user
-        appUserRepository.save(updatedUser);
+        appUserRepository.save(user);
 
         //if password has been changed, log out user
         logoutIfPasswordHasChanged(request.password(), request.originalPassword());
 
-        return new EditUserResponseDTO("New user data saved.");
+        return new EditUserResponseDTO("Changes saved.");
     }
 
     private void logoutIfPasswordHasChanged(String newPassword, String oldPassword) {

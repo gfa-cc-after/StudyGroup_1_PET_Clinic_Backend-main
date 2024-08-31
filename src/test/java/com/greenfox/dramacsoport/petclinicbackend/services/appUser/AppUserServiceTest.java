@@ -56,10 +56,12 @@ public class AppUserServiceTest {
         when(appUser.getId()).thenReturn(1L);
 
         // When
-        DeletionException deletionException = assertThrows(DeletionException.class, () -> appUserService.deleteUser(userEmail, 1L));
+        DeletionException deletionException = assertThrows(DeletionException.class,
+                () -> appUserService.deleteUser(userEmail, 1L));
 
         // Then
-        assertEquals("Unable to delete your profile. Please transfer or delete your pets before proceeding.", deletionException.getMessage());
+        assertEquals("Unable to delete your profile. Please transfer or delete your pets before proceeding.",
+                deletionException.getMessage());
         verify(appUserRepository, never()).delete(appUserCaptor.capture());
     }
 
@@ -79,7 +81,7 @@ public class AppUserServiceTest {
         verify(appUserRepository).delete(appUserCaptor.capture());
         assertEquals(appUser, appUserCaptor.getValue());
     }
-    
+
     @Test
     public void shouldThrowExceptionWhenUserIdDoesNotMatchEmailId() {
         // Given
@@ -89,7 +91,8 @@ public class AppUserServiceTest {
         when(appUser.getId()).thenReturn(1L);
 
         // When
-        UnauthorizedActionException unauthorizedActionException = assertThrows(UnauthorizedActionException.class, () -> appUserService.deleteUser(userEmail, userId));
+        UnauthorizedActionException unauthorizedActionException = assertThrows(UnauthorizedActionException.class,
+                () -> appUserService.deleteUser(userEmail, userId));
 
         // Then
         assertEquals("User is not authorized to delete this account", unauthorizedActionException.getMessage());
@@ -99,7 +102,14 @@ public class AppUserServiceTest {
     @Test
     public void changeUserDataMethodIsSuccessfullyCalled() throws NameAlreadyBoundException {
         //Arrange: Mock user from token and mock request DTO
+        EditUserRequestDTO request = new EditUserRequestDTO(
+                "newEmail@example.com",
+                "Pr3v_p4ssw0rd",
+                "N3w_p4ssw0rd",
+                "Edited_N3w-N4me");
+
         AppUser dbUser = AppUser.builder()
+                .id(1L)
                 .displayName("Test User")
                 .email("test@example.com")
                 .password("encodedPassword")
@@ -107,16 +117,18 @@ public class AppUserServiceTest {
                 .pets(List.of())
                 .build();
 
-        EditUserRequestDTO request = new EditUserRequestDTO(
-                "newEmail@example.com",
-                "Pr3v_p4ssw0rd",
-                "N3w_p4ssw0rd",
-                "Edited_Name");
+        //old user mock
+        AppUser oldUser = new AppUser();
+        oldUser.setId(dbUser.getId());
+        oldUser.setEmail(dbUser.getEmail());
+        oldUser.setPassword(dbUser.getPassword());
+        oldUser.setDisplayName(dbUser.getDisplayName());
+        oldUser.setRole(dbUser.getRole());
 
         //Mock methods
         when(appUserRepository.findByEmail(anyString())).thenReturn(dbUser);
         when(appUserRepository.existsByEmail(request.email())).thenReturn(false);
-        when(passwordEncoder.encode(request.password())).thenReturn("encodedPW").thenReturn("encodedNewPW");
+        when(passwordEncoder.encode(request.password())).thenReturn("encodedPW");
         when(passwordEncoder.matches(request.originalPassword(), dbUser.getPassword())).thenReturn(true);
         when(passwordEncoder.matches(request.password(), dbUser.getPassword())).thenReturn(false);
 
@@ -124,16 +136,17 @@ public class AppUserServiceTest {
         appUserService.changeUserData(dbUser.getEmail(), request);
 
         //Check if every method had been called
-        verify(appUserRepository).findByEmail(dbUser.getEmail());
+        verify(appUserRepository).findByEmail(oldUser.getEmail());
         verify(appUserRepository).existsByEmail(request.email());
-        verify(passwordEncoder).matches(request.originalPassword(), dbUser.getPassword());
-        verify(passwordEncoder).matches(request.password(), dbUser.getPassword());
+        verify(passwordEncoder).matches(request.originalPassword(), oldUser.getPassword());
+        verify(passwordEncoder).matches(request.password(), oldUser.getPassword());
         verify(passwordEncoder).encode(request.password());
         verify(appUserRepository).save(appUserCaptor.capture());
         verify(jwtService).logoutUser();
 
+        assertEquals(dbUser.getId(), oldUser.getId());
         assertEquals(request.email(), appUserCaptor.getValue().getEmail());
-        assertEquals(request.password(), appUserCaptor.getValue().getPassword());
+        assertEquals(passwordEncoder.encode(request.password()), appUserCaptor.getValue().getPassword());
         assertEquals(request.username(), appUserCaptor.getValue().getDisplayName());
 
     }
