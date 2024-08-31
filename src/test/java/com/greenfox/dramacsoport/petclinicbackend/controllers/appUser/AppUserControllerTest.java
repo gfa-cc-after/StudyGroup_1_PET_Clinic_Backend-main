@@ -3,13 +3,11 @@ package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteUserResponse;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
-import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
-import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,10 +35,7 @@ public class AppUserControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private AppUserRepository appUserRepository;
-
-    @Mock
-    AppUser user;
+    private ObjectMapper objectMapper;
 
     @Test
     @WithMockUser("testuser")
@@ -72,5 +67,32 @@ public class AppUserControllerTest {
         this.mockMvc.perform(delete("/api/v1/user/2")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser("testUser")
+    @DisplayName("Edit user Controller - HAPPY PATH (HTTP 200 OK)")
+    public void editUser_shouldReturn200Ok_whenUserIsAuthenticatedAndDataIsCorrect() throws Exception {
+        // Arrange
+        String userEmail = "testUser";
+        EditUserRequestDTO requestDTO = new EditUserRequestDTO(
+                "new@example.com",
+                "0ld_P4ssw0rd",
+                "n3w-pAss_word",
+                "New_Name"
+        );
+        EditUserResponseDTO responseDTO = new EditUserResponseDTO("Changes saved.");
+
+        when(appUserService.changeUserData(userEmail, requestDTO)).thenReturn(responseDTO);
+
+        // Act & Assert
+        this.mockMvc.perform(post("/api/v1/user/profile")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpectAll(
+                        status().isOk(),
+                        content().json("{\"message\":\"Changes saved.\"}")
+                );
+        verify(appUserService).changeUserData(anyString(), any(EditUserRequestDTO.class));
     }
 }
