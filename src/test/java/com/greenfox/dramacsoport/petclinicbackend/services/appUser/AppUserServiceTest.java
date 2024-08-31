@@ -116,7 +116,7 @@ public class AppUserServiceTest {
 
         //Mock methods
         when(appUserRepository.findByEmail(anyString())).thenReturn(dbUser);
-        when(appUserRepository.existsByEmail(request.email())).thenReturn(false);
+        when(appUserRepository.existsByEmail(request.newEmail())).thenReturn(false);
         when(passwordEncoder.encode(request.newPassword())).thenReturn("encodedPW").thenReturn("encodedNewPW");
         when(passwordEncoder.matches(request.prevPassword(), dbUser.getPassword())).thenReturn(true);
         when(passwordEncoder.matches(request.newPassword(), dbUser.getPassword())).thenReturn(false);
@@ -125,7 +125,8 @@ public class AppUserServiceTest {
         appUserService.changeUserData(dbUser.getEmail(), request);
 
         //Check if every method had been called
-        verify(appUserRepository).existsByEmail(request.email());
+        verify(appUserRepository).findByEmail(dbUser.getEmail());
+        verify(appUserRepository).existsByEmail(request.newEmail());
         verify(passwordEncoder).matches(request.prevPassword(), dbUser.getPassword());
         verify(passwordEncoder).matches(request.newPassword(), dbUser.getPassword());
         verify(passwordEncoder).encode(request.newPassword());

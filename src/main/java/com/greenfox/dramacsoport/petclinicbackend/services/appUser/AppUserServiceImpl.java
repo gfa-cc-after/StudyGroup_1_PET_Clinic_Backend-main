@@ -50,7 +50,7 @@ public class AppUserServiceImpl implements AppUserService{
         AppUser user = appUserRepository.findByEmail(email);
 
         //check if new email is not already taken - NameAlreadyBoundException
-        if (appUserRepository.existsByEmail(request.email()) && !request.email().equals(user.getEmail())) {
+        if (appUserRepository.existsByEmail(request.newEmail()) && !request.newEmail().equals(user.getEmail())) {
             throw new NameAlreadyBoundException(AppServiceErrors.USERNAME_ALREADY_EXISTS);
         }
         //check if old pw is valid - PWException
