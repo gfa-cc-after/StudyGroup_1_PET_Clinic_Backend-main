@@ -1,10 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.ErrorResponse;
-import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
-import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectPasswordException;
-import com.greenfox.dramacsoport.petclinicbackend.exceptions.InvalidPasswordException;
-import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.*;
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +17,8 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    //Validation exceptions
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -37,8 +36,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidCredentials(UsernameNotFoundException ex) {
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPasswordException(InvalidPasswordException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Invalid Password", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    //Authentication - authorization exceptions
+
+    @ExceptionHandler(IncorrectLoginCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleIncorrectCredentials(IncorrectLoginCredentialsException ex) {
         ErrorResponse errorResponse = new ErrorResponse("Invalid Credentials", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
@@ -55,10 +62,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(DeletionException.class)
-    public ResponseEntity<ErrorResponse> handleDeletionError(DeletionException ex) {
-        ErrorResponse errorResponse = new ErrorResponse("Deletion Error", ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    //Database exceptions
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Username not found", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(NameAlreadyBoundException.class)
@@ -67,10 +76,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(InvalidPasswordException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidPasswordException(InvalidPasswordException ex) {
-        ErrorResponse errorResponse = new ErrorResponse("Invalid Password", ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(DeletionException.class)
+    public ResponseEntity<ErrorResponse> handleDeletionError(DeletionException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Deletion Error", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
      // Default exception handler

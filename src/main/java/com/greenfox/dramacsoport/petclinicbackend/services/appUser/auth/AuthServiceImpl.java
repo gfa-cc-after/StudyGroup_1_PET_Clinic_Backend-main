@@ -5,6 +5,7 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectLoginCredentialsException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectPasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.InvalidPasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
@@ -72,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidPasswordException(AppServiceErrors.SHORT_PASSWORD);
         }
         if (isUserRegistered(userRequest.getEmail())) {
-            throw new NameAlreadyBoundException(AppServiceErrors.USER_ALREADY_EXISTS);
+            throw new NameAlreadyBoundException(AppServiceErrors.USERNAME_ALREADY_EXISTS);
         }
 
         AppUser newUser = convertToEntity(userRequest);
@@ -87,25 +88,24 @@ public class AuthServiceImpl implements AuthService {
         return appUserRepository.save(newUser);
     }
 
-    public LoginResponseDTO login(LoginRequestDTO requestDTO) throws UsernameNotFoundException {
-        if (authenticateUser(requestDTO)) {
-            AppUser appUser = appUserRepository.findByEmail(requestDTO.email());
-            String token = jwtService.generateToken(appUser);
-            return new LoginResponseDTO(token);
+    public LoginResponseDTO login(LoginRequestDTO requestDTO) throws IncorrectLoginCredentialsException {
+        if (!authenticateUser(requestDTO)) {
+            throw new IncorrectLoginCredentialsException();
         }
-        throw new UsernameNotFoundException(AppServiceErrors.AUTHENTICATION_FAILED_BAD_CREDENTIALS);
+        AppUser appUser = appUserRepository.findByEmail(requestDTO.email());
+        String token = jwtService.generateToken(appUser);
+        return new LoginResponseDTO(token);
     }
 
     private boolean authenticateUser(LoginRequestDTO requestDTO) {
-        boolean isAuthenticated = passwordEncoder.matches(
-                requestDTO.password(),
-                appUserRepository.findByEmail(requestDTO.email()).getPassword()
-        );
-
-        if (!isAuthenticated) {
-            throw new UsernameNotFoundException(AppServiceErrors.AUTHENTICATION_FAILED_BAD_CREDENTIALS);
+        try {
+            return passwordEncoder.matches(
+                    requestDTO.password(),
+                    appUserRepository.findByEmail(requestDTO.email()).getPassword()
+            );
+        } catch (UsernameNotFoundException ue) {
+            throw new IncorrectLoginCredentialsException();
         }
-        return isAuthenticated;
     }
 
     private boolean isPasswordLongerThanThreeChar(String password) {

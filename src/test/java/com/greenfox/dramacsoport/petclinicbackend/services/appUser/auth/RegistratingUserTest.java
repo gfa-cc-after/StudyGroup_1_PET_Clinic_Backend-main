@@ -51,7 +51,7 @@ public class RegistratingUserTest {
         NameAlreadyBoundException exception = assertThrows(NameAlreadyBoundException.class, () -> authService.registerUser(registerRequestDTO));
 
         // Assert that the message matches the expected message
-        assertEquals(AppServiceErrors.USER_ALREADY_EXISTS, exception.getMessage());
+        assertEquals(AppServiceErrors.USERNAME_ALREADY_EXISTS, exception.getMessage());
 
         // Verify that the repository's save method and the email sender's send method are never called
         verify(appUserRepository, times(1)).existsByEmail("test@example.com");

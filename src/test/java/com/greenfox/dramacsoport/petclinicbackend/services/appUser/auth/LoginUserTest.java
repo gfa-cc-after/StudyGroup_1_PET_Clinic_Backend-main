@@ -2,6 +2,7 @@ package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectLoginCredentialsException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
@@ -52,7 +53,7 @@ public class LoginUserTest {
         when(appUserRepository.findByEmail(loginRequestDTO.email())).thenThrow(UsernameNotFoundException.class);
 
         // Act & Assert: Expect an exception due to email mismatch
-        assertThrows(UsernameNotFoundException.class, () -> authService.login(loginRequestDTO));
+        assertThrows(IncorrectLoginCredentialsException.class, () -> authService.login(loginRequestDTO));
 
         // Verify no token is generated since login should fail
         verify(jwtService, never()).generateToken(any(AppUser.class));
@@ -69,7 +70,8 @@ public class LoginUserTest {
         when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(false);
 
         // Act & Assert: Expect an exception due to password mismatch
-       UsernameNotFoundException exception =  assertThrows(UsernameNotFoundException.class, () -> authService.login(loginRequestDTO));
+        IncorrectLoginCredentialsException exception = assertThrows(IncorrectLoginCredentialsException.class,
+                () -> authService.login(loginRequestDTO));
 
         assertEquals(AppServiceErrors.AUTHENTICATION_FAILED_BAD_CREDENTIALS, exception.getMessage());
 

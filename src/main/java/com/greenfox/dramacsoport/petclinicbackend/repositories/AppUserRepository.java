@@ -7,5 +7,5 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
     AppUser findByEmail(String email) throws UsernameNotFoundException;
 
-    boolean existsByEmail(String email) throws UsernameNotFoundException;
+    boolean existsByEmail(String email);
 }
