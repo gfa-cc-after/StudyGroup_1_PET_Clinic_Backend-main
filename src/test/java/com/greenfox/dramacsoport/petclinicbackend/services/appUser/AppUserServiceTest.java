@@ -151,6 +151,6 @@ public class AppUserServiceTest {
         assertEquals(dbUser.getPets(), oldUser.getPets());
         assertEquals(request.email(), appUserCaptor.getValue().getEmail());
         assertEquals(passwordEncoder.encode(request.password()), appUserCaptor.getValue().getPassword());
-        assertEquals(request.username(), appUserCaptor.getValue().getDisplayName());
+        assertEquals(request.displayName(), appUserCaptor.getValue().getDisplayName());
     }
 }

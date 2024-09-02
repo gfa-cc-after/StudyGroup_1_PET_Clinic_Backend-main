@@ -13,8 +13,6 @@ import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -66,15 +64,15 @@ public class AppUserServiceImpl implements AppUserService {
             throw new InvalidPasswordException("New password cannot be the same as the old one.");
         }
 
-        //map the request to the user entity TODO: extract this part to configuration
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        TypeMap<EditUserRequestDTO, AppUser> typeMap = modelMapper.typeMap(EditUserRequestDTO.class, AppUser.class);
-        //TODO: fix this issue (the DTO record cannot be mapped)
-        typeMap.addMappings(mapper -> {
-            mapper.map(EditUserRequestDTO::email, AppUser::setEmail);
-            mapper.map(EditUserRequestDTO::username, AppUser::setDisplayName);
-            mapper.map(EditUserRequestDTO::password, AppUser::setPassword);
-        });
+//        //map the request to the user entity TODO: extract this part to configuration
+//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+//        TypeMap<EditUserRequestDTO, AppUser> typeMap = modelMapper.typeMap(EditUserRequestDTO.class, AppUser.class);
+//        //TODO: fix this issue (the DTO record cannot be mapped)
+//        typeMap.addMappings(mapper -> {
+//            mapper.map(EditUserRequestDTO::email, AppUser::setEmail);
+//            mapper.map(EditUserRequestDTO::displayName, AppUser::setDisplayName);
+//            mapper.map(EditUserRequestDTO::password, AppUser::setPassword);
+//        });
 
         modelMapper.map(request, user);
         user.setPassword(passwordEncoder.encode(request.password()));
