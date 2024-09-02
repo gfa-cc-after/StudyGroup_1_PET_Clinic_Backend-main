@@ -1,5 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
+import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
@@ -31,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return (username) -> {
             AppUser user = appUserRepository.findByEmail(username);
             if (user == null) {
-                throw new UsernameNotFoundException("User not found: " + username);
+                throw new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND + username);
             }
             return user;
         };

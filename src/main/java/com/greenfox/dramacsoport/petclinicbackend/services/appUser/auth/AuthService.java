@@ -3,9 +3,9 @@ package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectLoginCredentialsException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.InvalidPasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.naming.NameAlreadyBoundException;
 
@@ -16,7 +16,7 @@ public interface AuthService {
      * @param requestDTO The DTO, that is created when the user is try to log in. Contains the login credentials
      *                   (username & password).
      * @return A JWT token as a String for further authorization.
-     * @throws UsernameNotFoundException when the username and/or the password is incorrect.
+     * @throws IncorrectLoginCredentialsException when the username and/or the password is incorrect.
      */
-    LoginResponseDTO login(LoginRequestDTO requestDTO) throws UsernameNotFoundException;
+    LoginResponseDTO login(LoginRequestDTO requestDTO) throws IncorrectLoginCredentialsException;
 }
