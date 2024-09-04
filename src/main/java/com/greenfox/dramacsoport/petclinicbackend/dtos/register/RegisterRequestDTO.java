@@ -10,8 +10,8 @@ import lombok.Data;
 
 @Data
 public final class RegisterRequestDTO {
-    @NotBlank(message = "Username field is required.")
-    @NotNull(message = "Username field is required.")
+    @NotBlank(message = "Display name field is required.")
+    @NotNull(message = "Display name is required.")
     private final String displayName;
 
     @NotBlank(message = "Email field is required.")
