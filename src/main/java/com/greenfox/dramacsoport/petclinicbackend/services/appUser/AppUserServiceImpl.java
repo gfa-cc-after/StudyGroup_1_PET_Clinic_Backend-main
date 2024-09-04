@@ -64,16 +64,6 @@ public class AppUserServiceImpl implements AppUserService {
             throw new InvalidPasswordException("New password cannot be the same as the old one.");
         }
 
-//        //map the request to the user entity TODO: extract this part to configuration
-//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-//        TypeMap<EditUserRequestDTO, AppUser> typeMap = modelMapper.typeMap(EditUserRequestDTO.class, AppUser.class);
-//        //TODO: fix this issue (the DTO record cannot be mapped)
-//        typeMap.addMappings(mapper -> {
-//            mapper.map(EditUserRequestDTO::email, AppUser::setEmail);
-//            mapper.map(EditUserRequestDTO::displayName, AppUser::setDisplayName);
-//            mapper.map(EditUserRequestDTO::password, AppUser::setPassword);
-//        });
-
         modelMapper.map(request, user);
         user.setPassword(passwordEncoder.encode(request.password()));
 
