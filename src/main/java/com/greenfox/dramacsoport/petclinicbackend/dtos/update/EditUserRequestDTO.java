@@ -6,9 +6,10 @@ import lombok.Data;
 
 @Data
 public class EditUserRequestDTO {
-    @Email(message = AppServiceErrors.EMAIL_FIELD_NOT_VALID)
+
     @NotNull(message = "Please enter a valid email address!")
     @NotBlank(message = "Please enter a valid email address!")
+    @Email(message = AppServiceErrors.EMAIL_FIELD_NOT_VALID)
     private final String email;
 
     @NotNull(message = "Please enter your original password!")
