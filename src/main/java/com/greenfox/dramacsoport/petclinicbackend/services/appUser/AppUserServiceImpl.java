@@ -70,7 +70,7 @@ public class AppUserServiceImpl implements AppUserService {
             modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
             newPassword = user.getPassword();
         } else {
-            authService.isPasswordLongerThanThreeChar(request.password());
+//            authService.isPasswordLongerThanThreeChar(request.password());
 
             //check if new pw is not the same as old pw - PWException
             if (passwordEncoder.matches(request.password(), user.getPassword())) {

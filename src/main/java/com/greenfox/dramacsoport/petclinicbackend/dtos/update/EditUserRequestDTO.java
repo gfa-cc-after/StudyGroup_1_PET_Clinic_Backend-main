@@ -16,6 +16,7 @@ public class EditUserRequestDTO {
     @NotEmpty(message = "Please enter your original password!")
     private final String originalPassword;
 
+    @Size(min = 4, message = AppServiceErrors.SHORT_PASSWORD)
     private final String password;
 
     @NotNull(message = "Please enter your display name!")

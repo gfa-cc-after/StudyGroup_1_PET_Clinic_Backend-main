@@ -8,7 +8,6 @@ import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +25,7 @@ import java.util.HashMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.either;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -89,7 +89,7 @@ public class AppUserControllerTest {
         EditUserRequestDTO requestDTO = new EditUserRequestDTO(
                 "new@example.com",
                 "0ld_P4ssw0rd",
-                "n3w-pAss_word",
+                "1234",
                 "New_Name"
         );
         EditUserResponseDTO responseDTO = new EditUserResponseDTO("Changes saved.");
@@ -162,7 +162,7 @@ public class AppUserControllerTest {
                 HashMap.class);
         assertEquals("Please enter a valid email address!", errorResponse.get("email"));
         assertEquals("Please enter your original password!", errorResponse.get("originalPassword"));
-        Assertions.assertNull(errorResponse.get("password"));
+        assertNull(errorResponse.get("password"));
         assertEquals("Please enter your display name!", errorResponse.get("displayName"));
     }
 
@@ -194,7 +194,7 @@ public class AppUserControllerTest {
                 HashMap.class);
         assertEquals("Please enter a valid email address!", errorResponse.get("email"));
         assertEquals("Please enter your original password!", errorResponse.get("originalPassword"));
-        Assertions.assertNull(errorResponse.get("password"));
+        assertEquals(AppServiceErrors.SHORT_PASSWORD, errorResponse.get("password"));
         assertEquals("Please enter your display name!", errorResponse.get("displayName"));
     }
 
@@ -228,10 +228,74 @@ public class AppUserControllerTest {
         assertThat(errorResponse.get("email"),
                 either(Matchers.equalTo("Please enter a valid email address!"))
                         .or(Matchers.equalTo(AppServiceErrors.EMAIL_FIELD_NOT_VALID)));
-        Assertions.assertNull(errorResponse.get("originalPassword"));
-        Assertions.assertNull(errorResponse.get("password"));
+        assertNull(errorResponse.get("originalPassword"));
+        assertEquals(AppServiceErrors.SHORT_PASSWORD, errorResponse.get("password"));
         assertThat(errorResponse.get("displayName"),
                 either(Matchers.equalTo("Please enter your display name!"))
                         .or(Matchers.equalTo("Display name can only contain alphanumeric characters")));
+    }
+
+    @Test
+    @WithMockUser("testUser")
+    @DisplayName("Edit user Controller - UNHAPPY PATH length checks (HTTP BAD)")
+    public void editUser_shouldThrowValidationErrorsWhenFieldLengthsNotValid() throws Exception {
+        // Arrange
+        String userEmail = "testUser";
+        EditUserRequestDTO requestDTO = new EditUserRequestDTO(
+                "a@a.a",
+                " ",
+                "123",
+                "Sooo-Loong-It-Wont-Fi"
+        );
+
+        when(appUserService.changeUserData(userEmail, requestDTO)).thenThrow(new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND));
+
+        // Act & Assert
+        MvcResult result = mockMvc.perform(post("/api/v1/user/profile")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(
+                        status().isBadRequest())
+                .andReturn();
+
+        verify(appUserService, never()).changeUserData(anyString(), any(EditUserRequestDTO.class));
+        HashMap<String, String> errorResponse = objectMapper.readValue(result.getResponse().getContentAsString(),
+                HashMap.class);
+        assertNull(errorResponse.get("email"));
+        assertNull(errorResponse.get("originalPassword"));
+        assertEquals(AppServiceErrors.SHORT_PASSWORD, errorResponse.get("password"));
+        assertEquals("Display name could not be longer than 20 characters", errorResponse.get("displayName"));
+    }
+
+    @Test
+    @WithMockUser("testUser")
+    @DisplayName("Edit user Controller - UNHAPPY PATH pattern checks (HTTP BAD)")
+    public void editUser_shouldThrowValidationErrorsWhenFieldPatternIsNotValid() throws Exception {
+        // Arrange
+        String userEmail = "testUser";
+        EditUserRequestDTO requestDTO = new EditUserRequestDTO(
+                "notanemailaddress",
+                " ",
+                "1234",
+                "_Very-Sp3c1al:NAME"
+        );
+
+        when(appUserService.changeUserData(userEmail, requestDTO)).thenThrow(new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND));
+
+        // Act & Assert
+        MvcResult result = mockMvc.perform(post("/api/v1/user/profile")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(
+                        status().isBadRequest())
+                .andReturn();
+
+        verify(appUserService, never()).changeUserData(anyString(), any(EditUserRequestDTO.class));
+        HashMap<String, String> errorResponse = objectMapper.readValue(result.getResponse().getContentAsString(),
+                HashMap.class);
+        assertEquals(AppServiceErrors.EMAIL_FIELD_NOT_VALID, errorResponse.get("email"));
+        assertNull(errorResponse.get("originalPassword"));
+        assertNull(errorResponse.get("password"));
+        assertEquals("Display name can only contain alphanumeric characters", errorResponse.get("displayName"));
     }
 }
