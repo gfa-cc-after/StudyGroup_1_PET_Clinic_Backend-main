@@ -9,6 +9,7 @@ import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AuthService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,6 +47,9 @@ public class AppUserServiceTest {
 
     @Mock
     private JwtService jwtService;
+
+    @Mock
+    private AuthService authService;
 
     @Test
     public void shouldNotAllowDeletionIfUserHasPets() {
@@ -132,6 +136,7 @@ public class AppUserServiceTest {
         when(passwordEncoder.encode(request.password())).thenReturn("encodedPW");
         when(passwordEncoder.matches(request.originalPassword(), dbUser.getPassword())).thenReturn(true);
         when(passwordEncoder.matches(request.password(), dbUser.getPassword())).thenReturn(false);
+        when(authService.isPasswordLongerThanThreeChar(anyString())).thenReturn(true);
 
         //Call method
         appUserService.changeUserData(dbUser.getEmail(), request);
