@@ -7,15 +7,17 @@ import com.greenfox.dramacsoport.petclinicbackend.repositories.PetRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
 import java.util.Arrays;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -75,8 +77,7 @@ public class GetPetsIntegrationTest {
     }
 
     @Test
-    @WithMockUser(username = "nonExistingUser@example.com")
-    public void testIncorrectEmail() throws Exception {
+    public void notLoggedInUser() throws Exception {
         mockMvc.perform(get("/api/v1/user/pets")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());

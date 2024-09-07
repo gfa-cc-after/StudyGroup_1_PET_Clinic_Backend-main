@@ -6,6 +6,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -85,6 +86,12 @@ public class JwtService {
         byte[] key = new byte[32]; // 256 bits
         random.nextBytes(key);
         return Base64.getEncoder().encodeToString(key);
+    }
+
+    public boolean logoutUser() {
+        //TODO: write unit test for this method
+        SecurityContextHolder.getContext().setAuthentication(null);
+        return true;
     }
 
 }

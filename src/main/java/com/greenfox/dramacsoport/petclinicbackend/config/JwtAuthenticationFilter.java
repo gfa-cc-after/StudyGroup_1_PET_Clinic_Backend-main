@@ -1,5 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
+import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
+import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import jakarta.servlet.FilterChain;
@@ -11,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,9 +28,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final AppUserRepository appUserRepository;
 
-    UserDetails loadUserDetailsByUsername(String username) {
-        return appUserRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    UserDetailsService userDetailsService() {
+        return (username) -> {
+            AppUser user = appUserRepository.findByEmail(username);
+            if (user == null) {
+                throw new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND + username);
+            }
+            return user;
+        };
     }
 
     @Override
@@ -50,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Extract the username from the token and load the user details
         String username = jwtService.extractUsername(jwt);
-        UserDetails userDetails = loadUserDetailsByUsername(username);
+        UserDetails userDetails = userDetailsService().loadUserByUsername(username);
 
         // Set user details into the security context, and authenticate the user
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

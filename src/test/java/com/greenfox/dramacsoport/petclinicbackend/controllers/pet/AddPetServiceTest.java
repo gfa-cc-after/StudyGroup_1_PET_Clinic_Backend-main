@@ -1,16 +1,10 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers.pet;
 
-import static org.mockito.ArgumentCaptor.forClass;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetDTO;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
+import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.PetRepository;
-import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AuthServiceImpl;
 import com.greenfox.dramacsoport.petclinicbackend.services.petHandling.PetServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,15 +14,25 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+
 import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentCaptor.forClass;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class AddPetServiceTest {
 
     @Mock
     private PetRepository petRepository;
+
     @Mock
-    private AuthServiceImpl appUserAuthService;
+    private AppUserRepository appUserRepository;
+
     @InjectMocks
     private PetServiceImpl petService;
 
@@ -56,7 +60,7 @@ public class AddPetServiceTest {
     @Test
     void shouldAddPetSuccessfully() {
 
-        when(appUserAuthService.loadUserByUsername(anyString())).thenReturn(appUser);
+        when(appUserRepository.findByEmail(anyString())).thenReturn(appUser);
         when(petRepository.save(any(Pet.class))).thenReturn(pet);
 
         PetDTO savedPetDTO = petService.addPet("xy@example.com", petDTO);
@@ -64,7 +68,7 @@ public class AddPetServiceTest {
         assertEquals(petDTO.getPetName(), savedPetDTO.getPetName());
         assertEquals(petDTO.getPetBreed(), savedPetDTO.getPetBreed());
 
-        verify(appUserAuthService).loadUserByUsername("xy@example.com");
+        verify(appUserRepository).findByEmail("xy@example.com");
 
         ArgumentCaptor<Pet> petCaptor = forClass(Pet.class);
         verify(petRepository).save(petCaptor.capture());

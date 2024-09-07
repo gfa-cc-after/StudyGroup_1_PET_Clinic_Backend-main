@@ -1,15 +1,20 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 
+import com.greenfox.dramacsoport.petclinicbackend.controllers.appUser.auth.LoginController;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
-import com.greenfox.dramacsoport.petclinicbackend.exceptions.PasswordException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectLoginCredentialsException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectPasswordException;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.InvalidPasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -33,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final JavaMailSender javaMailSender;
 
-    private final AppServiceErrors error;
+    private final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @Value("${spring.mail.username}")
     private String petClinicEmail;
@@ -46,26 +51,6 @@ public class AuthServiceImpl implements AuthService {
      */
     private <T> AppUser convertToEntity(T sourceDTO) {
         return modelMapper.map(sourceDTO, AppUser.class);
-    }
-
-    @Override
-    public AppUser saveUser(AppUser user) {
-        return appUserRepository.save(user);
-    }
-
-    /**
-     * <h3>Looks for an entity in the storage and gives back a UserDetails object made from it.</h3>
-     *
-     * @param email the email, that is used as a username
-     * @return an implementation of the security core UserDetails interface, NOT the same as the AppUser Entity
-     * @throws UsernameNotFoundException when no entity found under this email.
-     */
-    @Override
-    public AppUser loadUserByUsername(String email) throws UsernameNotFoundException {
-
-        return appUserRepository
-                .findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(error.usernameNotFound(email)));
     }
 
     /**
@@ -81,14 +66,14 @@ public class AuthServiceImpl implements AuthService {
      *
      * @param userRequest the user object created from the registration form
      */
-    @Override
-    public AppUser registerUser(RegisterRequestDTO userRequest) throws PasswordException, NameAlreadyBoundException {
+    public AppUser registerUser(RegisterRequestDTO userRequest) throws IncorrectPasswordException,
+            NameAlreadyBoundException {
 
         if (!isPasswordLongerThanThreeChar(userRequest.getPassword())) {
-            throw new PasswordException(error.shortPassword());
+            throw new InvalidPasswordException(AppServiceErrors.SHORT_PASSWORD);
         }
         if (isUserRegistered(userRequest.getEmail())) {
-            throw new NameAlreadyBoundException(error.userAlreadyExists());
+            throw new NameAlreadyBoundException(AppServiceErrors.USERNAME_ALREADY_EXISTS);
         }
 
         AppUser newUser = convertToEntity(userRequest);
@@ -97,26 +82,30 @@ public class AuthServiceImpl implements AuthService {
         try {
             sendEmailAfterRegistration(userRequest);
         } catch (Exception e) {
+            logger.error("Failed to send email after registration: {}", e.getMessage());
         }
 
-        return saveUser(newUser);
+        return appUserRepository.save(newUser);
     }
 
-    @Override
-    public LoginResponseDTO login(LoginRequestDTO requestDTO) throws UsernameNotFoundException {
-        if (authenticateUser(requestDTO)) {
-            AppUser appUser = loadUserByUsername(requestDTO.email());
-            String token = jwtService.generateToken(appUser);
-            return new LoginResponseDTO(token);
+    public LoginResponseDTO login(LoginRequestDTO requestDTO) throws IncorrectLoginCredentialsException {
+        if (!authenticateUser(requestDTO)) {
+            throw new IncorrectLoginCredentialsException();
         }
-        throw new UsernameNotFoundException(error.notFound());
+        AppUser appUser = appUserRepository.findByEmail(requestDTO.email());
+        String token = jwtService.generateToken(appUser);
+        return new LoginResponseDTO(token);
     }
 
     private boolean authenticateUser(LoginRequestDTO requestDTO) {
-        return passwordEncoder.matches(
-                requestDTO.password(),
-                loadUserByUsername(requestDTO.email()).getPassword()
-        );
+        try {
+            return passwordEncoder.matches(
+                    requestDTO.password(),
+                    appUserRepository.findByEmail(requestDTO.email()).getPassword()
+            );
+        } catch (UsernameNotFoundException ue) {
+            throw new IncorrectLoginCredentialsException();
+        }
     }
 
     private boolean isPasswordLongerThanThreeChar(String password) {
@@ -124,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private boolean isUserRegistered(String email) {
-        return appUserRepository.findByEmail(email).isPresent();
+        return appUserRepository.existsByEmail(email);
     }
 
     public void sendEmailAfterRegistration(RegisterRequestDTO user) {
@@ -140,6 +129,7 @@ public class AuthServiceImpl implements AuthService {
                 Best regards,
                 Pet Clinic Team""".formatted(user.getDisplayName()));
         javaMailSender.send(message);
+        logger.info("Email sent successfully");
     }
 
 }

@@ -3,7 +3,6 @@ package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.exceptions.PasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
@@ -21,7 +20,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.naming.NameAlreadyBoundException;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -66,7 +64,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void registerMethodIsSuccessfullyCalled() throws PasswordException, NameAlreadyBoundException {
+    public void registerMethodIsSuccessfullyCalled() throws NameAlreadyBoundException {
 
         appUserAuthService.registerUser(registerRequestDTO);
 
@@ -104,7 +102,7 @@ public class AuthServiceTest {
         appUser.setPassword("encodedPassword");
 
         // Mock the behavior of finding a user by email
-        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(Optional.of(appUser));
+        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(appUser);
         // Mock the behavior of password matching
         when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(true);
         // Mock the behavior of JWT token generation

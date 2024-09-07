@@ -1,11 +1,15 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteUserResponse;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
+import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
+import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -13,9 +17,10 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.naming.NameAlreadyBoundException;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,11 +42,17 @@ public class AppUserServiceTest {
     @Captor
     private ArgumentCaptor<AppUser> appUserCaptor;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JwtService jwtService;
+
     @Test
     public void shouldNotAllowDeletionIfUserHasPets() {
         // Given
         String userEmail = "test@example.com";
-        when(appUserRepository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
+        when(appUserRepository.findByEmail(anyString())).thenReturn(appUser);
         when(appUser.getPets()).thenReturn(List.of(new Pet()));
         when(appUser.getId()).thenReturn(1L);
 
@@ -57,7 +68,7 @@ public class AppUserServiceTest {
     public void shouldAllowDeletionIfUserHasNoPets() throws DeletionException {
         // Given
         String userEmail = "test@example.com";
-        when(appUserRepository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
+        when(appUserRepository.findByEmail(anyString())).thenReturn(appUser);
         when(appUser.getPets()).thenReturn(List.of());
         when(appUser.getId()).thenReturn(1L);
 
@@ -75,7 +86,7 @@ public class AppUserServiceTest {
         // Given
         String userEmail = "test@example.com";
         Long userId = 2L;
-        when(appUserRepository.findByEmail("test@example.com")).thenReturn(Optional.of(appUser));
+        when(appUserRepository.findByEmail("test@example.com")).thenReturn(appUser);
         when(appUser.getId()).thenReturn(1L);
 
         // When
@@ -84,5 +95,48 @@ public class AppUserServiceTest {
         // Then
         assertEquals("User is not authorized to delete this account", unauthorizedActionException.getMessage());
         verify(appUserRepository, never()).delete(appUserCaptor.capture());
+    }
+
+    @Test
+    @Disabled
+    public void changeUserDataMethodIsSuccessfullyCalled() throws NameAlreadyBoundException {
+        //Arrange: Mock user from token and mock request DTO
+        AppUser dbUser = AppUser.builder()
+                .displayName("Test User")
+                .email("test@example.com")
+                .password("encodedPassword")
+                .role(Role.USER)
+                .pets(List.of())
+                .build();
+
+        EditUserRequestDTO request = new EditUserRequestDTO(
+                "newEmail@example.com",
+                "Pr3v_p4ssw0rd",
+                "N3w_p4ssw0rd",
+                "Edited_Name");
+
+        //Mock methods
+        when(appUserRepository.findByEmail(anyString())).thenReturn(dbUser);
+        when(appUserRepository.existsByEmail(request.newEmail())).thenReturn(false);
+        when(passwordEncoder.encode(request.newPassword())).thenReturn("encodedPW").thenReturn("encodedNewPW");
+        when(passwordEncoder.matches(request.prevPassword(), dbUser.getPassword())).thenReturn(true);
+        when(passwordEncoder.matches(request.newPassword(), dbUser.getPassword())).thenReturn(false);
+
+        //Call method
+        appUserService.changeUserData(dbUser.getEmail(), request);
+
+        //Check if every method had been called
+        verify(appUserRepository).findByEmail(dbUser.getEmail());
+        verify(appUserRepository).existsByEmail(request.newEmail());
+        verify(passwordEncoder).matches(request.prevPassword(), dbUser.getPassword());
+        verify(passwordEncoder).matches(request.newPassword(), dbUser.getPassword());
+        verify(passwordEncoder).encode(request.newPassword());
+        verify(appUserRepository).save(appUserCaptor.capture());
+        verify(jwtService).logoutUser();
+
+        assertEquals(request.newEmail(), appUserCaptor.getValue().getEmail());
+        assertEquals(request.newPassword(), appUserCaptor.getValue().getPassword());
+        assertEquals(request.newDisplayName(), appUserCaptor.getValue().getDisplayName());
+
     }
 }

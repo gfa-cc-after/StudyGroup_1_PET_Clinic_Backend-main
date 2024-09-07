@@ -1,5 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.dtos.register;
 
+import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -12,13 +13,16 @@ public final class RegisterRequestDTO {
     @NotBlank(message = "Username field is required.")
     @NotNull(message = "Username field is required.")
     private final String displayName;
+
     @NotBlank(message = "Email field is required.")
     @NotNull(message = "Email field is required.")
-    @Email
+    @Email(message = AppServiceErrors.EMAIL_FIELD_NOT_VALID)
     private final String email;
+
     @NotBlank(message = "Password field is required.")
     @NotNull(message = "Password field is required.")
-    @Size(min = 3, message = "Username must be at least 3 characters long.")
+    @Size(min = 3, message = AppServiceErrors.SHORT_PASSWORD)
     private final String password;
+
     private final Role role = Role.USER;
 }

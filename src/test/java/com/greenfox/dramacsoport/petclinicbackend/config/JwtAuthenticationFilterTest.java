@@ -1,5 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.config;
 
+import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
@@ -23,7 +24,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -89,7 +89,7 @@ class JwtAuthenticationFilterTest {
         //MOCK CALLS
         when(jwtService.isTokenValid(anyString())).thenReturn(true);
         when(jwtService.extractUsername(anyString())).thenReturn(appUser.getUsername());
-        when(repository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
+        when(repository.findByEmail(anyString())).thenReturn(appUser);
         //WHEN
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
@@ -232,7 +232,7 @@ class JwtAuthenticationFilterTest {
         when(jwtService.isTokenValid(anyString())).thenReturn(true);
         when(jwtService.extractUsername(anyString())).thenReturn(null);
         when(repository.findByEmail(null))
-                .thenThrow(new UsernameNotFoundException("Bad credentials"));
+                .thenThrow(new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND));
 
         //ACT and ASSERT
         assertThrows(UsernameNotFoundException.class, () ->
@@ -261,8 +261,7 @@ class JwtAuthenticationFilterTest {
         //MOCK CALLS
         when(jwtService.isTokenValid(anyString())).thenReturn(true);
         when(jwtService.extractUsername(anyString())).thenReturn(appUser.getUsername());
-        when(repository.findByEmail(anyString())).thenThrow(new UsernameNotFoundException("Bad " +
-                "credentials"));
+        when(repository.findByEmail(anyString())).thenThrow(new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND));
 
         //ACT and ASSERT
         assertThrows(UsernameNotFoundException.class,

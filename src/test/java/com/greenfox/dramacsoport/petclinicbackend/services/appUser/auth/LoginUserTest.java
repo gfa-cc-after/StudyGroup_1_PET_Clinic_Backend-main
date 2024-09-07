@@ -2,6 +2,7 @@ package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectLoginCredentialsException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
@@ -14,8 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -46,22 +45,15 @@ public class LoginUserTest {
     public void setup() {
         // Initialize test data
         loginRequestDTO = new LoginRequestDTO("test@example.com", "password");
-
-        authService = new AuthServiceImpl(
-                appUserRepository,
-                passwordEncoder,
-                jwtService,
-                javaMailSender,
-                new AppServiceErrors());
     }
 
     @Test
     public void loginMethodFailsWithWrongEmail() {
         // Arrange: Set up a non-matching email scenario
-        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(Optional.empty());
+        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenThrow(UsernameNotFoundException.class);
 
         // Act & Assert: Expect an exception due to email mismatch
-        assertThrows(UsernameNotFoundException.class, () -> authService.login(loginRequestDTO));
+        assertThrows(IncorrectLoginCredentialsException.class, () -> authService.login(loginRequestDTO));
 
         // Verify no token is generated since login should fail
         verify(jwtService, never()).generateToken(any(AppUser.class));
@@ -74,13 +66,14 @@ public class LoginUserTest {
         appUser.setEmail("test@example.com");
         appUser.setPassword("encodedPassword");
 
-        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(Optional.of(appUser));
+        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(appUser);
         when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(false);
 
         // Act & Assert: Expect an exception due to password mismatch
-       UsernameNotFoundException exception =  assertThrows(UsernameNotFoundException.class, () -> authService.login(loginRequestDTO));
+        IncorrectLoginCredentialsException exception = assertThrows(IncorrectLoginCredentialsException.class,
+                () -> authService.login(loginRequestDTO));
 
-        assertEquals("Authentication failed! Bad credentials.", exception.getMessage());
+        assertEquals(AppServiceErrors.AUTHENTICATION_FAILED_BAD_CREDENTIALS, exception.getMessage());
 
         // Verify no token is generated since login should fail
         verify(jwtService, never()).generateToken(any(AppUser.class));
