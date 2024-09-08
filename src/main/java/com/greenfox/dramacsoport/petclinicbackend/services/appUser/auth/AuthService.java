@@ -19,6 +19,4 @@ public interface AuthService {
      * @throws IncorrectLoginCredentialsException when the username and/or the password is incorrect.
      */
     LoginResponseDTO login(LoginRequestDTO requestDTO) throws IncorrectLoginCredentialsException;
-
-    boolean isPasswordLongerThanThreeChar(String password) throws InvalidPasswordException;
 }
