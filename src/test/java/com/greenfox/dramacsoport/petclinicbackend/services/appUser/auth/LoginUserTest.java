@@ -4,8 +4,8 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectLoginCredentialsException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
-import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 public class LoginUserTest {
 
     @Mock
-    private AppUserRepository appUserRepository;
+    private AppUserService appUserService;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -50,7 +50,7 @@ public class LoginUserTest {
     @Test
     public void loginMethodFailsWithWrongEmail() {
         // Arrange: Set up a non-matching email scenario
-        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenThrow(UsernameNotFoundException.class);
+        when(appUserService.loadUserByEmail(loginRequestDTO.email())).thenThrow(UsernameNotFoundException.class);
 
         // Act & Assert: Expect an exception due to email mismatch
         assertThrows(IncorrectLoginCredentialsException.class, () -> authService.login(loginRequestDTO));
@@ -66,7 +66,7 @@ public class LoginUserTest {
         appUser.setEmail("test@example.com");
         appUser.setPassword("encodedPassword");
 
-        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(appUser);
+        when(appUserService.loadUserByEmail(loginRequestDTO.email())).thenReturn(appUser);
         when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(false);
 
         // Act & Assert: Expect an exception due to password mismatch

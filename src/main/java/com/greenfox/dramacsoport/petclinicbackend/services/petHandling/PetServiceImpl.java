@@ -3,8 +3,8 @@ package com.greenfox.dramacsoport.petclinicbackend.services.petHandling;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetListResponse;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
-import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.PetRepository;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PetServiceImpl implements PetService{
 
-    private final AppUserRepository appUserRepository;
+    private final AppUserService appUserService;
     private final PetRepository petRepository;
     private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public PetListResponse getUserPets(String email) {
-        List<Pet> petList = petRepository.findAllByOwnerId(appUserRepository.findByEmail(email).getId());
+        List<Pet> petList = petRepository.findAllByOwnerId(appUserService.loadUserByEmail(email).getId());
 
         List<PetDTO> petDTOList = petList.stream()
                 .map(pet -> modelMapper.map(pet, PetDTO.class))
@@ -34,7 +34,7 @@ public class PetServiceImpl implements PetService{
     @Override
     public PetDTO addPet(String email, PetDTO petDTO) {
         Pet pet = modelMapper.map(petDTO, Pet.class);
-        pet.setOwner(appUserRepository.findByEmail(email));
+        pet.setOwner(appUserService.loadUserByEmail(email));
         petRepository.save(pet);
         return modelMapper.map(pet, PetDTO.class);
     }

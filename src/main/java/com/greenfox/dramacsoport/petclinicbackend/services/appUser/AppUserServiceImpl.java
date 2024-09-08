@@ -13,6 +13,7 @@ import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +32,13 @@ public class AppUserServiceImpl implements AppUserService{
     private final JwtService jwtService;
 
     @Override
+    public AppUser loadUserByEmail(String email) throws UsernameNotFoundException {
+        return appUserRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND + email));
+    }
+
+    @Override
     public DeleteUserResponse deleteUser(String userEmail, Long id) throws DeletionException {
-        AppUser userToDelete = appUserRepository.findByEmail(userEmail);
+        AppUser userToDelete = loadUserByEmail(userEmail);
 
         if (!userToDelete.getId().equals(id)) {
             throw new UnauthorizedActionException("User is not authorized to delete this account");
@@ -48,7 +54,7 @@ public class AppUserServiceImpl implements AppUserService{
     public EditUserResponseDTO changeUserData(String email, EditUserRequestDTO request) throws IncorrectPasswordException,
             NameAlreadyBoundException {
 
-        AppUser user = appUserRepository.findByEmail(email);
+        AppUser user = loadUserByEmail(email);
 
         //check if new email is not already taken - NameAlreadyBoundException
         if (appUserRepository.existsByEmail(request.newEmail()) && !request.newEmail().equals(user.getEmail())) {

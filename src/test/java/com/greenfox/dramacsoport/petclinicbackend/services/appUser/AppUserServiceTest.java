@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.naming.NameAlreadyBoundException;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,7 +35,7 @@ public class AppUserServiceTest {
     private AppUserServiceImpl appUserService;
 
     @Mock
-    private AppUserRepository appUserRepository;
+    private AppUserRepository repository;
 
     @Mock
     private AppUser appUser;
@@ -52,7 +53,7 @@ public class AppUserServiceTest {
     public void shouldNotAllowDeletionIfUserHasPets() {
         // Given
         String userEmail = "test@example.com";
-        when(appUserRepository.findByEmail(anyString())).thenReturn(appUser);
+        when(repository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
         when(appUser.getPets()).thenReturn(List.of(new Pet()));
         when(appUser.getId()).thenReturn(1L);
 
@@ -61,14 +62,14 @@ public class AppUserServiceTest {
 
         // Then
         assertEquals("Unable to delete your profile. Please transfer or delete your pets before proceeding.", deletionException.getMessage());
-        verify(appUserRepository, never()).delete(appUserCaptor.capture());
+        verify(repository, never()).delete(appUserCaptor.capture());
     }
 
     @Test
     public void shouldAllowDeletionIfUserHasNoPets() throws DeletionException {
         // Given
         String userEmail = "test@example.com";
-        when(appUserRepository.findByEmail(anyString())).thenReturn(appUser);
+        when(repository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
         when(appUser.getPets()).thenReturn(List.of());
         when(appUser.getId()).thenReturn(1L);
 
@@ -77,7 +78,7 @@ public class AppUserServiceTest {
 
         // Then
         assertEquals("Your profile has been successfully deleted.", deleteUserResponse.message());
-        verify(appUserRepository).delete(appUserCaptor.capture());
+        verify(repository).delete(appUserCaptor.capture());
         assertEquals(appUser, appUserCaptor.getValue());
     }
     
@@ -86,7 +87,7 @@ public class AppUserServiceTest {
         // Given
         String userEmail = "test@example.com";
         Long userId = 2L;
-        when(appUserRepository.findByEmail("test@example.com")).thenReturn(appUser);
+        when(repository.findByEmail("test@example.com")).thenReturn(Optional.of(appUser));
         when(appUser.getId()).thenReturn(1L);
 
         // When
@@ -94,7 +95,7 @@ public class AppUserServiceTest {
 
         // Then
         assertEquals("User is not authorized to delete this account", unauthorizedActionException.getMessage());
-        verify(appUserRepository, never()).delete(appUserCaptor.capture());
+        verify(repository, never()).delete(appUserCaptor.capture());
     }
 
     @Test
@@ -116,8 +117,8 @@ public class AppUserServiceTest {
                 "Edited_Name");
 
         //Mock methods
-        when(appUserRepository.findByEmail(anyString())).thenReturn(dbUser);
-        when(appUserRepository.existsByEmail(request.newEmail())).thenReturn(false);
+        when(appUserService.loadUserByEmail(anyString())).thenReturn(dbUser);
+        when(repository.existsByEmail(request.newEmail())).thenReturn(false);
         when(passwordEncoder.encode(request.newPassword())).thenReturn("encodedPW").thenReturn("encodedNewPW");
         when(passwordEncoder.matches(request.prevPassword(), dbUser.getPassword())).thenReturn(true);
         when(passwordEncoder.matches(request.newPassword(), dbUser.getPassword())).thenReturn(false);
@@ -126,12 +127,12 @@ public class AppUserServiceTest {
         appUserService.changeUserData(dbUser.getEmail(), request);
 
         //Check if every method had been called
-        verify(appUserRepository).findByEmail(dbUser.getEmail());
-        verify(appUserRepository).existsByEmail(request.newEmail());
+        verify(appUserService).loadUserByEmail(dbUser.getEmail());
+        verify(repository).existsByEmail(request.newEmail());
         verify(passwordEncoder).matches(request.prevPassword(), dbUser.getPassword());
         verify(passwordEncoder).matches(request.newPassword(), dbUser.getPassword());
         verify(passwordEncoder).encode(request.newPassword());
-        verify(appUserRepository).save(appUserCaptor.capture());
+        verify(repository).save(appUserCaptor.capture());
         verify(jwtService).logoutUser();
 
         assertEquals(request.newEmail(), appUserCaptor.getValue().getEmail());

@@ -11,6 +11,7 @@ import com.greenfox.dramacsoport.petclinicbackend.exceptions.InvalidPasswordExce
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -39,6 +40,8 @@ public class AuthServiceImpl implements AuthService {
     private final JavaMailSender javaMailSender;
 
     private final Logger logger = LoggerFactory.getLogger(LoginController.class);
+
+    private final AppUserService appUserService;
 
     @Value("${spring.mail.username}")
     private String petClinicEmail;
@@ -92,7 +95,7 @@ public class AuthServiceImpl implements AuthService {
         if (!authenticateUser(requestDTO)) {
             throw new IncorrectLoginCredentialsException();
         }
-        AppUser appUser = appUserRepository.findByEmail(requestDTO.email());
+        AppUser appUser = appUserService.loadUserByEmail(requestDTO.email());
         String token = jwtService.generateToken(appUser);
         return new LoginResponseDTO(token);
     }
@@ -101,7 +104,7 @@ public class AuthServiceImpl implements AuthService {
         try {
             return passwordEncoder.matches(
                     requestDTO.password(),
-                    appUserRepository.findByEmail(requestDTO.email()).getPassword()
+                    appUserService.loadUserByEmail(requestDTO.email()).getPassword()
             );
         } catch (UsernameNotFoundException ue) {
             throw new IncorrectLoginCredentialsException();
