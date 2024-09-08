@@ -12,7 +12,6 @@ import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -55,8 +54,15 @@ public class AppUserServiceImpl implements AppUserService {
     public EditUserResponseDTO changeUserData(String email, EditUserRequestDTO request) throws IncorrectPasswordException,
             NameAlreadyBoundException {
 
+        modelMapper.typeMap(EditUserRequestDTO.class, AppUser.class)
+                .addMappings(mapping -> {
+                    mapping.skip(EditUserRequestDTO::password,
+                            (destination, value) -> destination.setPassword((String) value));
+                });
+
         AppUser user = loadUserByEmail(email);
-        String newPassword = request.password();
+        final String oldEncodedPassword = user.getPassword();
+        String newEncodedPassword;
 
 
         //check if new email is not already taken - NameAlreadyBoundException
@@ -64,31 +70,34 @@ public class AppUserServiceImpl implements AppUserService {
             throw new NameAlreadyBoundException(AppServiceErrors.USERNAME_ALREADY_EXISTS);
         }
         //check if old pw is valid - PWException
-        if (!passwordEncoder.matches(request.originalPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.originalPassword(), oldEncodedPassword)) {
             throw new IncorrectPasswordException();
         }
 
         if (request.password() == null) {
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            newPassword = user.getPassword();
+            newEncodedPassword = oldEncodedPassword;
+            System.out.println("Password field is null, so new password will be the same as the encoded old password");
         } else {
-//            authService.isPasswordLongerThanThreeChar(request.password());
 
             //check if new pw is not the same as old pw - PWException
-            if (passwordEncoder.matches(request.password(), user.getPassword())) {
+            if (passwordEncoder.matches(request.password(), oldEncodedPassword)) {
                 throw new InvalidPasswordException("New password cannot be the same as the old one.");
             }
+            System.out.println("Password field is NOT null, so new password will be encoded right now.");
+            newEncodedPassword = passwordEncoder.encode(request.getPassword());
         }
+
+        user.setPassword(newEncodedPassword);
+        System.out.println("New password set.");
 
         modelMapper.map(request, user);
 
-        user.setPassword(passwordEncoder.encode(newPassword));
-
         //save user
         appUserRepository.save(user);
+        System.out.println("AppUser entity mapped and updated.");
 
         //if password has been changed, log out user
-        logoutIfPasswordHasChanged(request.password(), request.originalPassword());
+        logoutIfPasswordHasChanged(newEncodedPassword, oldEncodedPassword);
 
         return new EditUserResponseDTO("New user data saved.");
     }
