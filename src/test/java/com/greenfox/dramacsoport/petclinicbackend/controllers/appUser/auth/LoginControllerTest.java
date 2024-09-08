@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,6 +26,8 @@ public class LoginControllerTest {
     MockMvc mockMvc;
     @MockBean
     AppUserRepository appUserRepository;
+    @MockBean
+    AppUserService appUserService;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -37,7 +40,7 @@ public class LoginControllerTest {
         mockUser.setEmail("xy@example.com");
         mockUser.setPassword(passwordEncoder.encode("ValidPassword1"));
 
-        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(mockUser);
+        when(appUserService.loadUserByEmail("xy@example.com")).thenReturn(mockUser);
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", "ValidPassword1");
 
@@ -52,7 +55,7 @@ public class LoginControllerTest {
 
     @Test
     public void responseShouldBeForbiddenIfUserNotFound() throws Exception {
-        when(appUserRepository.findByEmail("aaa@example.com")).thenThrow(UsernameNotFoundException.class);
+        when(appUserService.loadUserByEmail("aaa@example.com")).thenThrow(UsernameNotFoundException.class);
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("aaa@example.com", "password");
 
@@ -70,7 +73,7 @@ public class LoginControllerTest {
         mockUser.setEmail("xy@example.com");
         mockUser.setPassword(passwordEncoder.encode("ValidPassword1"));
 
-        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(mockUser);
+        when(appUserService.loadUserByEmail("xy@example.com")).thenReturn(mockUser);
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", "wrongPassword");
 
@@ -89,7 +92,7 @@ public class LoginControllerTest {
         mockUser.setEmail("xy@example.com");
         mockUser.setPassword(passwordEncoder.encode("ValidPassword1"));
 
-        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(mockUser);
+        when(appUserService.loadUserByEmail("xy@example.com")).thenReturn(mockUser);
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", "");
 
@@ -108,7 +111,7 @@ public class LoginControllerTest {
         mockUser.setEmail("xy@example.com");
         mockUser.setPassword(passwordEncoder.encode("ValidPassword1"));
 
-        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(mockUser);
+        when(appUserService.loadUserByEmail("xy@example.com")).thenReturn(mockUser);
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("xy@example.com", null);
 
@@ -127,7 +130,7 @@ public class LoginControllerTest {
         mockUser.setEmail("xy@example.com");
         mockUser.setPassword(passwordEncoder.encode("ValidPassword1"));
 
-        when(appUserRepository.findByEmail("xy@example.com")).thenReturn(mockUser);
+        when(appUserService.loadUserByEmail("xy@example.com")).thenReturn(mockUser);
 
         LoginRequestDTO loginRequest = new LoginRequestDTO("", "password");
 

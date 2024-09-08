@@ -11,10 +11,10 @@ import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionE
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
-import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +32,14 @@ public class AppUserServiceImpl implements AppUserService {
 
     private final JwtService jwtService;
 
-    private final AuthService authService;
+    @Override
+    public AppUser loadUserByEmail(String email) throws UsernameNotFoundException {
+        return appUserRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND + email));
+    }
 
     @Override
     public DeleteUserResponse deleteUser(String userEmail, Long id) throws DeletionException {
-        AppUser userToDelete = appUserRepository.findByEmail(userEmail);
+        AppUser userToDelete = loadUserByEmail(userEmail);
 
         if (!userToDelete.getId().equals(id)) {
             throw new UnauthorizedActionException("User is not authorized to delete this account");
@@ -44,8 +47,7 @@ public class AppUserServiceImpl implements AppUserService {
             appUserRepository.delete(userToDelete);
             return new DeleteUserResponse("Your profile has been successfully deleted.");
         } else {
-            throw new DeletionException("Unable to delete your profile. " +
-                    "Please transfer or delete your pets before proceeding.");
+            throw new DeletionException("Unable to delete your profile. Please transfer or delete your pets before proceeding.");
         }
     }
 
@@ -53,7 +55,7 @@ public class AppUserServiceImpl implements AppUserService {
     public EditUserResponseDTO changeUserData(String email, EditUserRequestDTO request) throws IncorrectPasswordException,
             NameAlreadyBoundException {
 
-        AppUser user = appUserRepository.findByEmail(email);
+        AppUser user = loadUserByEmail(email);
         String newPassword = request.password();
 
 
@@ -88,7 +90,7 @@ public class AppUserServiceImpl implements AppUserService {
         //if password has been changed, log out user
         logoutIfPasswordHasChanged(request.password(), request.originalPassword());
 
-        return new EditUserResponseDTO("Changes saved.");
+        return new EditUserResponseDTO("New user data saved.");
     }
 
     private void logoutIfPasswordHasChanged(String newPassword, String oldPassword) {

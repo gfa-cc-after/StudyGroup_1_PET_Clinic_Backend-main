@@ -3,8 +3,9 @@ package com.greenfox.dramacsoport.petclinicbackend.services.petHandling;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetDTO;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
-import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.PetRepository;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
+import com.greenfox.dramacsoport.petclinicbackend.services.petHandling.PetServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +31,7 @@ public class AddPetServiceTest {
     private PetRepository petRepository;
 
     @Mock
-    private AppUserRepository appUserRepository;
+    private AppUserService appUserService;
 
     @InjectMocks
     private PetServiceImpl petService;
@@ -59,7 +60,7 @@ public class AddPetServiceTest {
     @Test
     void shouldAddPetSuccessfully() {
 
-        when(appUserRepository.findByEmail(anyString())).thenReturn(appUser);
+        when(appUserService.loadUserByEmail(anyString())).thenReturn(appUser);
         when(petRepository.save(any(Pet.class))).thenReturn(pet);
 
         PetDTO savedPetDTO = petService.addPet("xy@example.com", petDTO);
@@ -67,7 +68,7 @@ public class AddPetServiceTest {
         assertEquals(petDTO.getPetName(), savedPetDTO.getPetName());
         assertEquals(petDTO.getPetBreed(), savedPetDTO.getPetBreed());
 
-        verify(appUserRepository).findByEmail("xy@example.com");
+        verify(appUserService).loadUserByEmail("xy@example.com");
 
         ArgumentCaptor<Pet> petCaptor = forClass(Pet.class);
         verify(petRepository).save(petCaptor.capture());

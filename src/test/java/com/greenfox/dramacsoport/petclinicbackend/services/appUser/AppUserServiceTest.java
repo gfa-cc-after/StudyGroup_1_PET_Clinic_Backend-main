@@ -9,7 +9,6 @@ import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
-import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AuthService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.naming.NameAlreadyBoundException;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -34,7 +34,7 @@ public class AppUserServiceTest {
     private AppUserServiceImpl appUserService;
 
     @Mock
-    private AppUserRepository appUserRepository;
+    private AppUserRepository repository;
 
     @Mock
     private AppUser appUser;
@@ -48,32 +48,27 @@ public class AppUserServiceTest {
     @Mock
     private JwtService jwtService;
 
-    @Mock
-    private AuthService authService;
-
     @Test
     public void shouldNotAllowDeletionIfUserHasPets() {
         // Given
         String userEmail = "test@example.com";
-        when(appUserRepository.findByEmail(anyString())).thenReturn(appUser);
+        when(repository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
         when(appUser.getPets()).thenReturn(List.of(new Pet()));
         when(appUser.getId()).thenReturn(1L);
 
         // When
-        DeletionException deletionException = assertThrows(DeletionException.class,
-                () -> appUserService.deleteUser(userEmail, 1L));
+        DeletionException deletionException = assertThrows(DeletionException.class, () -> appUserService.deleteUser(userEmail, 1L));
 
         // Then
-        assertEquals("Unable to delete your profile. Please transfer or delete your pets before proceeding.",
-                deletionException.getMessage());
-        verify(appUserRepository, never()).delete(appUserCaptor.capture());
+        assertEquals("Unable to delete your profile. Please transfer or delete your pets before proceeding.", deletionException.getMessage());
+        verify(repository, never()).delete(appUserCaptor.capture());
     }
 
     @Test
     public void shouldAllowDeletionIfUserHasNoPets() throws DeletionException {
         // Given
         String userEmail = "test@example.com";
-        when(appUserRepository.findByEmail(anyString())).thenReturn(appUser);
+        when(repository.findByEmail(anyString())).thenReturn(Optional.of(appUser));
         when(appUser.getPets()).thenReturn(List.of());
         when(appUser.getId()).thenReturn(1L);
 
@@ -82,7 +77,7 @@ public class AppUserServiceTest {
 
         // Then
         assertEquals("Your profile has been successfully deleted.", deleteUserResponse.message());
-        verify(appUserRepository).delete(appUserCaptor.capture());
+        verify(repository).delete(appUserCaptor.capture());
         assertEquals(appUser, appUserCaptor.getValue());
     }
 
@@ -91,16 +86,15 @@ public class AppUserServiceTest {
         // Given
         String userEmail = "test@example.com";
         Long userId = 2L;
-        when(appUserRepository.findByEmail("test@example.com")).thenReturn(appUser);
+        when(repository.findByEmail("test@example.com")).thenReturn(Optional.of(appUser));
         when(appUser.getId()).thenReturn(1L);
 
         // When
-        UnauthorizedActionException unauthorizedActionException = assertThrows(UnauthorizedActionException.class,
-                () -> appUserService.deleteUser(userEmail, userId));
+        UnauthorizedActionException unauthorizedActionException = assertThrows(UnauthorizedActionException.class, () -> appUserService.deleteUser(userEmail, userId));
 
         // Then
         assertEquals("User is not authorized to delete this account", unauthorizedActionException.getMessage());
-        verify(appUserRepository, never()).delete(appUserCaptor.capture());
+        verify(repository, never()).delete(appUserCaptor.capture());
     }
 
     @Test
@@ -131,23 +125,22 @@ public class AppUserServiceTest {
         oldUser.setRole(dbUser.getRole());
 
         //Mock methods
-        when(appUserRepository.findByEmail(anyString())).thenReturn(dbUser);
-        when(appUserRepository.existsByEmail(request.email())).thenReturn(false);
+        when(repository.findByEmail(anyString())).thenReturn(Optional.of(dbUser));
+        when(repository.existsByEmail(request.email())).thenReturn(false);
         when(passwordEncoder.encode(request.password())).thenReturn("encodedPW");
         when(passwordEncoder.matches(request.originalPassword(), dbUser.getPassword())).thenReturn(true);
         when(passwordEncoder.matches(request.password(), dbUser.getPassword())).thenReturn(false);
-        when(authService.isPasswordLongerThanThreeChar(anyString())).thenReturn(true);
 
         //Call method
         appUserService.changeUserData(dbUser.getEmail(), request);
 
         //Check if every method had been called
-        verify(appUserRepository).findByEmail(oldUser.getEmail());
-        verify(appUserRepository).existsByEmail(request.email());
+        verify(repository).findByEmail(oldUser.getEmail());
+        verify(repository).existsByEmail(request.email());
         verify(passwordEncoder).matches(request.originalPassword(), oldUser.getPassword());
         verify(passwordEncoder).matches(request.password(), oldUser.getPassword());
         verify(passwordEncoder).encode(request.password());
-        verify(appUserRepository).save(appUserCaptor.capture());
+        verify(repository).save(appUserCaptor.capture());
         verify(jwtService).logoutUser();
 
         assertNotEquals(dbUser, oldUser);
