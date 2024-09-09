@@ -6,6 +6,7 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestD
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
+import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +35,9 @@ public class AuthServiceTest {
 
     @Mock
     private AppUserRepository appUserRepository;
+
+    @Mock
+    private AppUserService appUserService;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -102,7 +106,7 @@ public class AuthServiceTest {
         appUser.setPassword("encodedPassword");
 
         // Mock the behavior of finding a user by email
-        when(appUserRepository.findByEmail(loginRequestDTO.email())).thenReturn(appUser);
+        when(appUserService.loadUserByEmail(loginRequestDTO.email())).thenReturn(appUser);
         // Mock the behavior of password matching
         when(passwordEncoder.matches(loginRequestDTO.password(), appUser.getPassword())).thenReturn(true);
         // Mock the behavior of JWT token generation
