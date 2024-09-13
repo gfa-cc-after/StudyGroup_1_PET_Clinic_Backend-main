@@ -13,6 +13,8 @@ import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ public class AppUserServiceImpl implements AppUserService {
 
     private final JwtService jwtService;
 
+    Logger logger = LoggerFactory.getLogger(AppUserServiceImpl.class);
+
     @Override
     public AppUser loadUserByEmail(String email) throws UsernameNotFoundException {
         return appUserRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND + email));
@@ -44,6 +48,7 @@ public class AppUserServiceImpl implements AppUserService {
             throw new UnauthorizedActionException("User is not authorized to delete this account");
         } else if (userToDelete.getPets().isEmpty()) {
             appUserRepository.delete(userToDelete);
+            logger.info("User deleted with email: {}", userToDelete.getEmail());
             return new DeleteUserResponse("Your profile has been successfully deleted.");
         } else {
             throw new DeletionException("Unable to delete your profile. Please transfer or delete your pets before proceeding.");
@@ -62,8 +67,8 @@ public class AppUserServiceImpl implements AppUserService {
 
         AppUser user = loadUserByEmail(email);
         final String oldEncodedPassword = user.getPassword();
+        logger.debug("encoded PW from db: %s".formatted(oldEncodedPassword));
         String newEncodedPassword;
-
 
         //check if new email is not already taken - NameAlreadyBoundException
         if (appUserRepository.existsByEmail(request.email()) && !request.email().equals(user.getEmail())) {
@@ -76,25 +81,28 @@ public class AppUserServiceImpl implements AppUserService {
 
         if (request.password() == null) {
             newEncodedPassword = oldEncodedPassword;
-            System.out.println("Password field is null, so new password will be the same as the encoded old password");
+            logger.info("Password field is null, so new password will be the same as the encoded old password");
+            logger.debug("encoded PW old and new: %s".formatted(newEncodedPassword));
         } else {
 
             //check if new pw is not the same as old pw - PWException
             if (passwordEncoder.matches(request.password(), oldEncodedPassword)) {
                 throw new InvalidPasswordException("New password cannot be the same as the old one.");
             }
-            System.out.println("Password field is NOT null, so new password will be encoded right now.");
+            logger.info("Password field is NOT null, so new password will be encoded right now.");
             newEncodedPassword = passwordEncoder.encode(request.getPassword());
+            logger.debug("encoded new PW upon creation: %s".formatted(newEncodedPassword));
         }
 
         user.setPassword(newEncodedPassword);
-        System.out.println("New password set.");
+        logger.info("New password set.");
 
         modelMapper.map(request, user);
 
         //save user
         appUserRepository.save(user);
-        System.out.println("AppUser entity mapped and updated.");
+        logger.info("AppUser entity mapped and updated.");
+        logger.debug("encoded PW after mapping and saving in db: %s".formatted(user.getPassword()));
 
         //if password has been changed, log out user
         logoutIfPasswordHasChanged(newEncodedPassword, oldEncodedPassword);
@@ -105,7 +113,7 @@ public class AppUserServiceImpl implements AppUserService {
     private void logoutIfPasswordHasChanged(String newPassword, String oldPassword) {
         if (!newPassword.equals(oldPassword)) {
             jwtService.logoutUser();
-            System.out.println("Logged out due to password change.");
+            logger.info("Logged out due to password change.");
         }
     }
 
