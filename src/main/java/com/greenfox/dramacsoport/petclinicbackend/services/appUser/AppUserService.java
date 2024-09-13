@@ -16,6 +16,7 @@ public interface AppUserService {
 
     DeleteUserResponse deleteUser(String userEmail, Long id) throws DeletionException;
 
-    EditUserResponseDTO changeUserData(String email, EditUserRequestDTO editUserRequest) throws IncorrectPasswordException, InvalidPasswordException,
+    EditUserResponseDTO changeUserData(String email, EditUserRequestDTO editUserRequest)
+            throws IncorrectPasswordException, InvalidPasswordException,
             NameAlreadyBoundException;
 }

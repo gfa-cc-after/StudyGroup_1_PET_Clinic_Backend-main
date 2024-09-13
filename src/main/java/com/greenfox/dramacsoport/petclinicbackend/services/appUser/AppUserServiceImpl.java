@@ -21,7 +21,7 @@ import javax.naming.NameAlreadyBoundException;
 
 @RequiredArgsConstructor
 @Service
-public class AppUserServiceImpl implements AppUserService{
+public class AppUserServiceImpl implements AppUserService {
 
     private final AppUserRepository appUserRepository;
 
@@ -33,7 +33,8 @@ public class AppUserServiceImpl implements AppUserService{
 
     @Override
     public AppUser loadUserByEmail(String email) throws UsernameNotFoundException {
-        return appUserRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND + email));
+        return appUserRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND + email));
     }
 
     @Override
@@ -46,40 +47,42 @@ public class AppUserServiceImpl implements AppUserService{
             appUserRepository.delete(userToDelete);
             return new DeleteUserResponse("Your profile has been successfully deleted.");
         } else {
-            throw new DeletionException("Unable to delete your profile. Please transfer or delete your pets before proceeding.");
+            throw new DeletionException(
+                    "Unable to delete your profile. Please transfer or delete your pets before proceeding.");
         }
     }
 
     @Override
-    public EditUserResponseDTO changeUserData(String email, EditUserRequestDTO request) throws IncorrectPasswordException,
+    public EditUserResponseDTO changeUserData(String email, EditUserRequestDTO request)
+            throws IncorrectPasswordException,
             NameAlreadyBoundException {
 
         AppUser user = loadUserByEmail(email);
 
-        //check if new email is not already taken - NameAlreadyBoundException
+        // check if new email is not already taken - NameAlreadyBoundException
         if (appUserRepository.existsByEmail(request.newEmail()) && !request.newEmail().equals(user.getEmail())) {
             throw new NameAlreadyBoundException(AppServiceErrors.USERNAME_ALREADY_EXISTS);
         }
-        //check if old pw is valid - PWException
+        // check if old pw is valid - PWException
         if (!passwordEncoder.matches(request.prevPassword(), user.getPassword())) {
             throw new IncorrectPasswordException();
         }
-        //check if new pw is not the same as old pw - PWException
+        // check if new pw is not the same as old pw - PWException
         if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
             throw new InvalidPasswordException("New password cannot be the same as the old one.");
         }
 
-        //map the request to the user entity
+        // map the request to the user entity
         AppUser updatedUser = modelMapper.map(request, AppUser.class);
         updatedUser.setPassword(passwordEncoder.encode(request.newPassword()));
 
-        //save user
+        // save user
         appUserRepository.save(updatedUser);
 
-        //if password has been changed, log out user
+        // if password has been changed, log out user
         logoutIfPasswordHasChanged(request.newPassword(), request.prevPassword());
 
-        //return OK message for now - TODO: discuss the return
+        // return OK message for now - TODO: discuss the return
         return new EditUserResponseDTO("New user data saved.");
     }
 

@@ -11,12 +11,17 @@ import javax.naming.NameAlreadyBoundException;
 
 public interface AuthService {
 
-    AppUser registerUser(RegisterRequestDTO userRequest) throws InvalidPasswordException, NameAlreadyBoundException;
+    AppUser registerUser(RegisterRequestDTO userRequest)
+            throws InvalidPasswordException, NameAlreadyBoundException;
+
     /**
-     * @param requestDTO The DTO, that is created when the user is try to log in. Contains the login credentials
+     * @param requestDTO The DTO, that is created when the user is try to log in.
+     *                   Contains the login credentials
      *                   (username & password).
      * @return A JWT token as a String for further authorization.
-     * @throws IncorrectLoginCredentialsException when the username and/or the password is incorrect.
+     * @throws IncorrectLoginCredentialsException when the username and/or the
+     *                                            password is incorrect.
      */
-    LoginResponseDTO login(LoginRequestDTO requestDTO) throws IncorrectLoginCredentialsException;
+    LoginResponseDTO login(LoginRequestDTO requestDTO)
+            throws IncorrectLoginCredentialsException;
 }

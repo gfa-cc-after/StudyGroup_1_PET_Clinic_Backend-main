@@ -3,7 +3,6 @@ package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
-import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ import java.security.Principal;
 public class AppUserController {
 
     private final AppUserService appUserService;
-    private final AppUserRepository userRepo;
     private final Logger logger = LoggerFactory.getLogger(AppUserController.class);
 
     @DeleteMapping("/{id}")
