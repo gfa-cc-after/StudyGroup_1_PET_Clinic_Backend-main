@@ -6,10 +6,12 @@ import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserRequestDTO
 import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
+import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,6 +48,9 @@ public class AppUserControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Mock
+    AppUser mockUser;
 
     @Test
     @WithMockUser("testuser")
@@ -297,5 +302,33 @@ public class AppUserControllerTest {
         assertNull(errorResponse.get("originalPassword"));
         assertNull(errorResponse.get("password"));
         assertEquals("Display name can only contain alphanumeric characters", errorResponse.get("displayName"));
+    }
+
+    @Test
+    @DisplayName("Edit user Controller - UNHAPPY PATH unauthorized user (HTTP Forbidden)")
+    public void shouldRespondWithForbiddenWhenUnauthorizedUserTriesToUpdateUser() throws Exception {
+        // Arrange
+        String userEmail = "testUser";
+        EditUserRequestDTO requestDTO = new EditUserRequestDTO(
+                "new_email",
+                "old_password",
+                "new_password",
+                "new_displayName"
+        );
+        EditUserResponseDTO responseDTO = new EditUserResponseDTO("Changes saved.");
+
+        when(appUserService.changeUserData(userEmail, requestDTO)).thenReturn(responseDTO);
+
+        // Act & Assert
+        MvcResult result = mockMvc.perform(post("/api/v1/user/profile")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(
+                        status().isForbidden())
+                .andReturn();
+
+        verify(appUserService, never()).changeUserData(anyString(), any(EditUserRequestDTO.class));
+        String errorResponse = result.getResponse().getErrorMessage();
+        assertEquals("Access Denied", errorResponse);
     }
 }
