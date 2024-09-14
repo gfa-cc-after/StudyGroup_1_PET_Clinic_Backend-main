@@ -115,4 +115,45 @@ public class ChangeUserTest {
         Hibernate.initialize(updatedUser.getPets());
         assertEquals(2, updatedUser.getPets().size());
     }
+
+    @Test
+    @DisplayName("Change user data, except password - HAPPY path")
+    @WithMockUser(username = "user@test.com")
+    public void shouldUpdateUserDataWithoutPw() throws Exception {
+        //ARRANGE
+        EditUserRequestDTO requestDTO = new EditUserRequestDTO(
+                "new@test.com",
+                "password",
+                null,
+                "NewName"
+        );
+
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+
+        //ACT
+        mockMvc.perform(post("/api/v1/user/profile")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"message\": \"New user data saved.\"}"));
+
+        //ASSERT
+//        //user NOT logged out
+//        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+
+        //check for leftovers
+        assertFalse(userRepo.existsByEmail("user@test.com"));
+        AppUser updatedUser = userRepo.findByEmail("new@test.com").orElse(null);
+        assertNotNull(updatedUser);
+
+        //check new data
+        assertEquals(expectedId, updatedUser.getId());
+        assertEquals(requestDTO.email(), updatedUser.getEmail());
+        System.out.println(("encoded new PW back in test: %s".formatted(pwEncoder.encode(updatedUser.getPassword()))));
+        assertTrue(pwEncoder.matches(requestDTO.originalPassword(), updatedUser.getPassword()));
+        assertEquals(requestDTO.displayName(), updatedUser.getDisplayName());
+        assertEquals(Role.USER, updatedUser.getRole());
+        Hibernate.initialize(updatedUser.getPets());
+        assertEquals(2, updatedUser.getPets().size());
+    }
 }
