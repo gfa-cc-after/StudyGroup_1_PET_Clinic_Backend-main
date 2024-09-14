@@ -41,6 +41,11 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
+    public AppUser loadUserByEmail(String email) throws UsernameNotFoundException {
+        return appUserRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND + email));
+    }
+
+    @Override
     public DeleteUserResponse deleteUser(String userEmail, Long id) throws DeletionException {
         AppUser userToDelete = loadUserByEmail(userEmail);
 
