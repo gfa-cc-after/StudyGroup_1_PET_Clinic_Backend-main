@@ -21,6 +21,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -49,26 +51,25 @@ public class ChangeUserTest {
     @BeforeEach
     public void setup() {
         AppUser user = AppUser.builder()
+                .id(1L)
                 .email("user@test.com")
                 .password(pwEncoder.encode("password"))
                 .displayName("User")
                 .role(Role.USER)
                 .build();
 
-        AppUser savedUser = userRepo.save(user);
         System.out.println("PW encoded after initializing user in test: " + user.getPassword());
 
         Pet pet1 = new Pet();
         pet1.setPetName("Bodri");
-        pet1.setOwner(savedUser);
         Pet savedPet1 = petRepository.save(pet1);
 
         Pet pet2 = new Pet();
         pet2.setPetName("Cirmi");
-        pet2.setOwner(savedUser);
         Pet savedPet2 = petRepository.save(pet2);
 
-        System.out.println(userRepo.findByEmail(user.getEmail()).orElse(null).getPets());
+        user.setPets(Arrays.asList(savedPet1, savedPet2));
+        AppUser savedUser = userRepo.save(user);
     }
 
     @Test
@@ -102,6 +103,7 @@ public class ChangeUserTest {
         assertNotNull(updatedUser);
 
         //check new data
+        assertEquals(1L, updatedUser.getId());
         assertEquals(requestDTO.email(), updatedUser.getEmail());
         System.out.println(("encoded new PW back in test: %s".formatted(pwEncoder.encode(updatedUser.getPassword()))));
         assertTrue(pwEncoder.matches(requestDTO.password(), updatedUser.getPassword()));
