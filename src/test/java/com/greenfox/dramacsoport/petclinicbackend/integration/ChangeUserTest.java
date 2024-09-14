@@ -48,6 +48,8 @@ public class ChangeUserTest {
     @Autowired
     PetRepository petRepository;
 
+    Long expectedId;
+
     @BeforeEach
     public void setup() {
         AppUser user = AppUser.builder()
@@ -70,6 +72,7 @@ public class ChangeUserTest {
 
         user.setPets(Arrays.asList(savedPet1, savedPet2));
         AppUser savedUser = userRepo.save(user);
+        expectedId = savedUser.getId();
     }
 
     @Test
@@ -103,7 +106,7 @@ public class ChangeUserTest {
         assertNotNull(updatedUser);
 
         //check new data
-        assertEquals(1L, updatedUser.getId());
+        assertEquals(expectedId, updatedUser.getId());
         assertEquals(requestDTO.email(), updatedUser.getEmail());
         System.out.println(("encoded new PW back in test: %s".formatted(pwEncoder.encode(updatedUser.getPassword()))));
         assertTrue(pwEncoder.matches(requestDTO.password(), updatedUser.getPassword()));
