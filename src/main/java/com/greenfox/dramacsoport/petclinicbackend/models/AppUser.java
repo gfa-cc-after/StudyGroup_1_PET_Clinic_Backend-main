@@ -35,7 +35,7 @@ public class AppUser implements UserDetails {
     private Role role = Role.USER;
 
     @Builder.Default
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL , fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "owner", cascade = {CascadeType.ALL, CascadeType.MERGE}, fetch = FetchType.LAZY)
     private List<Pet> pets = new ArrayList<>();
 
     /**
