@@ -9,7 +9,7 @@ import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -23,8 +23,7 @@ import javax.naming.NameAlreadyBoundException;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -81,7 +80,7 @@ public class AppUserServiceTest {
         verify(repository).delete(appUserCaptor.capture());
         assertEquals(appUser, appUserCaptor.getValue());
     }
-    
+
     @Test
     public void shouldThrowExceptionWhenUserIdDoesNotMatchEmailId() {
         // Given
@@ -99,10 +98,72 @@ public class AppUserServiceTest {
     }
 
     @Test
-    @Disabled
+    @DisplayName("Update user - HAPPY PATH")
     public void changeUserDataMethodIsSuccessfullyCalled() throws NameAlreadyBoundException {
         //Arrange: Mock user from token and mock request DTO
+        EditUserRequestDTO request = new EditUserRequestDTO(
+                "newEmail@example.com",
+                "Pr3v_p4ssw0rd",
+                "N3w_p4ssw0rd",
+                "Edited_N3w-N4me");
+
         AppUser dbUser = AppUser.builder()
+                .id(1L)
+                .displayName("Test User")
+                .email("test@example.com")
+                .password("encodedOrigPassword")
+                .role(Role.USER)
+                .pets(List.of())
+                .build();
+
+        //old user mock
+        AppUser oldUser = new AppUser();
+        oldUser.setId(dbUser.getId());
+        oldUser.setEmail(dbUser.getEmail());
+        oldUser.setPassword(dbUser.getPassword());
+        oldUser.setDisplayName(dbUser.getDisplayName());
+        oldUser.setRole(dbUser.getRole());
+
+        //Mock methods
+        when(repository.findByEmail(anyString())).thenReturn(Optional.of(dbUser));
+        when(repository.existsByEmail(request.email())).thenReturn(false);
+        when(passwordEncoder.encode(request.password())).thenReturn("encodedPW");
+        when(passwordEncoder.matches(request.originalPassword(), dbUser.getPassword())).thenReturn(true);
+        when(passwordEncoder.matches(request.password(), dbUser.getPassword())).thenReturn(false);
+
+        //Call method
+        appUserService.changeUserData(dbUser.getEmail(), request);
+
+        //Check if every method had been called
+        verify(repository).findByEmail(oldUser.getEmail());
+        verify(repository).existsByEmail(request.email());
+        verify(passwordEncoder).matches(request.originalPassword(), oldUser.getPassword());
+        verify(passwordEncoder).matches(request.password(), oldUser.getPassword());
+        verify(passwordEncoder).encode(request.password());
+        verify(repository).save(appUserCaptor.capture());
+        verify(jwtService).logoutUser();
+
+        assertNotEquals(dbUser, oldUser);
+        assertEquals(dbUser.getId(), oldUser.getId());
+        assertEquals(dbUser.getRole(), oldUser.getRole());
+        assertEquals(dbUser.getPets(), oldUser.getPets());
+        assertEquals(request.email(), appUserCaptor.getValue().getEmail());
+        assertEquals(passwordEncoder.encode(request.password()), appUserCaptor.getValue().getPassword());
+        assertEquals(request.displayName(), appUserCaptor.getValue().getDisplayName());
+    }
+
+    @Test
+    @DisplayName("Update user - HAPPY PATH (password is null)")
+    public void changeUserDataMethodIsSuccessfullyCalledWithNullPassword() throws NameAlreadyBoundException {
+        //Arrange: Mock user from token and mock request DTO
+        EditUserRequestDTO request = new EditUserRequestDTO(
+                "newEmail@example.com",
+                "Pr3v_p4ssw0rd",
+                null,
+                "Edited_N3w-N4me");
+
+        AppUser dbUser = AppUser.builder()
+                .id(1L)
                 .displayName("Test User")
                 .email("test@example.com")
                 .password("encodedPassword")
@@ -110,34 +171,38 @@ public class AppUserServiceTest {
                 .pets(List.of())
                 .build();
 
-        EditUserRequestDTO request = new EditUserRequestDTO(
-                "newEmail@example.com",
-                "Pr3v_p4ssw0rd",
-                "N3w_p4ssw0rd",
-                "Edited_Name");
+        //old user mock
+        AppUser oldUser = new AppUser();
+        oldUser.setId(dbUser.getId());
+        oldUser.setEmail(dbUser.getEmail());
+        oldUser.setPassword(dbUser.getPassword());
+        oldUser.setDisplayName(dbUser.getDisplayName());
+        oldUser.setRole(dbUser.getRole());
 
         //Mock methods
-        when(appUserService.loadUserByEmail(anyString())).thenReturn(dbUser);
-        when(repository.existsByEmail(request.newEmail())).thenReturn(false);
-        when(passwordEncoder.encode(request.newPassword())).thenReturn("encodedPW").thenReturn("encodedNewPW");
-        when(passwordEncoder.matches(request.prevPassword(), dbUser.getPassword())).thenReturn(true);
-        when(passwordEncoder.matches(request.newPassword(), dbUser.getPassword())).thenReturn(false);
+        when(repository.findByEmail(anyString())).thenReturn(Optional.of(dbUser));
+        when(repository.existsByEmail(request.email())).thenReturn(false);
+        when(passwordEncoder.matches(request.originalPassword(), dbUser.getPassword())).thenReturn(true);
 
         //Call method
         appUserService.changeUserData(dbUser.getEmail(), request);
 
         //Check if every method had been called
-        verify(appUserService).loadUserByEmail(dbUser.getEmail());
-        verify(repository).existsByEmail(request.newEmail());
-        verify(passwordEncoder).matches(request.prevPassword(), dbUser.getPassword());
-        verify(passwordEncoder).matches(request.newPassword(), dbUser.getPassword());
-        verify(passwordEncoder).encode(request.newPassword());
+        verify(repository).findByEmail(oldUser.getEmail());
+        verify(repository).existsByEmail(request.email());
+        verify(passwordEncoder).matches(request.originalPassword(), oldUser.getPassword());
+        verify(passwordEncoder, never()).matches(request.password(), oldUser.getPassword());
+        verify(passwordEncoder, never()).encode(request.password());
         verify(repository).save(appUserCaptor.capture());
-        verify(jwtService).logoutUser();
+        verify(jwtService, never()).logoutUser();
 
-        assertEquals(request.newEmail(), appUserCaptor.getValue().getEmail());
-        assertEquals(request.newPassword(), appUserCaptor.getValue().getPassword());
-        assertEquals(request.newDisplayName(), appUserCaptor.getValue().getDisplayName());
-
+        assertNotEquals(dbUser, oldUser);
+        assertEquals(dbUser.getId(), oldUser.getId());
+        assertEquals(dbUser.getRole(), oldUser.getRole());
+        assertEquals(dbUser.getPets(), oldUser.getPets());
+        assertEquals(dbUser.getPassword(), oldUser.getPassword());
+        assertEquals(request.email(), appUserCaptor.getValue().getEmail());
+        assertEquals(oldUser.getPassword(), appUserCaptor.getValue().getPassword());
+        assertEquals(request.displayName(), appUserCaptor.getValue().getDisplayName());
     }
 }

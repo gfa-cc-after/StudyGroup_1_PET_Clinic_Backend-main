@@ -13,6 +13,8 @@ import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository
 import com.greenfox.dramacsoport.petclinicbackend.services.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ public class AppUserServiceImpl implements AppUserService {
 
     private final JwtService jwtService;
 
+    Logger logger = LoggerFactory.getLogger(AppUserServiceImpl.class);
+
     @Override
     public AppUser loadUserByEmail(String email) throws UsernameNotFoundException {
         return appUserRepository.findByEmail(email)
@@ -45,6 +49,7 @@ public class AppUserServiceImpl implements AppUserService {
             throw new UnauthorizedActionException("User is not authorized to delete this account");
         } else if (userToDelete.getPets().isEmpty()) {
             appUserRepository.delete(userToDelete);
+            logger.info("User deleted with email: {}", userToDelete.getEmail());
             return new DeleteUserResponse("Your profile has been successfully deleted.");
         } else {
             throw new DeletionException(
@@ -57,39 +62,61 @@ public class AppUserServiceImpl implements AppUserService {
             throws IncorrectPasswordException,
             NameAlreadyBoundException {
 
-        AppUser user = loadUserByEmail(email);
+        modelMapper.typeMap(EditUserRequestDTO.class, AppUser.class)
+                .addMappings(mapping -> {
+                    mapping.skip(EditUserRequestDTO::password,
+                            (destination, value) -> destination.setPassword((String) value));
+                });
 
-        // check if new email is not already taken - NameAlreadyBoundException
-        if (appUserRepository.existsByEmail(request.newEmail()) && !request.newEmail().equals(user.getEmail())) {
+        AppUser user = loadUserByEmail(email);
+        final String oldEncodedPassword = user.getPassword();
+        logger.debug("encoded PW from db: %s".formatted(oldEncodedPassword));
+        String newEncodedPassword;
+
+        //check if new email is not already taken - NameAlreadyBoundException
+        if (appUserRepository.existsByEmail(request.email()) && !request.email().equals(user.getEmail())) {
             throw new NameAlreadyBoundException(AppServiceErrors.USERNAME_ALREADY_EXISTS);
         }
-        // check if old pw is valid - PWException
-        if (!passwordEncoder.matches(request.prevPassword(), user.getPassword())) {
+        //check if old pw is valid - PWException
+        if (!passwordEncoder.matches(request.originalPassword(), oldEncodedPassword)) {
             throw new IncorrectPasswordException();
         }
-        // check if new pw is not the same as old pw - PWException
-        if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
-            throw new InvalidPasswordException("New password cannot be the same as the old one.");
+
+        if (request.password() == null) {
+            newEncodedPassword = oldEncodedPassword;
+            logger.info("Password field is null, so new password will be the same as the encoded old password");
+            logger.debug("encoded PW old and new: %s".formatted(newEncodedPassword));
+        } else {
+
+            //check if new pw is not the same as old pw - PWException
+            if (passwordEncoder.matches(request.password(), oldEncodedPassword)) {
+                throw new InvalidPasswordException("New password cannot be the same as the old one.");
+            }
+            logger.info("Password field is NOT null, so new password will be encoded right now.");
+            newEncodedPassword = passwordEncoder.encode(request.getPassword());
+            logger.debug("encoded new PW upon creation: %s".formatted(newEncodedPassword));
         }
 
-        // map the request to the user entity
-        AppUser updatedUser = modelMapper.map(request, AppUser.class);
-        updatedUser.setPassword(passwordEncoder.encode(request.newPassword()));
+        user.setPassword(newEncodedPassword);
+        logger.info("New password set.");
 
-        // save user
-        appUserRepository.save(updatedUser);
+        modelMapper.map(request, user);
 
-        // if password has been changed, log out user
-        logoutIfPasswordHasChanged(request.newPassword(), request.prevPassword());
+        //save user
+        appUserRepository.save(user);
+        logger.info("AppUser entity mapped and updated.");
+        logger.debug("encoded PW after mapping and saving in db: %s".formatted(user.getPassword()));
 
-        // return OK message for now - TODO: discuss the return
+        //if password has been changed, log out user
+        logoutIfPasswordHasChanged(newEncodedPassword, oldEncodedPassword);
+
         return new EditUserResponseDTO("New user data saved.");
     }
 
     private void logoutIfPasswordHasChanged(String newPassword, String oldPassword) {
         if (!newPassword.equals(oldPassword)) {
             jwtService.logoutUser();
-            System.out.println("Logged out due to password change.");
+            logger.info("Logged out due to password change.");
         }
     }
 

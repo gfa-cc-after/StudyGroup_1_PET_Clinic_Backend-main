@@ -5,17 +5,20 @@ import com.greenfox.dramacsoport.petclinicbackend.models.Role;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.Collections;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 public class JwtServiceTest {
 
     @Autowired
@@ -86,14 +89,24 @@ public class JwtServiceTest {
         }
     }
 
-//    @Test
-//    public void shouldThrowExceptionWhenGeneratingTokenWithInvalidRole() {
-//        AppUser testUser = AppUser.builder()
-//                .displayName("testUser")
-//                .password("password")
-//                .role(Role.fromString("Kutyaláb")) //by Mark
-//                .build();
-//
-//        assertThrows(IllegalArgumentException.class, () -> jwtService.generateToken(testUser));
-//    }
+    @Test
+    @WithMockUser(username = "test@user.com")
+    public void shouldClearSecurityContextWhenLoggingOut() {
+
+        //Set up the security context
+        AppUser testUser = AppUser.builder()
+                .displayName("testUser")
+                .password("password")
+                .role(Role.USER)
+                .build();
+
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+        assertTrue(SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
+
+        //Act
+        jwtService.logoutUser();
+
+        //Assert
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
 }
