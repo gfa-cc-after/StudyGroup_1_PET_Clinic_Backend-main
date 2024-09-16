@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.controllers.pet;
+package com.greenfox.dramacsoport.petclinicbackend.services.petHandling;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetDTO;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;

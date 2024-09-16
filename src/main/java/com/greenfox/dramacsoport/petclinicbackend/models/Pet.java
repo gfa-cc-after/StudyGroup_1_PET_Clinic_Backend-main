@@ -27,7 +27,7 @@ public class Pet {
     private LocalDate nextCheckUp;
     private String specialCondition;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.ALL, CascadeType.PERSIST})
     @JoinColumn(name = "owner_id")
     private AppUser owner;
 

@@ -111,8 +111,12 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private boolean isPasswordLongerThanThreeChar(String password) {
-        return password.length() > 3;
+    public boolean isPasswordLongerThanThreeChar(String password) throws InvalidPasswordException {
+        //TODO: do a complete PW validation
+        if (password.length() <= 3) {
+            throw new InvalidPasswordException(AppServiceErrors.SHORT_PASSWORD);
+        }
+        return true;
     }
 
     private boolean isUserRegistered(String email) {
