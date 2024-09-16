@@ -1,6 +1,5 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 
-import com.greenfox.dramacsoport.petclinicbackend.controllers.appUser.auth.LoginController;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
@@ -39,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final JavaMailSender javaMailSender;
 
-    private final Logger logger = LoggerFactory.getLogger(LoginController.class);
+    private final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     private final AppUserService appUserService;
 
@@ -59,9 +58,9 @@ public class AuthServiceImpl implements AuthService {
     /**
      * <h3>This method registers a new user.</h3>
      * <ul>
-     *     <li>If even one field is not filled, then throws an exception.</li>
-     *     <li>If the password is only 3 characters long, throws an exception.</li>
-     *     <li>If the user is already created, throws an exception.</li>
+     * <li>If even one field is not filled, then throws an exception.</li>
+     * <li>If the password is only 3 characters long, throws an exception.</li>
+     * <li>If the user is already created, throws an exception.</li>
      * </ul>
      * Saves the input fields and encodes the password for storage.
      * After the entity has been created, the application sends a greeting email
@@ -104,8 +103,7 @@ public class AuthServiceImpl implements AuthService {
         try {
             return passwordEncoder.matches(
                     requestDTO.password(),
-                    appUserService.loadUserByEmail(requestDTO.email()).getPassword()
-            );
+                    appUserService.loadUserByEmail(requestDTO.email()).getPassword());
         } catch (UsernameNotFoundException ue) {
             throw new IncorrectLoginCredentialsException();
         }

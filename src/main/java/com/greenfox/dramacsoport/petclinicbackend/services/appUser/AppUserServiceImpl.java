@@ -37,7 +37,8 @@ public class AppUserServiceImpl implements AppUserService {
 
     @Override
     public AppUser loadUserByEmail(String email) throws UsernameNotFoundException {
-        return appUserRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND + email));
+        return appUserRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND + email));
     }
 
     @Override
@@ -51,12 +52,14 @@ public class AppUserServiceImpl implements AppUserService {
             logger.info("User deleted with email: {}", userToDelete.getEmail());
             return new DeleteUserResponse("Your profile has been successfully deleted.");
         } else {
-            throw new DeletionException("Unable to delete your profile. Please transfer or delete your pets before proceeding.");
+            throw new DeletionException(
+                    "Unable to delete your profile. Please transfer or delete your pets before proceeding.");
         }
     }
 
     @Override
-    public EditUserResponseDTO changeUserData(String email, EditUserRequestDTO request) throws IncorrectPasswordException,
+    public EditUserResponseDTO changeUserData(String email, EditUserRequestDTO request)
+            throws IncorrectPasswordException,
             NameAlreadyBoundException {
 
         modelMapper.typeMap(EditUserRequestDTO.class, AppUser.class)

@@ -5,7 +5,6 @@ import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.PetRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
-import com.greenfox.dramacsoport.petclinicbackend.services.petHandling.PetServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

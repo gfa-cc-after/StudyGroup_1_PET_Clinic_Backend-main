@@ -15,7 +15,8 @@ public enum Role {
     }
 
     /**
-     * By default, the user roles are stored with a ROLE_ prefix as a GrantedAuthority (e.g. ROLE_USER).
+     * By default, the user roles are stored with a ROLE_ prefix as a
+     * GrantedAuthority (e.g. ROLE_USER).
      *
      * @param roleAsAuthority a user role stored as a GrantedAuthority object
      * @return a Role enum object, if it can be identified.

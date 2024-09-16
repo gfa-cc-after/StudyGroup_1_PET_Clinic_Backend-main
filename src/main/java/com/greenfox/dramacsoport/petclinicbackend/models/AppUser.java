@@ -33,9 +33,8 @@ public class AppUser implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private Role role = Role.USER;
-
     @Builder.Default
-    @OneToMany(mappedBy = "owner", cascade = {CascadeType.ALL, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Pet> pets = new ArrayList<>();
 
     /**
@@ -64,7 +63,7 @@ public class AppUser implements UserDetails {
      * authenticated.
      *
      * @return <code>true</code> if the user's account is valid (ie non-expired),
-     * <code>false</code> if no longer valid (ie expired)
+     *         <code>false</code> if no longer valid (ie expired)
      */
     @Override
     public boolean isAccountNonExpired() {
@@ -86,8 +85,9 @@ public class AppUser implements UserDetails {
      * Indicates whether the user's credentials (password) has expired. Expired
      * credentials prevent authentication.
      *
-     * @return <code>true</code> if the user's credentials are valid (ie non-expired),
-     * <code>false</code> if no longer valid (ie expired)
+     * @return <code>true</code> if the user's credentials are valid (ie
+     *         non-expired),
+     *         <code>false</code> if no longer valid (ie expired)
      */
     @Override
     public boolean isCredentialsNonExpired() {

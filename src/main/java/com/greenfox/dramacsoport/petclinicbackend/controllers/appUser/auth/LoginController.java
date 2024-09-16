@@ -23,7 +23,6 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequestDTO requestDTO) {
-
         logger.info("Login request successful: {}", requestDTO.email());
         return new ResponseEntity<>(authService.login(requestDTO), HttpStatus.OK);
     }
