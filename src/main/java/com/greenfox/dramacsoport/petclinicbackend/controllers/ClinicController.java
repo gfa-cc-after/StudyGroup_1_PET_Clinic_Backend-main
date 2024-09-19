@@ -1,6 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.clinic.ClinicDTO;
+import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
 import com.greenfox.dramacsoport.petclinicbackend.services.clinics.ClinicService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -30,6 +31,12 @@ public class ClinicController {
     public ResponseEntity<?> addClinic(Principal user, @RequestBody ClinicDTO clinicDTO) throws NameAlreadyBoundException {
         logger.info("Adding new clinic: {}", clinicDTO.getName());
         return new ResponseEntity<>(clinicService.addClinic(user.getName(), clinicDTO), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/clinic/{name}")
+    public ResponseEntity<?> deleteClinic(@PathVariable String name) throws DeletionException {
+        logger.info("Deleting clinic with the name: {}", name);
+        return new ResponseEntity<>(clinicService.deleteClinic(name), HttpStatus.OK);
     }
 
 
