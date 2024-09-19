@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.NameAlreadyBoundException;
 import java.security.Principal;
 
 @RequiredArgsConstructor
@@ -26,8 +27,10 @@ public class ClinicController {
     }
 
     @PostMapping("/clinic")
-    public ResponseEntity<?> addClinic(Principal user, @RequestBody ClinicDTO clinicDTO){
+    public ResponseEntity<?> addClinic(Principal user, @RequestBody ClinicDTO clinicDTO) throws NameAlreadyBoundException {
         logger.info("Adding new clinic: {}", clinicDTO.getName());
         return new ResponseEntity<>(clinicService.addClinic(user.getName(), clinicDTO), HttpStatus.OK);
     }
+
+
 }
