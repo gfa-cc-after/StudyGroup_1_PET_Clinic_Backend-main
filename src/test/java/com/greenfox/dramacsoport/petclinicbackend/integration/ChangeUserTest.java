@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -90,7 +90,7 @@ public class ChangeUserTest {
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
 
         //ACT
-        mockMvc.perform(post("/api/v1/user/profile")
+        mockMvc.perform(patch("/api/v1/user/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(status().isOk())
@@ -131,7 +131,7 @@ public class ChangeUserTest {
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
 
         //ACT
-        mockMvc.perform(post("/api/v1/user/profile")
+        mockMvc.perform(patch("/api/v1/user/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(status().isOk())

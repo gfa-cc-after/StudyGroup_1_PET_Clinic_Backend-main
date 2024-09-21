@@ -33,6 +33,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,9 +49,6 @@ public class AppUserControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Mock
-    AppUser mockUser;
 
     @Test
     @WithMockUser("testuser")
@@ -102,7 +100,7 @@ public class AppUserControllerTest {
         when(appUserService.changeUserData(userEmail, requestDTO)).thenReturn(responseDTO);
 
         // Act & Assert
-        this.mockMvc.perform(post("/api/v1/user/profile")
+        this.mockMvc.perform(patch("/api/v1/user/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpectAll(
@@ -129,7 +127,7 @@ public class AppUserControllerTest {
         when(appUserService.changeUserData(userEmail, requestDTO)).thenReturn(responseDTO);
 
         // Act & Assert
-        this.mockMvc.perform(post("/api/v1/user/profile")
+        this.mockMvc.perform(patch("/api/v1/user/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpectAll(
@@ -155,7 +153,7 @@ public class AppUserControllerTest {
         when(appUserService.changeUserData(userEmail, requestDTO)).thenThrow(new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND));
 
         // Act & Assert
-        MvcResult result = mockMvc.perform(post("/api/v1/user/profile")
+        MvcResult result = mockMvc.perform(patch("/api/v1/user/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(
@@ -187,7 +185,7 @@ public class AppUserControllerTest {
         when(appUserService.changeUserData(userEmail, requestDTO)).thenThrow(new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND));
 
         // Act & Assert
-        MvcResult result = mockMvc.perform(post("/api/v1/user/profile")
+        MvcResult result = mockMvc.perform(patch("/api/v1/user/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(
@@ -219,7 +217,7 @@ public class AppUserControllerTest {
         when(appUserService.changeUserData(userEmail, requestDTO)).thenThrow(new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND));
 
         // Act & Assert
-        MvcResult result = mockMvc.perform(post("/api/v1/user/profile")
+        MvcResult result = mockMvc.perform(patch("/api/v1/user/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(
@@ -256,7 +254,7 @@ public class AppUserControllerTest {
         when(appUserService.changeUserData(userEmail, requestDTO)).thenThrow(new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND));
 
         // Act & Assert
-        MvcResult result = mockMvc.perform(post("/api/v1/user/profile")
+        MvcResult result = mockMvc.perform(patch("/api/v1/user/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(
@@ -288,7 +286,7 @@ public class AppUserControllerTest {
         when(appUserService.changeUserData(userEmail, requestDTO)).thenThrow(new UsernameNotFoundException(AppServiceErrors.USERNAME_NOT_FOUND));
 
         // Act & Assert
-        MvcResult result = mockMvc.perform(post("/api/v1/user/profile")
+        MvcResult result = mockMvc.perform(patch("/api/v1/user/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(
