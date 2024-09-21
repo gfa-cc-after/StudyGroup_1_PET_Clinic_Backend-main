@@ -31,7 +31,7 @@ public class AppUserController {
         return new ResponseEntity<>(appUserService.deleteUser(userEmail, id), HttpStatus.OK);
     }
 
-    @PostMapping({"/profile"})
+    @PatchMapping({"/profile"})
     public ResponseEntity<EditUserResponseDTO> editUserData(Principal principal,
                                           @Valid @RequestBody EditUserRequestDTO editUserRequest) throws NameAlreadyBoundException {
         return new ResponseEntity<>(appUserService.changeUserData(principal.getName(), editUserRequest), HttpStatus.OK);
