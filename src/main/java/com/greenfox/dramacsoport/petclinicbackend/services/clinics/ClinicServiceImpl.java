@@ -56,14 +56,14 @@ public class ClinicServiceImpl implements ClinicService {
     }
 
     @Override
-    public DeleteClinicResponse deleteClinic(String name) throws DeletionException {
-        Clinic clinic = clinicRepository.findByName(name);
-        if(clinicRepository.existsByName(name)) {
+    public DeleteClinicResponse deleteClinic(Long id) throws DeletionException {
+        Clinic clinic = clinicRepository.findById(id).orElse(null);
+        if(clinic != null) {
             clinicRepository.delete(clinic);
-            logger.info("Clinic deleted with name: {}", name);
-            return new DeleteClinicResponse(name + " clinic has been successfully deleted.");
+            logger.info("Clinic deleted with id: {}", id);
+            return new DeleteClinicResponse(id + " clinic has been successfully deleted.");
         } else {
-            throw new DeletionException("Unable to delete clinic with name: " + name);
+            throw new DeletionException("Unable to delete clinic with id: " + id);
         }
     }
 

@@ -11,5 +11,5 @@ public interface ClinicService {
     ClinicListResponse getClinics(String email);
     ClinicDTO addClinic(String email, ClinicDTO clinicDTO) throws NameAlreadyBoundException;
     boolean isClinicRegistered(String name);
-    DeleteClinicResponse deleteClinic(String name) throws DeletionException;
+    DeleteClinicResponse deleteClinic(Long id) throws DeletionException;
 }

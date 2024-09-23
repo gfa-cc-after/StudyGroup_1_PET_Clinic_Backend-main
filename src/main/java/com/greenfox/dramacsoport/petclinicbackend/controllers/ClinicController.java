@@ -33,10 +33,10 @@ public class ClinicController {
         return new ResponseEntity<>(clinicService.addClinic(user.getName(), clinicDTO), HttpStatus.OK);
     }
 
-    @DeleteMapping("/clinic/{name}")
-    public ResponseEntity<?> deleteClinic(@PathVariable String name) throws DeletionException {
-        logger.info("Deleting clinic with the name: {}", name);
-        return new ResponseEntity<>(clinicService.deleteClinic(name), HttpStatus.OK);
+    @DeleteMapping("/clinic/{id}")
+    public ResponseEntity<?> deleteClinic(@PathVariable Long id) throws DeletionException {
+        logger.info("Deleting clinic with the id: {}", id);
+        return new ResponseEntity<>(clinicService.deleteClinic(id), HttpStatus.OK);
     }
 
 
