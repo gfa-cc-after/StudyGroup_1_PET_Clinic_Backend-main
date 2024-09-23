@@ -13,4 +13,5 @@ public class AppServiceErrors {
     // Database errors
     public static final String USERNAME_NOT_FOUND = "User cannot be found with this email: ";
     public static final String USERNAME_ALREADY_EXISTS = "Another user already exists by this email.";
+    public static final String CLINIC_ALREADY_EXISTS = "A clinic already exists with this name.";
 }
