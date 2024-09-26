@@ -1,5 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.user.delete.DeleteUserResponse;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.user.update.EditUserRequestDTO;
@@ -160,7 +161,8 @@ public class AppUserControllerTest {
 
         verify(appUserService, never()).changeUserData(anyString(), any(EditUserRequestDTO.class));
         HashMap<String, String> errorResponse = objectMapper.readValue(result.getResponse().getContentAsString(),
-                HashMap.class);
+                new TypeReference<>() {});
+
         assertEquals("Please enter a valid email address!", errorResponse.get("email"));
         assertEquals("Please enter your original password!", errorResponse.get("originalPassword"));
         assertNull(errorResponse.get("password"));
@@ -192,7 +194,8 @@ public class AppUserControllerTest {
 
         verify(appUserService, never()).changeUserData(anyString(), any(EditUserRequestDTO.class));
         HashMap<String, String> errorResponse = objectMapper.readValue(result.getResponse().getContentAsString(),
-                HashMap.class);
+                new TypeReference<>() {});
+
         assertEquals("Please enter a valid email address!", errorResponse.get("email"));
         assertEquals("Please enter your original password!", errorResponse.get("originalPassword"));
         assertEquals(AppServiceErrors.SHORT_PASSWORD, errorResponse.get("password"));
@@ -224,7 +227,7 @@ public class AppUserControllerTest {
 
         verify(appUserService, never()).changeUserData(anyString(), any(EditUserRequestDTO.class));
         HashMap<String, String> errorResponse = objectMapper.readValue(result.getResponse().getContentAsString(),
-                HashMap.class);
+                new TypeReference<>() {});
 
         assertThat(errorResponse.get("email"),
                 either(Matchers.equalTo("Please enter a valid email address!"))
@@ -261,7 +264,8 @@ public class AppUserControllerTest {
 
         verify(appUserService, never()).changeUserData(anyString(), any(EditUserRequestDTO.class));
         HashMap<String, String> errorResponse = objectMapper.readValue(result.getResponse().getContentAsString(),
-                HashMap.class);
+                new TypeReference<>() {});
+
         assertNull(errorResponse.get("email"));
         assertNull(errorResponse.get("originalPassword"));
         assertEquals(AppServiceErrors.SHORT_PASSWORD, errorResponse.get("password"));
@@ -293,7 +297,8 @@ public class AppUserControllerTest {
 
         verify(appUserService, never()).changeUserData(anyString(), any(EditUserRequestDTO.class));
         HashMap<String, String> errorResponse = objectMapper.readValue(result.getResponse().getContentAsString(),
-                HashMap.class);
+                new TypeReference<>() {});
+
         assertEquals(AppServiceErrors.EMAIL_FIELD_NOT_VALID, errorResponse.get("email"));
         assertNull(errorResponse.get("originalPassword"));
         assertNull(errorResponse.get("password"));
