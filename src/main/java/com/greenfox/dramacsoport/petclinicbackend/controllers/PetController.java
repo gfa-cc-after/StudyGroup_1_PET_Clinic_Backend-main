@@ -2,6 +2,7 @@ package com.greenfox.dramacsoport.petclinicbackend.controllers;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.pet.PetDTO;
 import com.greenfox.dramacsoport.petclinicbackend.services.petHandling.PetService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +27,14 @@ public class PetController {
     }
 
     @PostMapping("/pet")
-    public ResponseEntity<?> addPet(Principal user, @RequestBody PetDTO petDTO) {
+    public ResponseEntity<?> addPet(Principal user, @Valid @RequestBody PetDTO petDTO) {
         return new ResponseEntity<>(petService.addPet(user.getName(), petDTO), HttpStatus.OK);
+    }
+
+    @PatchMapping({"/pet/update"})
+    public ResponseEntity<?> editPetData(Principal user, @Valid @RequestBody PetDTO petDTO) {
+        logger.info("Updating data for pet: {}", petDTO.getPetName());
+        return new ResponseEntity<>(petService.changePetData(user.getName(), petDTO), HttpStatus.OK);
     }
 
 }
