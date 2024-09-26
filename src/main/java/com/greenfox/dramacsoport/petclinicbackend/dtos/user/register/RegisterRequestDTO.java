@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.dtos.register;
+package com.greenfox.dramacsoport.petclinicbackend.dtos.user.register;
 
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;

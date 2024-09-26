@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.dtos.login;
+package com.greenfox.dramacsoport.petclinicbackend.dtos.user.login;
 
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import jakarta.validation.constraints.Email;

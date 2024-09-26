@@ -1,4 +1,4 @@
-package com.greenfox.dramacsoport.petclinicbackend.dtos.update;
+package com.greenfox.dramacsoport.petclinicbackend.dtos.user.update;
 
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import jakarta.validation.constraints.*;
