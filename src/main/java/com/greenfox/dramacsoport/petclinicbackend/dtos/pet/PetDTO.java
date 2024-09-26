@@ -22,7 +22,6 @@ public class PetDTO {
     @NotBlank(message = "Pet Sex field is required.")
     private String petSex;
 
-    @NotBlank(message = "Pet Birthdate field is required.")
     @PastOrPresent(message = "Pet Birthdate should be a date in the past or the present day.")
     private LocalDate petBirthDate;
 
