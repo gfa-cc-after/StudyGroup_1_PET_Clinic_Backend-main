@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserResponseDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.user.update.EditUserRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.user.update.EditUserResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import jakarta.validation.Valid;

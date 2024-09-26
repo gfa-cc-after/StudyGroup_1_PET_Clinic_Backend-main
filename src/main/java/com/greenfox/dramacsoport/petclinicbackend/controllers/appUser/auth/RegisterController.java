@@ -1,6 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser.auth;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.register.RegisterRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.user.register.RegisterRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

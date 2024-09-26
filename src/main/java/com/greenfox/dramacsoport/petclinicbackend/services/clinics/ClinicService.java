@@ -2,7 +2,7 @@ package com.greenfox.dramacsoport.petclinicbackend.services.clinics;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.clinic.ClinicDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.clinic.ClinicListResponse;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteClinicResponse;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.clinic.delete.DeleteClinicResponse;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
 
 import javax.naming.NameAlreadyBoundException;

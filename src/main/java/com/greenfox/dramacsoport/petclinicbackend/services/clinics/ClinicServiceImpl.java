@@ -3,19 +3,16 @@ package com.greenfox.dramacsoport.petclinicbackend.services.clinics;
 
 import com.greenfox.dramacsoport.petclinicbackend.dtos.clinic.ClinicDTO;
 import com.greenfox.dramacsoport.petclinicbackend.dtos.clinic.ClinicListResponse;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteClinicResponse;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteUserResponse;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.clinic.delete.DeleteClinicResponse;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
 import com.greenfox.dramacsoport.petclinicbackend.models.Clinic;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.ClinicRepository;
-import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.naming.NameAlreadyBoundException;
@@ -27,8 +24,7 @@ import java.util.stream.Collectors;
 public class ClinicServiceImpl implements ClinicService {
 
     private final ClinicRepository clinicRepository;
-    private final AppUserService appUserService;
-    private ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper = new ModelMapper();
     Logger logger = LoggerFactory.getLogger(AppUserServiceImpl.class);
 
     @Override

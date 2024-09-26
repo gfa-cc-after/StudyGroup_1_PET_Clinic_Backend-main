@@ -1,8 +1,8 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.appUser;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteUserResponse;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserResponseDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.user.delete.DeleteUserResponse;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.user.update.EditUserRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.user.update.EditUserResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.DeletionException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectPasswordException;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.InvalidPasswordException;
