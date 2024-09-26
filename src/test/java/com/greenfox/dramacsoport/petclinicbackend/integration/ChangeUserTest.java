@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.user.update.EditUserRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.models.Pet;
 import com.greenfox.dramacsoport.petclinicbackend.models.Role;

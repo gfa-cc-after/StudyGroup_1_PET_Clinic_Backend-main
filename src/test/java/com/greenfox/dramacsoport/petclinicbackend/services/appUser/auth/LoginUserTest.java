@@ -1,6 +1,6 @@
 package com.greenfox.dramacsoport.petclinicbackend.services.appUser.auth;
 
-import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.user.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.IncorrectLoginCredentialsException;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;

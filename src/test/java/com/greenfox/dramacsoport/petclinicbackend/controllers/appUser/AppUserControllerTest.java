@@ -1,17 +1,15 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.delete.DeleteUserResponse;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserRequestDTO;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.update.EditUserResponseDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.user.delete.DeleteUserResponse;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.user.update.EditUserRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.user.update.EditUserResponseDTO;
 import com.greenfox.dramacsoport.petclinicbackend.errors.AppServiceErrors;
 import com.greenfox.dramacsoport.petclinicbackend.exceptions.UnauthorizedActionException;
-import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;

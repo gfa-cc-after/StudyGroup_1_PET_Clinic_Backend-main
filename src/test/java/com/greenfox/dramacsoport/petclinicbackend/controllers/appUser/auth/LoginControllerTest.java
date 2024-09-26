@@ -1,7 +1,7 @@
 package com.greenfox.dramacsoport.petclinicbackend.controllers.appUser.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.greenfox.dramacsoport.petclinicbackend.dtos.login.LoginRequestDTO;
+import com.greenfox.dramacsoport.petclinicbackend.dtos.user.login.LoginRequestDTO;
 import com.greenfox.dramacsoport.petclinicbackend.models.AppUser;
 import com.greenfox.dramacsoport.petclinicbackend.repositories.AppUserRepository;
 import com.greenfox.dramacsoport.petclinicbackend.services.appUser.AppUserService;
